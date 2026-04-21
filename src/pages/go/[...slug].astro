@@ -4,10 +4,10 @@ import type { GetStaticPaths } from "astro";
 
 export const getStaticPaths = (async () => {
 	const links = await getCollection("links");
-	return links.map(link => ({
-		params: { slug: link.id },
+	return links.flatMap(link => [link.id, ...(link.data.aliases ?? [])].map(alias => ({
+		params: { slug: alias },
 		props: link,
-	}));
+	})));
 }) satisfies GetStaticPaths;
 
 type Props = CollectionEntry<"links">;

@@ -3,6 +3,7 @@
 	"description": "You can browse my old posts from 2020-2021 here if you dare. For new stuff you'll have to look elsewhere.",
 	"url": "https://x.com/f78doesthings",
 	"icon": "simple-icons:x",
+	"order": 110,
 	"tags": [
 		"archived"
 	],
