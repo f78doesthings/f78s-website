@@ -38,7 +38,8 @@ been supported by the major browsers for at least 2.5 years), so that shouldn't 
 ## Licence
 
 The content of the website (i.e. the written text and any images I made) is available under
-the [Creative Commons Attribution-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/).
+the [Creative Commons Attribution-ShareAlike (CC-BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/) -
+see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
 
 The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead falls under
 the [ISC licence](./LICENSE).
