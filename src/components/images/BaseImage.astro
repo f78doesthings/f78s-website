@@ -1,16 +1,25 @@
 ---
 import type { Props as PictureProps } from "astro/components/Picture.astro";
+import { Picture as LqipPicture, type LqipType } from "astro-lqip/components";
+import { Picture } from "astro:assets";
 
-// Also import Props to forward the properties of Picture to this component
-import { Picture, type Props as LqipProps } from "astro-lqip/components";
+export type Props = PictureProps & {
+	/** Enables LQIP if present and not false. Can also be a string value for the LQIP type. */
+	lqip?: boolean | LqipType;
 
-type Props = PictureProps & LqipProps;
+	/** The LQIP size in pixels (4..64). Defaults to 4. */
+	lqipSize?: number;
+};
 
-// The conversion to any is done to hide an annoying false positive error
-const props: any = Astro.props;
+const { lqip, lqipSize, ...props } = Astro.props;
+props.formats ??= ["avif", "webp"];
+props.fallbackFormat ??= "jpg";
+props.densities ??= [1, 2];
+
+// TODO: a custom LQIP solution would be more ideal, but maybe later
 ---
 
-<Picture formats={["avif", "webp"]} fallbackFormat="jpg" densities={[1, 2]} {...props} />
+{lqip ? <LqipPicture lqip={lqip === true ? undefined : lqip} lqipSize={lqipSize} {...props} /> : <Picture {...props} />}
 
 <style lang="scss">
 	picture, img {

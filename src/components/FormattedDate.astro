@@ -1,3 +1,39 @@
 ---
-$END$
+import { SITE_LANGUAGE } from "../consts.ts";
+import { Icon } from "astro-icon/components";
+interface Props {
+	date: Date;
+	icon?: string;
+	format?: Intl.DateTimeFormatOptions;
+}
+
+const {
+	date,
+	icon = "fluent:calendar-empty-20-regular",
+	format = { dateStyle: "medium" },
+	...cid
+} = Astro.props;
 ---
+
+<span class="formatted-date" {...cid}>
+	<Icon name={icon} size={20} class="icon" />
+	<span>
+		<slot name="before" />
+		<time datetime={date.toISOString()}>
+			{date.toLocaleDateString(SITE_LANGUAGE, format)}
+		</time>
+		<slot name="after" />
+	</span>
+</span>
+
+<style lang="scss">
+	.formatted-date {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+
+		.icon {
+			flex-shrink: 0;
+		}
+	}
+</style>

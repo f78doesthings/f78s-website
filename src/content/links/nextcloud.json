@@ -1,14 +1,14 @@
 {
 	"title": "f78's Download Corner (Nextcloud)",
-	"description": "Here you can download some stuff I've made, such as my music. Provided by tab.digital, a trusted Nextcloud partner.",
+	"description": "Here you can download some stuff I've made, such as my music. This is hosted on tab.digital, a trusted Nextcloud partner.",
 	"url": "https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX",
 	"icon": "simple-icons:nextcloud",
 	"tags": [
 		"new"
 	],
-	"order": -50,
+	"order": -90,
 	"aliases": [
-		"nextcloud",
+		"cloud",
 		"files",
 		"storage"
 	]

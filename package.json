@@ -2,13 +2,14 @@
 	"name": "f78s-website",
 	"type": "module",
 	"version": "0.0.1",
+	"license": "ISC",
 	"engines": {
 		"node": ">=22.12.0"
 	},
 	"scripts": {
 		"dev": "astro dev --host",
 		"build": "astro build",
-		"preview": "astro build && wrangler dev",
+		"preview": "astro build && wrangler dev --ip 0.0.0.0 --port 4321",
 		"deploy": "astro build && wrangler deploy",
 		"astro": "astro"
 	},
@@ -17,18 +18,22 @@
 		"@astrojs/preact": "^5.1.1",
 		"@astrojs/rss": "^4.0.18",
 		"@astrojs/sitemap": "^3.7.2",
-		"@iconify-json/ph": "^1.2.2",
-		"astro": "^6.1.7",
+		"astro": "^6.1.8",
 		"astro-icon": "^1.1.5",
 		"astro-lqip": "^1.8.1",
+		"mdast-util-to-string": "^4.0.0",
 		"modern-normalize": "^3.0.1",
 		"preact": "^10.29.1",
+		"reading-time": "^1.5.0",
 		"sass": "^1.99.0"
 	},
 	"devDependencies": {
+		"@iconify-json/cib": "^1.2.3",
 		"@iconify-json/circle-flags": "^1.2.10",
 		"@iconify-json/fluent": "^1.2.45",
-		"@iconify-json/simple-icons": "^1.2.78",
-		"wrangler": "^4.83.0"
+		"@iconify-json/noto": "^1.2.7",
+		"@iconify-json/ph": "^1.2.2",
+		"@iconify-json/simple-icons": "^1.2.79",
+		"wrangler": "^4.84.0"
 	}
 }

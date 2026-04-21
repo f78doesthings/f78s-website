@@ -1,3 +1,167 @@
 ---
-$END$
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { BLOG_TITLE } from "../../consts.ts";
+import Link from "../../components/nav/Link.astro";
+import Badge from "../../components/Badge.astro";
+import { type CollectionEntry, getCollection } from "astro:content";
+import BaseImage from "../../components/images/BaseImage.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
+import fallbackImage from "../../assets/blog-fallback.jpg";
+
+type PostData = CollectionEntry<"blog">["data"] & {
+	id?: string;
+}
+
+const DAY_TIME = 1000 * 60 * 60 * 24;
+
+const collection = await getCollection("blog", post => import.meta.env.DEV || !post.data.draft);
+const posts: PostData[] = collection.map(post => ({ id: post.id, ...post.data }));
+posts.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
+
+if (import.meta.env.DEV) {
+	let timestamp = Date.now();
+	for (let i = 1; i <= 5; i++) {
+		timestamp -= DAY_TIME * i;
+		posts.push({
+			title: `Placeholder ${i}`,
+			description: "This is merely here to test out the blog post overview page.",
+			pubDate: new Date(timestamp),
+			draft: true,
+			heroImage: fallbackImage,
+			heroAlt: "",
+		});
+	}
+}
 ---
+
+<BaseLayout isBlog>
+	<h1>
+		{BLOG_TITLE}
+		<Badge type="beta" />
+	</h1>
+	<p>
+		Welcome to my blog! Right now it's quite barren, but I'm hoping to change that soon by posting
+		announcements for new content and such here.
+	</p>
+	<p>
+		<Link href="/rss.xml" icon="fluent:rss-20-regular" external>
+			Subscribe with your RSS reader of choice
+		</Link>
+	</p>
+
+	{posts.length > 0 &&
+		<section class="posts">
+			{
+				posts.map((post, index) => {
+					const width = index === 0 ? 640 : 320;
+					const height = index === 0 ? 360 : 180;
+					return (
+						<article>
+							<a href={post.id && `/blog/${post.id}`} tabindex="0">
+								{post.heroImage && (
+									<BaseImage src={post.heroImage} alt={post.heroAlt} width={width} height={height} lqip
+									           loading={index === 0 ? "eager" : "lazy"} />
+								)}
+								<div>
+									<h3 class="title">{post.title}</h3>
+									<p class="info">
+										<FormattedDate date={post.pubDate} />
+									</p>
+									<p class="description">{post.description}</p>
+								</div>
+							</a>
+						</article>
+					);
+				})
+			}
+		</section>
+	}
+</BaseLayout>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	h1 {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.posts {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: $page-margin;
+		padding-bottom: $page-margin;
+	}
+
+	article {
+		display: flex;
+		justify-content: center;
+		width: calc(size(320) - $page-margin / 2);
+
+		&:first-child {
+			width: 100%;
+
+			.title {
+				font-size: size(27);
+				font-weight: heading-weight(2);
+			}
+		}
+
+		&:not(:first-child) {
+			max-width: calc(100% - $page-margin * 2);
+
+			.description {
+				font-size: size(14);
+			}
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+			transition: transform $anim-back;
+
+			@include hover {
+				transform: scale(101.8%);
+			}
+
+			@include active {
+				transform: scale(99.2%);
+			}
+
+			> div {
+				display: flex;
+				flex-direction: column;
+			}
+
+			img {
+				width: 100%;
+				height: auto;
+			}
+
+			.title {
+				margin: size(12) 0 size(8) 0;
+			}
+
+			.info {
+				margin: 0;
+				color: var(--color-dim);
+			}
+
+			.description {
+				color: var(--color-dimmer);
+				margin: size(2) 0 0 0;
+			}
+
+			time {
+				min-height: $badge-height;
+
+				.new-badge {
+					margin-left: size(4);
+				}
+			}
+		}
+	}
+</style>

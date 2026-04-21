@@ -1,4 +1,8 @@
-import type { MapLike, NotUndefined, Preference } from "./types/Preference.ts";
+import type { Preference, PreferenceCategory } from "./types/Preference.ts";
+
+export type NotUndefined = {} | null;
+export type MapLike<K, V> = Map<K, V> | MapEntries<K, V>;
+export type MapEntries<K, V> = (readonly [K, V])[];
 
 /** Extracts the IDs from a tuple of preferences. */
 export type PreferenceKeys<T extends Preference[]>
@@ -15,7 +19,7 @@ export type PreferenceValues<T extends Preference[]> = {
 
 /** Defines a record type for a tuple of preferences. */
 type PreferencesRecord<T extends Preference[]> = Iterable<T[number]> & {
-	[K in PreferenceKeys<T>]: PreferenceType<T, K>;
+	readonly [K in PreferenceKeys<T>]: PreferenceType<T, K>;
 };
 
 /** Creates an object from a list of preferences that can be iterated over. */
@@ -37,20 +41,29 @@ export function createPreferences<T extends Preference[]>(...preferences: T): Pr
 }
 
 /**
- * Modifies the given preferences to be in the given (sub)category, and optionally have the given dependencies as well.
+ * Modifies the given preferences to be in the given (sub)category.
  *
  * @returns The preferences that were passed.
  */
-export function groupPreferences<T extends Preference[]>(
-	category: string, dependencies: MapLike<Preference, NotUndefined>, ...preferences: T
-): T {
+export function groupPreferences<T extends Preference[]>(category: PreferenceCategory, ...preferences: T): T {
 	for (const preference of preferences) {
-		preference.category.push(category);
+		preference.category.unshift(category);
+		preference.currentCategory = category;
+	}
+	return preferences;
+}
 
-		for (const [dependency, requiredValue] of dependencies) {
-			preference.dependencies.set(dependency, requiredValue);
+export function getDependencyString(dependencies?: MapLike<Preference, NotUndefined[]>) {
+	return dependencies && JSON.stringify(
+		[...dependencies].map(([preference, allowedValues]) => [preference.id, allowedValues]),
+	);
+}
+
+export function dependenciesMet(dependencies: MapLike<Preference, NotUndefined[]>) {
+	for (const [preference, allowedValues] of dependencies) {
+		if (!preference.isAvailable() || !allowedValues.some(value => preference.equals(value))) {
+			return false;
 		}
 	}
-
-	return preferences;
+	return true;
 }

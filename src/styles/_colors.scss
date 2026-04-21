@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // From https://tailwindcss.com/docs/colors
 $red-50: oklch(97.1% 0.013 17.38);
 $red-100: oklch(93.6% 0.032 17.717);
@@ -310,3 +312,14 @@ $taupe-700: oklch(36.7% 0.016 35.7);
 $taupe-800: oklch(26.8% 0.011 36.5);
 $taupe-900: oklch(21.4% 0.009 43.1);
 $taupe-950: oklch(14.7% 0.004 49.3);
+
+// Additional stops for fine adjustments - TODO: maybe autogenerate these?
+$red-150: color.mix($red-100, $red-200, 50%, oklch);
+$red-250: color.mix($red-200, $red-300, 50%, oklch);
+$red-350: color.mix($red-300, $red-400, 50%, oklch);
+$red-450: color.mix($red-400, $red-500, 50%, oklch);
+$red-550: color.mix($red-500, $red-600, 50%, oklch);
+$red-650: color.mix($red-600, $red-700, 50%, oklch);
+$red-750: color.mix($red-700, $red-800, 50%, oklch);
+$red-850: color.mix($red-800, $red-900, 50%, oklch);
+$red-925: color.mix($red-900, $red-950, 50%, oklch);

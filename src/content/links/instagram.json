@@ -1,0 +1,18 @@
+{
+	"title": "Instagram",
+	"description": "Here you can admire some photos I've taken a while ago. Maybe I'll take more of them in the future, who knows.",
+	"url": "https://instagram.com/f78.be",
+	"icon": "simple-icons:instagram",
+	"tags": [
+		"inactive"
+	],
+	"aliases": [
+		"insta",
+		"photo",
+		"photos",
+		"pic",
+		"pics",
+		"picture",
+		"pictures"
+	]
+}

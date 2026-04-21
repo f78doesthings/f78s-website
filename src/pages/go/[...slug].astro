@@ -1,3 +1,16 @@
 ---
-$END$
+import { type CollectionEntry, getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () => {
+	const links = await getCollection("links");
+	return links.map(link => ({
+		params: { slug: link.id },
+		props: link,
+	}));
+}) satisfies GetStaticPaths;
+
+type Props = CollectionEntry<"links">;
+
+return Astro.redirect(Astro.props.data.url);
 ---

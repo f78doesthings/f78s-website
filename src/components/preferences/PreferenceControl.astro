@@ -1,30 +1,36 @@
 ---
-import { EnumPreference } from "../scripts/preferences/types/EnumPreference.tsx";
+import { EnumPreference } from "../../scripts/preferences/types/EnumPreference.tsx";
 import { Icon } from "astro-icon/components";
-import { InnerPreferenceControl } from "./InnerPreferenceControl";
-import { type PreferenceID, preferences } from "../scripts/preferences";
+import { InnerPreferenceControl } from "./InnerPreferenceControl.tsx";
+import { type PreferenceID, preferences } from "../../scripts/preferences";
+import { NumberPreference } from "../../scripts/preferences/types/NumberPreference.tsx";
+import { getDependencyString } from "../../scripts/preferences/utils.ts";
+import { TogglePreference } from "../../scripts/preferences/types/TogglePreference.tsx";
 
 interface Props {
 	/** The preference to create a control for. */
 	preference: PreferenceID;
 
-	iconSize?: number;
+	/** Shows the preference's title. */
+	showTitle?: boolean | string;
 
-	/** Whether to show the preference's title. */
-	showTitle?: boolean;
-
-	/** Whether to show the preference's description. */
+	/** Shows the preference's description. */
 	showDescription?: boolean;
 
-	/** Whether to show the preference's icon. */
+	/** Shows the preference's icon. */
 	showIcon?: boolean;
+
+	/** Disables the mobile layout. */
+	noMobile?: boolean;
 }
 
 const {
 	preference: id,
-	showTitle = false,
+	showTitle,
 	showDescription = false,
 	showIcon = false,
+	noMobile,
+	...cid
 } = Astro.props;
 
 const preference = preferences[id];
@@ -36,34 +42,125 @@ if (preference instanceof EnumPreference) {
 		}
 	}
 }
+
+// Dynamically define the grid template
+const hasIcon = showIcon && preference.icon !== undefined;
+const hasTitle = !!showTitle;
+const hasDescription = showDescription && preference.description !== undefined;
+const hasBefore = icons.length > 0 || (preference instanceof NumberPreference && preference.useSlider);
+const hasAfter = false;
+
+const areaIcon = hasIcon && "icon";
+const areaTitle = hasTitle && "title";
+const areaBefore = hasBefore && "before-input";
+const areaAfter = hasAfter && "after-input";
+
+const gridAreas = [
+	[areaIcon, areaTitle, areaBefore, "input", areaAfter],
+	hasDescription && [areaIcon, "description", areaBefore, "input", areaAfter],
+];
+const gridColumns = [
+	hasIcon && "auto", (hasTitle || hasDescription) && "1fr", hasBefore && "auto", "auto", hasAfter && "auto",
+];
+
+const mobileGridAreas = [
+	hasTitle && [areaIcon, hasBefore && areaTitle, areaTitle, hasAfter && areaTitle],
+	hasDescription && [areaIcon, hasBefore && "description", "description", hasAfter && "description"],
+	[areaIcon, areaBefore, "input", areaAfter],
+];
+const mobileGridColumns = [hasIcon && "auto", hasBefore && "auto", "1fr", hasAfter && "auto"];
+
+function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
+	let template = "";
+	for (const row of areas) {
+		if (!row) {
+			continue;
+		}
+
+		template += "'";
+		for (const area of row) {
+			if (area) {
+				template += area + " ";
+			}
+		}
+		template += "' ";
+	}
+
+	template += "/";
+	for (const column of columns) {
+		if (column) {
+			template += " " + column;
+		}
+	}
+	return template;
+}
+
+const dependencyVars = getDependencyString(preference.dependencies);
 ---
 
-<label aria-label={preference.title} data-preference-control={id} class:list={{
-	"has-select-icons": icons.length > 0,
-	"has-icon": showIcon && preference.icon,
-	"has-title": showTitle,
-	"has-description": showDescription && preference.description,
-}}>
-	{showIcon && preference.icon && <Icon name={preference.icon} size={30} />}
-	{showTitle && <span class="title">{preference.title}</span>}
-	{showDescription && preference.description && <span class="description">{preference.description}</span>}
+<label {...cid} hidden={dependencyVars !== undefined} aria-label={preference.title}
+       data-preference-control={id} data-preference-dependencies={dependencyVars}
+       style={{
+				 "--grid": gridTemplate(gridAreas, gridColumns),
+				 "--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
+			 }}
+       class:list={{
+				 "mobile-rearrange": !(noMobile ?? preference instanceof TogglePreference),
+				 "mobile-margin": !noMobile,
+			 }}>
+	{hasIcon && <Icon name={preference.icon} class="icon" size={30} {...cid} />}
+	{hasTitle && <span class="title">{typeof showTitle === "string" ? showTitle : preference.title}</span>}
+	{hasDescription && <span class="description">{preference.description}</span>}
 
 	<InnerPreferenceControl preference={id} client:load>
 		{icons.map(([icon, option]) => (
-			<Icon name={icon} data-option-icon={option} size={20} />
+			<Icon name={icon} data-option-icon={option} class="before-input" size={20} />
 		))}
 	</InnerPreferenceControl>
 </label>
 
+<script>
+	import { preferences, type PreferenceID } from "../../scripts/preferences";
+	import { dependenciesMet, type MapEntries, type NotUndefined } from "../../scripts/preferences/utils.ts";
+
+	document.addEventListener("custom:preferences-updated", () => {
+		const dependents = document.querySelectorAll<HTMLElement>("[data-preference-dependencies]");
+		for (const dependent of dependents) {
+			const jsonDependencies = dependent.dataset.preferenceDependencies;
+			if (!jsonDependencies) {
+				continue;
+			}
+
+			const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
+			const resolved = dependencies.map(([id, expectedValues]) => [preferences[id], expectedValues] as const);
+			dependent.hidden = !dependenciesMet(resolved);
+		}
+	});
+</script>
+
 <style lang="scss">
+	@use "../../styles/utils" as *;
+	@use "sass:math";
+
 	label {
+		$line-extension: size(12);
+
 		display: grid;
-		grid:
-			"icon title       select-icon input"
-			"icon description select-icon input"
-			/ auto 1fr auto auto;
-		margin-bottom: 1rem;
-		gap: 0.25rem 1rem;
+		grid: var(--grid);
+		align-items: center;
+		gap: size(6) size(14);
+		padding: size(12) $line-extension;
+		cursor: pointer;
+
+		@media (max-width: $breakpoint-tablet) {
+			&.mobile-rearrange {
+				grid: var(--grid-mobile);
+			}
+
+			&.mobile-margin {
+				margin: 0 (-$line-extension);
+			}
+		}
 
 		&[hidden] {
 			display: none;
@@ -76,28 +173,64 @@ if (preference instanceof EnumPreference) {
 		.title {
 			grid-area: title;
 			font-family: var(--font-heading), sans-serif;
-			font-size: 1.0625rem;
+			font-size: size(17);
 		}
 
 		.description {
 			grid-area: description;
 			color: var(--color-dim);
-			font-size: 0.9rem;
+			font-size: size(14);
+
+			margin-bottom: size(4);
+			@media (min-width: $breakpoint-tablet) {
+				margin-bottom: 0;
+			}
 		}
 
-		[data-option-icon] {
-			grid-area: select-icon;
+		.before-input {
+			grid-area: before-input;
+			margin-right: -0.75rem;
 
 			&.hidden {
 				display: none;
 			}
 		}
 
-		> :last-child {
-			grid-area: input;
+		.after-input {
+			grid-area: after-input;
+		}
 
-			&:not(input[type="checkbox"]) {
-				width: 100%;
+		.number-display {
+			font-family: var(--font-mono), monospace;
+			margin-right: -0.375rem;
+			font-size: size(14);
+
+			width: size(48);
+			text-align: right;
+		}
+
+		input, select, textarea {
+			grid-area: input;
+		}
+
+		input[type="checkbox"], select {
+			cursor: pointer;
+		}
+
+		select {
+			background-color: transparent;
+			border: none;
+		}
+
+		&:has(+ label:not([hidden])) {
+			border-bottom: 1px solid var(--color-border);
+		}
+
+		// Fallback for older browsers, since :has is not quite Baseline Widely available yet.
+		// This can produce an incorrect border when it's followed by a hidden preference, but it doesn't really matter.
+		@supports not selector(:has(+ label:not([hidden]))) {
+			&:not(:last-child) {
+				border-bottom: 1px solid var(--color-border);
 			}
 		}
 	}

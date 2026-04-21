@@ -1,27 +1,38 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Badge from "../components/Badge.astro";
+import PreferencesDisplay from "../components/preferences/PreferencesDisplay.astro";
+import { PreferencesButtons } from "../components/preferences/PreferencesButtons";
+
+// TODO: implement this on the client
+const redirectTo = Astro.url.searchParams.get("from");
 ---
 
 <BaseLayout>
-	<h1>Preferences</h1>
-	<label id="pref-theme">
-		Theme
-		<select>
-			<option value="auto">System</option>
-			<option value="dark">Dark</option>
-			<option value="light">Light</option>
-		</select>
-	</label>
+	<h1>
+		Preferences
+		<Badge type="beta" />
+	</h1>
+	<p>
+		Lots of settings for you to tweak this website to your liking.
+		These are very much a work-in-progress, so expect issues to arise.
+	</p>
+	<PreferencesButtons client:load />
+	<PreferencesDisplay />
+	<PreferencesButtons client:load />
 </BaseLayout>
 
 <style lang="scss">
+	@use "../styles/utils" as *;
+
+	:global(main) {
+		padding-bottom: $page-margin;
+	}
+
 	h1 {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.75rem;
+		gap: size(12);
 	}
 </style>
-
-<script>
-
-</script>

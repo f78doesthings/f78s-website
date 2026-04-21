@@ -1,0 +1,53 @@
+---
+title: "Test"
+description: "This is an example post to test out the blog and its styling."
+pubDate: 2026-04-19
+draft: true
+heroImage: ../../assets/blog-placeholder.jpg
+heroAlt: The Astro mascot
+---
+
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+But realistically, *who* in their right mind would be willing to use a **heading** that <small>small</small>?
+
+Anyway, here's some `code`:
+
+```astro
+---
+// Quite meta, to be honest.
+
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	icon?: string;
+}
+
+const { icon } = Astro.props;
+---
+
+<span>
+	{icon && <Icon name={icon} class="icon" />}
+	<slot />
+</span>
+
+<style>
+	span {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25em;
+	}
+
+	.icon {
+		font-size: 1.25rem;
+	}
+</style>
+
+<script>
+	console.log("Hello, Astro!");
+</script>
+```

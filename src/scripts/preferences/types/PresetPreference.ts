@@ -1,6 +1,6 @@
 import { Preference } from "./Preference.ts";
-import type { PreferenceKeys, PreferenceValues } from "../utils.ts";
-import { EnumPreference, type EnumPreferenceConfig, type EnumPreferenceValue } from "./EnumPreference.ts";
+import { type PreferenceKeys, type PreferenceValues } from "../utils.ts";
+import { EnumPreference, type EnumPreferenceConfig, type EnumPreferenceValue } from "./EnumPreference.tsx";
 
 interface PresetValue<T extends Preference[]> extends EnumPreferenceValue {
 	/**
@@ -26,22 +26,30 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 	readonly preferences: P;
 
 	constructor(id: K, config: PresetPreferenceConfig<T, P>) {
-		let fallbackValue: T | undefined;
+		let customValue: T | undefined;
 		for (const presetName in config.options) {
 			if (config.options[presetName].settings === undefined) {
-				fallbackValue = presetName;
-				break;
+				if (customValue !== undefined) {
+					console.warn(`Preset preference ${id} has more than 1 custom value, using ${customValue}:`, presetName);
+				} else {
+					customValue = presetName;
+				}
 			}
 		}
 
-		super(id, config, fallbackValue);
+		if (!customValue) {
+			console.warn(`Preset preference ${id} has no custom value`);
+		}
+
+		super(id, config, customValue);
 		this.preferences = config.preferences;
+		this._customValue = customValue;
 	}
 
 	/** Creates a new preset setting for the given preferences and returns all of them. */
-	static create<K extends string, P extends Preference[], T extends string>
-	(id: K, config: EnumPreferenceConfig<T, PresetValue<P>>, ...preferences: P) {
-
+	static create<K extends string, const T extends string, P extends Preference[]>(
+		id: K, config: EnumPreferenceConfig<T, PresetValue<P>>, ...preferences: P
+	) {
 		return [new PresetPreference(id, { ...config, preferences }), ...preferences] as const;
 	}
 
@@ -56,7 +64,7 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 			for (const preference of this.preferences) {
 				if (
 					preference.id in preset.settings &&
-					preference.get() !== preset.settings[preference.id as PreferenceKeys<P>]
+					!preference.equals(preset.settings[preference.id as PreferenceKeys<P>])
 				) {
 					matches = false;
 					break;
@@ -68,7 +76,7 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 			}
 		}
 
-		return this._fallbackValue;
+		return this.fallbackValue;
 	}
 
 	override set(value: unknown) {

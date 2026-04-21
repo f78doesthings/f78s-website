@@ -1,7 +1,112 @@
-@forward "colors";
+@use "sass:list";
+@use "sass:math";
+@use "sass:map";
+@use "sass:meta";
+
+// This needs to come first so it can be used in the variables below
+
+/// Converts pixel sizes to `rem` values, assuming `1rem` is `16px`.
+///
+/// @param {number} $px
+/// 	The number of pixels.
+@function size($px) {
+	@return #{math.div($px, 16)}rem;
+}
+
+@function heading-weight($level) {
+	@return 820 - $level * 60;
+}
+
+$badge-height: size(26);
+$page-width: size(1024);
+$page-margin: size(22);
+
+$breakpoint-tablet: size(768);
+
+$anim-ease: 175ms ease;
+$anim-back: 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
 $radius-full: calc(infinity * 1px);
-$badge-height: 1.625rem;
+
+/// @deprecated
+$ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+/// @deprecated Use preferences("dark") instead
+@mixin dark($root: false) {
+	@warn 'The dark() mixin is deprecated, use preferences("dark") instead.';
+	@if ($root) {
+		&:not(.light-theme) {
+			@content;
+		}
+	} @else {
+		:root:not(.light-theme) & {
+			@content;
+		}
+	}
+}
+
+/// @deprecated Use preferences("light") instead
+@mixin light($root: false) {
+	@warn 'The light() mixin is deprecated, use preferences("light") instead.';
+	@if ($root) {
+		&.light-theme {
+			@content;
+		}
+	} @else {
+		:root.light-theme & {
+			@content;
+		}
+	}
+}
+
+@function _preference($name) {
+	@return "[data-preferences~='#{$name}']";
+}
+
+/// Includes styles only when certain preferences are enabled, or under certain conditions.
+///
+/// **Do not nest these**. Instead, include this again at the same level, but with multiple preferences.
+///
+/// @param {string} $preferences
+/// 	The preferences that need to be enabled to include these styles.
+@mixin preferences($preferences...) {
+	$keywords: meta.keywords($preferences);
+	$is-root: map.get($keywords, "is-root");
+
+	$selector: ":root";
+
+	@if ($is-root) {
+		$selector: "&";
+	}
+
+	@each $preference in $preferences {
+		@if ($preference == "dark") {
+			$selector: $selector + ":not(.light-theme)";
+		} @else if ($preference == "light") {
+			$selector: $selector + ".light-theme";
+		} @else if ($preference == "bg") {
+			$selector: $selector + ".bg-supported#{_preference("bgEnabled")}";
+		} @else if ($preference == "no-bg") {
+			$selector: $selector + ":not(.bg-supported#{_preference("bgEnabled")})";
+		} @else if ($preference == "fx") {
+			$selector: $selector + _preference("immersiveFX");
+		} @else if ($preference == "no-fx") {
+			$selector: $selector + ":not(#{_preference("immersiveFX")})";
+		} @else if ($preference == "loaded") {
+			$selector: $selector + ".loaded";
+		} @else {
+			$selector: $selector + _preference($preference);
+		}
+	}
+
+	@if (not $is-root) {
+		$selector: $selector + " &";
+	}
+
+	#{$selector} {
+		@content;
+	}
+}
 
 @mixin hover {
 	&:focus-visible {
@@ -29,37 +134,73 @@ $badge-height: 1.625rem;
 	}
 }
 
-@mixin btn-transparent {
-	position: relative;
+@mixin glass($preferences...) {
+	@include preferences($preferences...) {
+		box-shadow: 0 0 size(16) hsl(0 0% 0% / 50%);
+	}
+
+	@include preferences("light", $preferences...) {
+		box-shadow: 0 0 size(16) hsl(0 0% 0% / 12%);
+	}
+
+	@include preferences("fx", $preferences...) {
+		backdrop-filter: blur(size(8));
+	}
+}
+
+@mixin btn-transparent($dark-only: false) {
+	:where(&) {
+		cursor: pointer;
+		position: relative;
+		transition: background-color $anim-ease;
+	}
 
 	&::after {
-		content: "";
+		@include preferences("fx") {
+			content: "";
+		}
+
 		position: absolute;
 		inset: 0;
 		border-radius: inherit;
 
 		opacity: 0;
+		transition: opacity $anim-ease;
+		pointer-events: none; // Prevents the hover effect from breaking other hover functions, such as the title attribute.
+
 		background: radial-gradient(
 			hsl(0 0% 100% / 11%),
 			hsl(0 0% 100% / 8%)
 		);
-		transition: opacity 0.2s ease;
-		pointer-events: none; // Prevents the hover effect from breaking other hover functions, such as the title attribute.
 
-		@media (prefers-color-scheme: light) {
-			background: radial-gradient(
-				hsl(0 0% 0% / 13%),
-				hsl(0 0% 0% / 9.5%)
-			);
+		@if (not $dark-only) {
+			@include preferences("light") {
+				background: radial-gradient(
+					hsl(0 0% 0% / 13.5%),
+					hsl(0 0% 0% / 10%)
+				);
+			}
 		}
 	}
 
 	@include hover {
 		&::after {
 			opacity: 1;
+		}
 
-			@media (prefers-color-scheme: light) {
-				opacity: 0.65;
+		@include preferences("no-fx") {
+			background-color: hsl(0 0% 100% / 9.5%);
+		}
+
+		@if (not $dark-only) {
+			@include preferences("no-fx", "light") {
+				background-color: hsl(0 0% 0% / 8%);
+			}
+
+			@include preferences("light") {
+				&::after {
+					opacity: 0.65;
+				}
 			}
 		}
 	}
@@ -67,9 +208,21 @@ $badge-height: 1.625rem;
 	@include active {
 		&::after {
 			opacity: 0.6;
+		}
 
-			@media (prefers-color-scheme: light) {
-				opacity: 1;
+		@include preferences("no-fx") {
+			background-color: hsl(0 0% 100% / 6%);
+		}
+
+		@if (not $dark-only) {
+			@include preferences("no-fx light") {
+				background-color: hsl(0 0% 0% / 12%);
+			}
+
+			@include preferences("light") {
+				&::after {
+					opacity: 1;
+				}
 			}
 		}
 	}

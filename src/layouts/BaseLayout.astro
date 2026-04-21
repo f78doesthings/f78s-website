@@ -2,78 +2,116 @@
 import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
 import "../styles/general.scss";
-import { BLOG_TITLE, SITE_TITLE } from "../consts.ts";
+import { BLOG_TITLE, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.ts";
+import Header from "../components/nav/Header.astro";
+import { ClientRouter } from "astro:transitions";
+import { Icon } from "astro-icon/components";
+import FormattedDate from "../components/FormattedDate.astro";
+import Link from "../components/nav/Link.astro";
 
 interface Props {
-	title: string;
-	description: string;
+	/** The title of the page. */
+	title?: string;
+
+	/** A description of the page. */
+	description?: string;
+
+	/**
+	 * Whether this page is part of the blog.
+	 *
+	 * This currently only changes the site title displayed in the `<title>` tag to the name of the blog.
+	 */
 	isBlog?: boolean;
-	updatedDate?: Date;
+
+	/** When this page was last updated. */
+	lastModified?: Date;
 }
 
-const { title, description, isBlog = false, updatedDate } = Astro.props;
+const { title, description, isBlog = false, lastModified } = Astro.props;
+const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 ---
 
 <!doctype html>
-<html lang="en-GB-oxendict">
+<html lang={SITE_LANGUAGE}>
 <head>
-	<meta charset="UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-	<link rel="icon" href="/favicon.ico"/>
-	<link rel="sitemap" href="/sitemap-index.xml"/>
-	<link rel="alternate" type="application/rss+xml" title={BLOG_TITLE} href={new URL("rss.xml", Astro.site)}/>
-	<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}/>
-	<meta name="generator" content={Astro.generator}/>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<link rel="icon" href="/favicon.ico" />
+	<link rel="sitemap" href="/sitemap-index.xml" />
+	<link rel="alternate" type="application/rss+xml" title={BLOG_TITLE} href={new URL("rss.xml", Astro.site)} />
+	<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
 
 	<!-- Meta -->
-	<title>{title} &middot; {isBlog ? BLOG_TITLE : SITE_TITLE}</title>
-	<meta name="title" content={title}/>
-	<meta name="description" content={description}/>
+	<title>{(title ? `${title} · ` : "") + siteTitle}</title>
+	<meta name="title" content={title ?? siteTitle} />
+	<meta name="description" content={description} />
+	<meta name="author" content={SITE_AUTHOR} />
+	<meta name="generator" content={Astro.generator} />
 
-	<meta property="og:type" content="website"/>
-	<meta property="og:url" content={Astro.url}/>
-	<meta property="og:title" content={title}/>
-	<meta property="og:description" content={description}/>
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={Astro.url} />
+	<meta property="og:title" content={title} />
+	<meta property="og:description" content={description} />
 
-	<Font cssVariable="--font-body" preload/>
-	<Font cssVariable="--font-heading" preload/>
+	{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
+	<Font cssVariable="--font-body" preload />
+	<Font cssVariable="--font-heading" preload />
+	<Font cssVariable="--font-mono" />
+	<ClientRouter />
 
-	<slot name="head"/>
+	<slot name="head" />
 </head>
 <body>
 
+<Header />
+
 <main>
-	<slot/>
+	<slot />
 </main>
 
 <footer>
-
+	{lastModified && (
+		<FormattedDate date={lastModified} icon="fluent:calendar-clock-20-regular">
+			<Fragment slot="before">Last updated:</Fragment>
+		</FormattedDate>
+	)}
+	<slot name="footer" />
+	<p>
+		The content of this website is available under the
+		<Link href="https://creativecommons.org/licenses/by-sa/4.0/" external
+		      icon={["cib:creative-commons", "cib:creative-commons-by", "cib:creative-commons-sa"]}>CC-BY-SA 4.0</Link>
+		licence.
+	</p>
 </footer>
 
+<canvas class="immersive-background" transition:persist></canvas>
+<div class="debug-display" transition:persist></div>
 </body>
 </html>
 
-<style lang="scss">
-	@use "../styles/utils" as *;
+<script>
+	import { loadPreferences, preferences } from "../scripts/preferences";
+	import { TogglePreference } from "../scripts/preferences/types/TogglePreference.tsx";
 
-	:root {
-		--color-background: white;
-		--color-text: #{$gray-100};
-
-		@media (prefers-color-scheme: dark) {
-			--color-background: #{$gray-100};
-			--color-text: #{$gray-900};
+	function updatePageData() {
+		const enabled = [];
+		for (const preference of preferences) {
+			// noinspection SuspiciousTypeOfGuard
+			if (preference instanceof TogglePreference && preference.isEnabled()) {
+				enabled.push(preference.id);
+			}
 		}
+		document.documentElement.dataset.preferences = enabled.join(" ");
+
+		const isLightTheme =
+			preferences.theme.equals("light") ||
+			(preferences.theme.equals("auto") && window.matchMedia("(prefers-color-scheme: light)").matches);
+		document.documentElement.classList.toggle("light-theme", isLightTheme);
 	}
 
-	body {
-		font-family: var(--font-body), sans-serif;
-		background-color: var(--color-background);
-		color: var(--color-text);
-	}
-
-	h1, h2, h3, h4, h5, h6 {
-		font-family: var(--font-heading), sans-serif;
-	}
-</style>
+	document.addEventListener("astro:after-swap", () => document.dispatchEvent(new Event("custom:preferences-updated")));
+	document.addEventListener("custom:preferences-updated", updatePageData);
+	loadPreferences();
+</script>
+<script src="../scripts/immersive-background/index.ts"></script>

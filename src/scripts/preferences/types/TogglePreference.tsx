@@ -1,4 +1,6 @@
 import { Preference, type PreferenceConfig } from "./Preference.ts";
+import { useEffect, useRef } from "preact/hooks";
+import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
 
 export type TriState<I extends boolean = true> = I extends true ? boolean | null : boolean;
 
@@ -21,9 +23,32 @@ export class TogglePreference<K extends string = string, I extends boolean = fal
 		this.triState = config.triState ?? false as I;
 	}
 
+	/** Returns whether this preference is both visible and enabled. */
+	isEnabled(): TriState<I> {
+		return this.isAvailable() && this.get();
+	}
+
 	override validate(value: TriState<I>): TriState<I> {
 		return this.triState && value === null
 			? null as TriState<I>
 			: !!value;
+	}
+
+	override toComponent({ onInput, cid }: PreferenceControlState<TriState<I>>) {
+		const ref = useRef<HTMLInputElement>(null);
+		useEffect(() => {
+			if (ref.current) {
+				ref.current.checked = this.get() === true;
+				ref.current.indeterminate = this.get() === null;
+			}
+		}, []);
+
+		return <input name={this.id} type="checkbox" ref={ref} {...cid} onChange={e => {
+			if (this.triState) {
+				e.currentTarget.checked = this.get() === false;
+				e.currentTarget.indeterminate = this.get() === true;
+			}
+			onInput(e.currentTarget.indeterminate && this.triState ? null : e.currentTarget.checked);
+		}} />;
 	}
 }

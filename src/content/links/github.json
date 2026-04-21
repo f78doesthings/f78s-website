@@ -1,0 +1,10 @@
+{
+	"title": "GitHub",
+	"description": "Ponder at some of my programming projects here. You can find the source code for this website under the \"f78s-website\" repository.",
+	"url": "https://github.com/f78doesthings",
+	"icon": "simple-icons:github",
+	"aliases": [
+		"gh",
+		"code"
+	]
+}

@@ -1,15 +1,15 @@
 ---
 import { Icon } from "astro-icon/components";
 import type { HTMLAttributes } from "astro/types";
-import { isOnPage } from "../utils.ts";
+import { isOnPage } from "../../utils.ts";
 
-type Props = HTMLAttributes<"a"> & {
+interface Props extends HTMLAttributes<"a"> {
 	icon?: string;
 	iconSize?: number;
-};
+}
 
 const { href, icon, ...props } = Astro.props;
-const isActive = isOnPage(Astro.url, import.meta.env.BASE_URL, href);
+const isActive = isOnPage(Astro.url, import.meta.env.BASE_URL, href ?? "/preferences");
 ---
 
 <a href={href} tabindex="0" {...props}>
@@ -20,8 +20,8 @@ const isActive = isOnPage(Astro.url, import.meta.env.BASE_URL, href);
 </a>
 
 <style lang="scss">
-	@use "../styles/colors" as *;
-	@use "../styles/utils" as *;
+	@use "../../styles/colors" as *;
+	@use "../../styles/utils" as *;
 	@use "sass:color";
 
 	.icon {
@@ -31,7 +31,7 @@ const isActive = isOnPage(Astro.url, import.meta.env.BASE_URL, href);
 	a {
 		display: flex;
 		align-items: center;
-		color: var(--color-heading);
+		color: var(--color-text);
 		text-decoration: none;
 
 		gap: 0.25rem;

@@ -1,0 +1,16 @@
+{
+	"title": "Old Public Storage (Google Drive)",
+	"description": "This is where I used to upload my public files. I've now switched over to Nextcloud.",
+	"url": "https://drive.google.com/drive/folders/1C02PNQPptd95GZvBD4FlmkgvNLmOij6L",
+	"icon": "simple-icons:googledrive",
+	"tags": [
+		"archived"
+	],
+	"aliases": [
+		"drive",
+		"gdrive",
+		"googledrive",
+		"google-drive",
+		"google_drive"
+	]
+}

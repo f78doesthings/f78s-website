@@ -1,3 +1,85 @@
 ---
-$END$
+import BaseLayout from "./BaseLayout.astro";
+import type { CollectionEntry } from "astro:content";
+import MainImage from "../components/images/MainImage.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import { Icon } from "astro-icon/components";
+
+type Props = CollectionEntry<"blog">["data"] & {
+	isBlog?: boolean;
+	lastModified?: Date;
+	readingTime?: string;
+};
+const {
+	title,
+	description,
+	pubDate,
+	heroImage,
+	heroAlt,
+	draft,
+	isBlog = true,
+	lastModified,
+	readingTime,
+} = Astro.props;
 ---
+
+<BaseLayout title={title} description={description} isBlog={isBlog} lastModified={lastModified}>
+	<article>
+		<header>
+			{heroImage && <MainImage src={heroImage} alt={heroAlt} width={960} height={540} noLicense={draft} />}
+
+			<h1>{title}</h1>
+			<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
+				<Fragment slot="before">Published:</Fragment>
+			</FormattedDate>
+			{readingTime && (
+				<p>
+					<Icon name="fluent:clock-20-regular" size={20} />
+					{readingTime}
+				</p>
+			)}
+		</header>
+
+		<slot />
+	</article>
+</BaseLayout>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+
+	header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: size(4);
+		padding-top: $page-margin;
+		color: var(--color-dim);
+
+		:global(> figure) {
+			margin: 0;
+		}
+
+		picture, img {
+			object-fit: cover;
+			width: 100%;
+			height: auto;
+		}
+
+		@media (min-width: $breakpoint-tablet) {
+			margin: size(10);
+		}
+
+		h1 {
+			display: flex;
+			align-items: center;
+			margin: size(12) 0;
+		}
+
+		p {
+			display: flex;
+			align-items: center;
+			gap: size(4);
+			margin: 0;
+		}
+	}
+</style>

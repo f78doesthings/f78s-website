@@ -1,3 +1,22 @@
 ---
-$END$
+import type { GetStaticPaths } from "astro";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
+
+export const getStaticPaths = (async () => {
+	const posts = await getCollection("blog", post => import.meta.env.DEV || !post.data.draft);
+	return posts.map(post => ({
+		params: { slug: post.id },
+		props: post,
+	}));
+}) satisfies GetStaticPaths;
+
+type Props = CollectionEntry<"blog">;
+
+const post = Astro.props;
+const { Content, remarkPluginFrontmatter: { lastModified, readingTime } } = await render(post);
 ---
+
+<BlogPost {...post.data} lastModified={new Date(lastModified)} readingTime={readingTime}>
+	<Content />
+</BlogPost>

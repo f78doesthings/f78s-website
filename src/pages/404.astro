@@ -1,3 +1,10 @@
 ---
-$END$
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Link from "../components/nav/Link.astro";
 ---
+
+<BaseLayout>
+	<h1>404: <small>Not Found</small></h1>
+	<p>The page you were looking for could not be found.</p>
+	<p><Link href="/" icon="fluent:home-20-regular">Go back to the home page</Link></p>
+</BaseLayout>

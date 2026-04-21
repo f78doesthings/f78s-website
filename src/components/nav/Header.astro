@@ -1,14 +1,21 @@
 ---
-import avatar from "../assets/avatar.webp";
-import { SITE_TITLE } from "../consts.ts";
+// Top bar and hamburger menu
+import avatar from "../../assets/avatar.webp";
+import { SITE_TITLE } from "../../consts.ts";
 import HeaderLink from "./HeaderLink.astro";
-import BaseImage from "./images/BaseImage.astro";
+import BaseImage from "../images/BaseImage.astro";
 import { Icon } from "astro-icon/components";
-import { isOnPage } from "../utils.ts";
-import PreferenceControl from "./preferences/PreferenceControl.astro";
+import { isOnPage } from "../../utils.ts";
+import PreferenceControl from "../preferences/PreferenceControl.astro";
+import Badge from "../Badge.astro";
+import Link from "./Link.astro";
 
+interface Props {
+}
+
+// TODO: implement this on the client
 const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
-	? `/preferences${Astro.url.search}`
+	? undefined
 	: `/preferences?from=${Astro.url.pathname}`;
 ---
 
@@ -17,12 +24,12 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 		<button title="Open the menu" class="open-hamburger-menu">
 			<Icon name="fluent:line-horizontal-3-20-regular" size={20} />
 		</button>
-		<h2>
+		<h1>
 			<a href="/">
-				<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} loading="eager" />
+				<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} loading="eager" fetchpriority="high" />
 				{SITE_TITLE}
 			</a>
-		</h2>
+		</h1>
 
 		<div class="page-links">
 			<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
@@ -37,25 +44,42 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 	</nav>
 </header>
 
-<aside class="hamburger-menu">
-	<button title="Close the menu" class="close-hamburger-menu">
-		<Icon name="fluent:dismiss-20-filled" size={20} />
-	</button>
+<div data-banner="under-construction">
+	<Icon name="noto:construction" size={20} class="icon" />
+	<span>
+		This newly revamped version of the website is still being worked on.
+		Report any bugs you find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+	</span>
+	<button>Got it!</button>
+</div>
 
+<aside class="hamburger-menu">
+	<h2>Navigation</h2>
 	<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
 	<HeaderLink href="/blog" icon="fluent:rss-20-regular">Blog</HeaderLink>
 
 	<div class="spacer"></div>
 
+	<h2>
+		Preferences
+		<Badge type="beta" />
+	</h2>
+	<PreferenceControl preference="immersiveMode" showIcon showTitle="Immersive Mode" noMobile />
 	<PreferenceControl preference="theme" showIcon showTitle noMobile />
 	<HeaderLink href={prefsLink} icon="fluent:settings-20-regular">
-		Preferences
+		More Settings
 	</HeaderLink>
-</aside>
 
+	<button title="Close the menu" class="close-hamburger-menu">
+		<Icon name="fluent:dismiss-20-filled" size={20} />
+	</button>
+</aside>
 <div class="backdrop close-hamburger-menu"></div>
 
 <script>
+	// Hamburger menu
+	import { getStorageItem } from "../../scripts/storage-utils.ts";
+
 	document.addEventListener("astro:page-load", () => {
 		const menu = document.querySelector(".hamburger-menu");
 		if (!menu) {
@@ -77,18 +101,56 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			});
 		}
 	});
+
+	// Banner
+	function setupBanners() {
+		const banners = document.querySelectorAll<HTMLElement>("[data-banner]");
+		for (const banner of banners) {
+			const bannerButton = banner?.querySelector("button");
+			if (!bannerButton) {
+				console.warn("Banner has no button:", banner);
+				continue;
+			}
+
+			const id = banner.dataset.banner;
+			if (!id) {
+				console.warn("Banner has no ID:", id);
+				continue;
+			}
+
+			const dismissedBanners = getStorageItem<string[]>("dismissedBanners") ?? [];
+			if (!dismissedBanners.includes(id)) {
+				banner.classList.add("visible");
+
+				bannerButton.addEventListener(
+					"click",
+					() => {
+						banner.classList.remove("visible");
+						dismissedBanners.push(id);
+						localStorage.setItem("dismissedBanners", JSON.stringify(dismissedBanners));
+					},
+					{ once: true },
+				);
+			}
+		}
+	}
+
+	document.addEventListener("astro:after-swap", setupBanners);
+	setupBanners();
 </script>
 
 <style lang="scss">
-	@use "../styles/colors" as *;
-	@use "../styles/utils" as *;
+	@use "../../styles/colors" as *;
+	@use "../../styles/utils" as *;
 	@use "sass:color";
+
+	$header-transparency: 12.5%;
 
 	// Hamburger menu
 	.hamburger-menu {
 		position: fixed;
 		left: size(-384);
-		transition: left 0.37s ease;
+		transition: left 0.33s ease, visibility 0.33s allow-discrete;
 
 		display: flex;
 		flex-direction: column;
@@ -97,16 +159,36 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 		max-width: size(256);
 		height: 100%;
 		padding: size(4) 0;
-		z-index: 1200;
+		z-index: 2100;
 
 		background-color: var(--color-component);
 
-		> *, :global(> label) {
+		> * {
 			padding: size(12) size(20);
 		}
 
-		:global(> label > .icon) {
-			margin-right: size(-8);
+		label {
+			border: none;
+
+			.icon {
+				margin-right: size(-8);
+			}
+		}
+
+		h2 {
+			display: flex;
+			align-items: center;
+			gap: size(8);
+
+			margin: 0;
+			padding-bottom: size(6);
+			font-weight: 500;
+			font-size: size(16);
+			color: var(--color-dimmer);
+
+			.badge {
+				color: var(--color-text);
+			}
 		}
 
 		.spacer {
@@ -137,38 +219,13 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			@include btn-transparent(true);
 		}
 
+		&:not(.open) {
+			visibility: collapse;
+		}
+
 		&.open {
 			left: 0;
-
-			~ .backdrop {
-				opacity: 1;
-				pointer-events: auto;
-				background-color: color.change($zinc-950, $alpha: 90%);
-
-				@include preferences("light") {
-					background-color: color.change($zinc-800, $alpha: 90%);
-				}
-
-				@include preferences("immersiveFX") {
-					backdrop-filter: blur(size(10));
-					background-color: color.change($zinc-950, $alpha: 83%);
-				}
-
-				@include preferences("immersiveFX", "light") {
-					background-color: color.change($zinc-800, $alpha: 83%);
-				}
-			}
 		}
-	}
-
-	.backdrop {
-		position: fixed;
-		inset: 0;
-		z-index: 1100;
-		opacity: 0;
-
-		pointer-events: none;
-		transition: all 0.33s ease;
 	}
 
 	// Top bar
@@ -180,9 +237,8 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 		z-index: 1000;
 
 		@include glass;
-
 		@include preferences("immersiveFX") {
-			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+			background-color: color-mix(in srgb, var(--color-component), transparent $header-transparency);
 		}
 	}
 
@@ -202,6 +258,16 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			text-decoration: none;
 
 			@include btn-transparent;
+		}
+
+		label {
+			padding-right: 0;
+		}
+
+		.open-hamburger-menu {
+			@media (min-width: $breakpoint-tablet) {
+				display: none;
+			}
 		}
 	}
 
@@ -224,18 +290,93 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 		}
 	}
 
-	h2 {
+	h1 {
 		margin: 0;
 		line-height: 0;
 		font-size: size(28);
+		font-weight: 900;
 
 		picture, img {
 			border-radius: 100%;
 		}
 
 		a {
-			font-weight: 900;
 			gap: size(12);
+		}
+	}
+
+	// Banner
+	[data-banner] {
+		$banner-alpha: 100% - $header-transparency;
+
+		position: sticky;
+		top: size(60);
+
+		width: 100%;
+		display: none;
+		align-items: center;
+		justify-content: center;
+
+		gap: size(8);
+		padding: size(10) $page-margin;
+		margin: 0 (-$page-margin);
+		z-index: 900;
+
+		background: linear-gradient(
+			color.change($red-850, $alpha: $banner-alpha),
+			color.change($red-925, $alpha: $banner-alpha)
+		);
+
+		@include glass;
+
+		&.visible {
+			display: flex;
+
+			header:has(+ &) {
+				box-shadow: none;
+			}
+		}
+
+		.icon, button {
+			flex-shrink: 0;
+		}
+
+		a {
+			color: var(--color-heading);
+		}
+
+		button {
+			--hover-text: #{$red-950};
+
+			padding: size(4) size(10);
+
+			background-color: transparent;
+			border: 1px solid color-mix(in srgb, var(--color-heading), transparent 50%);
+			border-radius: $radius-full;
+			font-weight: 500;
+
+			transition: background-color $anim-ease, color $anim-ease, border-color $anim-ease;
+
+			@include hover {
+				background-color: color-mix(in srgb, var(--color-heading), transparent 15%);
+				color: var(--hover-text);
+			}
+
+			@include active {
+				background-color: color-mix(in srgb, var(--color-heading), transparent 40%);
+				color: var(--hover-text);
+			}
+		}
+
+		@include preferences("light") {
+			background: linear-gradient(
+				color.change($red-200, $alpha: $banner-alpha),
+				color.change($red-250, $alpha: $banner-alpha)
+			);
+
+			button {
+				--hover-text: #{$red-150};
+			}
 		}
 	}
 </style>

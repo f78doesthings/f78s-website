@@ -1,4 +1,4 @@
-import type { MapLike, NotUndefined } from "./preferences/utils.ts";
+import { dependenciesMet, type MapLike, type NotUndefined } from "./preferences/utils.ts";
 import type { Preference } from "./preferences/types/Preference.ts";
 
 const root = document.querySelector<HTMLElement>(".debug-display")!;
@@ -53,6 +53,7 @@ export class DebugCategory {
 
 interface DebugDisplayConfig {
 	name: string;
+	description?: string;
 	category: DebugCategory;
 	dependencies?: MapLike<Preference, NotUndefined[]>;
 	format?: (value: unknown) => string;
@@ -60,15 +61,19 @@ interface DebugDisplayConfig {
 
 export class DebugDisplay implements DebugDisplayConfig {
 	readonly name;
+	readonly description;
 	readonly category;
 	readonly dependencies;
 	readonly format;
-	public isVisible = false;
+
+	isVisible = false;
+
 	private readonly _nameElement;
 	private readonly _valueElement;
 
 	constructor(config: DebugDisplayConfig, initialValue?: unknown) {
 		this.name = config.name;
+		this.description = config.description ?? "";
 		this.category = config.category;
 		this.dependencies = new Map(config.dependencies);
 		this.format = config.format ?? (value => String(value));
@@ -78,12 +83,15 @@ export class DebugDisplay implements DebugDisplayConfig {
 		if (!valueElement) {
 			valueElement = document.createElement("pre");
 			valueElement.dataset.debugDisplayValue = this.name;
+			valueElement.title = this.description;
 			container.append(valueElement);
 		}
 
 		let nameElement = container.querySelector<HTMLElement>(`[data-debug-display-name="${this.name}"]`);
 		if (!nameElement) {
 			nameElement = document.createElement("h6");
+			nameElement.dataset.debugDisplayName = this.name;
+			nameElement.title = this.description;
 			nameElement.textContent = this.name;
 			container.insertBefore(nameElement, valueElement);
 		}
@@ -91,30 +99,19 @@ export class DebugDisplay implements DebugDisplayConfig {
 		this._nameElement = nameElement;
 		this._valueElement = valueElement;
 		this.category.displays.push(this);
-		DebugCategory.updateVisibilities();
 
-		this.set(initialValue);
+		DebugCategory.updateVisibilities();
+		this.set(initialValue ?? "");
 	}
 
 	set(value: unknown) {
-		if (this.isVisible) {
-			this._valueElement.textContent = this.format(value);
-		}
+		this._valueElement.textContent = this.format(value);
 	}
 
 	updateVisibility() {
-		let visible = true;
-		for (const [property, allowedValues] of this.dependencies) {
-			if (!allowedValues.some(value => property.equals(value))) {
-				visible = false;
-				break;
-			}
-		}
-
-		this._nameElement.hidden = !visible;
-		this._valueElement.hidden = !visible;
-		this.isVisible = visible;
-		return visible;
+		const visible = dependenciesMet(this.dependencies);
+		this._nameElement.hidden = this._valueElement.hidden = !visible;
+		return this.isVisible = visible;
 	}
 }
 

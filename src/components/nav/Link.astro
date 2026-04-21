@@ -2,43 +2,54 @@
 import { Icon } from 'astro-icon/components';
 import type { HTMLAttributes } from "astro/types";
 
-type Props = HTMLAttributes<"a"> & {
+interface Props extends HTMLAttributes<"a"> {
 	/** If present, turns this link into a link that opens with a new tag. */
 	external?: boolean;
 
-	/** If present, the icon for external links will not be added. */
-	noicon?: boolean;
+	/** If present, the icon for external links will not be added. This does not affect the {@linkcode icon} property. */
+	noIcon?: boolean;
 
-	/** The icon to display to the left of the link. */
-	icon?: string;
-};
+	/** The icon(s) to display to the left of the link. */
+	icon?: string | string[];
+}
 
-const { external, noicon, icon, ...props } = Astro.props;
+const { external, noIcon, icon: icons, ...props } = Astro.props;
 if (external) {
 	props.target ??= "_blank";
 	props.rel ??= "noopener noreferrer";
 }
 ---
 
-<a tabindex="0" {...props}>
-	{icon && <Icon name={icon} class="icon" />}
+<a tabindex="0" class:list={{ "has-icon": icons !== undefined }} {...props}>
+	{
+		Array.isArray(icons) ?
+			icons.map(icon => <Icon name={icon} class="icon" />) :
+			icons && <Icon name={icons} class="icon" />
+	}
 	<slot />
-	{external && !noicon && <Icon name="fluent:open-16-regular" class="external-icon" />}
+	{external && !noIcon && <Icon name="fluent:open-16-regular" class="external-icon" />}
 </a>
 
 <style lang="scss">
+	@use "../../styles/utils" as *;
+
 	a {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.1875rem;
+		gap: size(4);
+
+		&.has-icon {
+			vertical-align: middle;
+		}
 	}
 
 	.icon {
-		font-size: 1.25rem;
-		margin-bottom: 0.0625rem;
+		font-size: 1.25em;
+		margin-bottom: size(1);
 	}
 
 	.external-icon {
-		margin-bottom: 0.125rem;
+		margin-left: size(-1);
+		margin-bottom: size(2);
 	}
 </style>

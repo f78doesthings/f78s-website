@@ -1,3 +1,65 @@
 ---
-$END$
+import type { BadgeType } from "../types";
+import { BADGES, SITE_LANGUAGE } from "../consts.ts";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	type: BadgeType;
+	class?: string;
+}
+
+const { type, class: className, ...cid } = Astro.props;
+const badge = BADGES[type];
 ---
+
+<div class:list={[className, "badge", `badge-${type}`]} title={badge.description} {...cid}>
+	<Icon name={badge.icon} size={20} />
+	{badge.title}
+</div>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+	@use "../styles/colors" as *;
+	@use "sass:color";
+
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		gap: size(3);
+		padding: 0 size(9) 0 size(6);
+		height: $badge-height;
+
+		border-radius: $radius-full;
+		font-family: var(--font-heading), sans-serif;
+		font-size: size(16);
+		font-weight: 400;
+
+		> span {
+			text-transform: capitalize;
+		}
+	}
+
+	@mixin badge-color($light-start, $light-end, $dark-start, $dark-end) {
+		background: linear-gradient($light-start, $light-end);
+
+		@include preferences("dark") {
+			background: linear-gradient($dark-start, $dark-end);
+		}
+	}
+
+	.badge-new {
+		@include badge-color($red-200, $red-300, $red-700, $red-900);
+	}
+
+	.badge-inactive {
+		@include badge-color($taupe-200, $taupe-300, $taupe-600, $taupe-700);
+	}
+
+	.badge-archived {
+		@include badge-color($orange-200, $orange-300, $yellow-700, $yellow-900);
+	}
+
+	.badge-beta {
+		@include badge-color($purple-200, $indigo-300, $purple-700, $indigo-800);
+	}
+</style>

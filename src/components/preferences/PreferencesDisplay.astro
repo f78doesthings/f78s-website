@@ -1,15 +1,50 @@
 ---
-import type { PreferenceCategory } from "../../scripts/preferences";
+import { getPreferencesByCategory, type PreferencesByCategory, type PreferenceID } from "../../scripts/preferences";
+import PreferenceControl from "./PreferenceControl.astro";
+import { getDependencyString } from "../../scripts/preferences/utils.ts";
 
 interface Props {
 	level?: number;
-	preferences: PreferenceCategory;
+	preferences?: PreferencesByCategory;
 }
 
-const { level = 2, preferences: { preferences, categories } } = Astro.props;
+const {
+	level = 1,
+	preferences: { name, description, dependencies, preferences, categories } = getPreferencesByCategory(),
+} = Astro.props;
+
 const Heading = `h${level}`;
+const dependencyVars = getDependencyString(dependencies);
 ---
 
-<fieldset>
+<fieldset data-preference-dependencies={dependencyVars} hidden={dependencyVars !== undefined}>
+	{name &&
+		<Heading>{name}</Heading>}
+	{description && <p>{description}</p>}
 
+	{preferences?.map(preference => (
+		<PreferenceControl preference={preference.id} showIcon showTitle showDescription />
+	))}
+
+	{categories?.map(category => (
+		<Astro.self level={level + 1} preferences={category} />
+	))}
 </fieldset>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	fieldset {
+		border: none;
+		margin: 0;
+		padding: 0;
+
+		&[hidden] {
+			display: none;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			margin: calc(0.5rem + 0.5em) 0 calc(0.25rem + 0.25em) 0;
+		}
+	}
+</style>

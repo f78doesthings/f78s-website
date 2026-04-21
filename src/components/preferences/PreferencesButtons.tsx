@@ -1,8 +1,17 @@
-export function PreferencesActions() {
-	const redirectTo = new URLSearchParams(location.search).get("from");
+import { useEffect, useState } from "preact/hooks";
+
+export function PreferencesButtons() {
+	const [target, setTarget] = useState("/");
+
+	useEffect(() => {
+		const from = new URLSearchParams(window.location.search).get("from");
+		if (from) {
+			setTarget(from);
+		}
+	});
 	return (
 		<div class="buttons">
-			<a href={redirectTo ?? "/"}>Apply</a>
+			<a href={target} class="btn">Apply</a>
 		</div>
 	);
 }
