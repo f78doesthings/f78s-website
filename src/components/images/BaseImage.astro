@@ -1,0 +1,19 @@
+---
+import type { Props as PictureProps } from "astro/components/Picture.astro";
+
+// Also import Props to forward the properties of Picture to this component
+import { Picture, type Props as LqipProps } from "astro-lqip/components";
+
+type Props = PictureProps & LqipProps;
+
+// The conversion to any is done to hide an annoying false positive error
+const props: any = Astro.props;
+---
+
+<Picture formats={["avif", "webp"]} fallbackFormat="jpg" densities={[1, 2]} {...props} />
+
+<style lang="scss">
+	picture, img {
+		border-radius: 1rem;
+	}
+</style>

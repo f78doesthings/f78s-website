@@ -1,0 +1,104 @@
+---
+import { EnumPreference } from "../scripts/preferences/types/EnumPreference.tsx";
+import { Icon } from "astro-icon/components";
+import { InnerPreferenceControl } from "./InnerPreferenceControl";
+import { type PreferenceID, preferences } from "../scripts/preferences";
+
+interface Props {
+	/** The preference to create a control for. */
+	preference: PreferenceID;
+
+	iconSize?: number;
+
+	/** Whether to show the preference's title. */
+	showTitle?: boolean;
+
+	/** Whether to show the preference's description. */
+	showDescription?: boolean;
+
+	/** Whether to show the preference's icon. */
+	showIcon?: boolean;
+}
+
+const {
+	preference: id,
+	showTitle = false,
+	showDescription = false,
+	showIcon = false,
+} = Astro.props;
+
+const preference = preferences[id];
+const icons: [icon: string, option: string][] = [];
+if (preference instanceof EnumPreference) {
+	for (const [option, { icon }] of Object.entries(preference.options)) {
+		if (icon) {
+			icons.push([icon, option]);
+		}
+	}
+}
+---
+
+<label aria-label={preference.title} data-preference-control={id} class:list={{
+	"has-select-icons": icons.length > 0,
+	"has-icon": showIcon && preference.icon,
+	"has-title": showTitle,
+	"has-description": showDescription && preference.description,
+}}>
+	{showIcon && preference.icon && <Icon name={preference.icon} size={30} />}
+	{showTitle && <span class="title">{preference.title}</span>}
+	{showDescription && preference.description && <span class="description">{preference.description}</span>}
+
+	<InnerPreferenceControl preference={id} client:load>
+		{icons.map(([icon, option]) => (
+			<Icon name={icon} data-option-icon={option} size={20} />
+		))}
+	</InnerPreferenceControl>
+</label>
+
+<style lang="scss">
+	label {
+		display: grid;
+		grid:
+			"icon title       select-icon input"
+			"icon description select-icon input"
+			/ auto 1fr auto auto;
+		margin-bottom: 1rem;
+		gap: 0.25rem 1rem;
+
+		&[hidden] {
+			display: none;
+		}
+
+		.icon {
+			grid-area: icon;
+		}
+
+		.title {
+			grid-area: title;
+			font-family: var(--font-heading), sans-serif;
+			font-size: 1.0625rem;
+		}
+
+		.description {
+			grid-area: description;
+			color: var(--color-dim);
+			font-size: 0.9rem;
+		}
+
+		[data-option-icon] {
+			grid-area: select-icon;
+
+			&.hidden {
+				display: none;
+			}
+		}
+
+		> :last-child {
+			grid-area: input;
+
+			&:not(input[type="checkbox"]) {
+				width: 100%;
+			}
+		}
+	}
+</style>

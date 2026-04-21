@@ -1,0 +1,15 @@
+---
+import type { PreferenceCategory } from "../../scripts/preferences";
+
+interface Props {
+	level?: number;
+	preferences: PreferenceCategory;
+}
+
+const { level = 2, preferences: { preferences, categories } } = Astro.props;
+const Heading = `h${level}`;
+---
+
+<fieldset>
+
+</fieldset>

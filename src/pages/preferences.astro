@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout>
+	<h1>Preferences</h1>
+	<label id="pref-theme">
+		Theme
+		<select>
+			<option value="auto">System</option>
+			<option value="dark">Dark</option>
+			<option value="light">Light</option>
+		</select>
+	</label>
+</BaseLayout>
+
+<style lang="scss">
+	h1 {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+</style>
+
+<script>
+
+</script>

@@ -1,0 +1,241 @@
+---
+import avatar from "../assets/avatar.webp";
+import { SITE_TITLE } from "../consts.ts";
+import HeaderLink from "./HeaderLink.astro";
+import BaseImage from "./images/BaseImage.astro";
+import { Icon } from "astro-icon/components";
+import { isOnPage } from "../utils.ts";
+import PreferenceControl from "./preferences/PreferenceControl.astro";
+
+const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
+	? `/preferences${Astro.url.search}`
+	: `/preferences?from=${Astro.url.pathname}`;
+---
+
+<header>
+	<nav>
+		<button title="Open the menu" class="open-hamburger-menu">
+			<Icon name="fluent:line-horizontal-3-20-regular" size={20} />
+		</button>
+		<h2>
+			<a href="/">
+				<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} loading="eager" />
+				{SITE_TITLE}
+			</a>
+		</h2>
+
+		<div class="page-links">
+			<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
+			<HeaderLink href="/blog" icon="fluent:rss-20-regular">Blog</HeaderLink>
+		</div>
+
+		<div class="header-preferences">
+			<PreferenceControl preference="theme" noMobile />
+			<HeaderLink href={prefsLink} icon="fluent:settings-20-regular" title="Preferences"
+			            aria-label="Preferences"></HeaderLink>
+		</div>
+	</nav>
+</header>
+
+<aside class="hamburger-menu">
+	<button title="Close the menu" class="close-hamburger-menu">
+		<Icon name="fluent:dismiss-20-filled" size={20} />
+	</button>
+
+	<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
+	<HeaderLink href="/blog" icon="fluent:rss-20-regular">Blog</HeaderLink>
+
+	<div class="spacer"></div>
+
+	<PreferenceControl preference="theme" showIcon showTitle noMobile />
+	<HeaderLink href={prefsLink} icon="fluent:settings-20-regular">
+		Preferences
+	</HeaderLink>
+</aside>
+
+<div class="backdrop close-hamburger-menu"></div>
+
+<script>
+	document.addEventListener("astro:page-load", () => {
+		const menu = document.querySelector(".hamburger-menu");
+		if (!menu) {
+			return;
+		}
+
+		const openButtons = document.querySelectorAll<HTMLElement>(".open-hamburger-menu");
+		const closeButtons = document.querySelectorAll<HTMLElement>(".close-hamburger-menu");
+
+		for (const openButton of openButtons) {
+			openButton.addEventListener("click", () => {
+				menu.classList.add("open");
+			});
+		}
+
+		for (const closeButton of closeButtons) {
+			closeButton.addEventListener("click", () => {
+				menu.classList.remove("open");
+			});
+		}
+	});
+</script>
+
+<style lang="scss">
+	@use "../styles/colors" as *;
+	@use "../styles/utils" as *;
+	@use "sass:color";
+
+	// Hamburger menu
+	.hamburger-menu {
+		position: fixed;
+		left: size(-384);
+		transition: left 0.37s ease;
+
+		display: flex;
+		flex-direction: column;
+
+		width: calc(100% - #{size(64)});
+		max-width: size(256);
+		height: 100%;
+		padding: size(4) 0;
+		z-index: 1200;
+
+		background-color: var(--color-component);
+
+		> *, :global(> label) {
+			padding: size(12) size(20);
+		}
+
+		:global(> label > .icon) {
+			margin-right: size(-8);
+		}
+
+		.spacer {
+			padding: 0;
+			flex-grow: 1;
+		}
+
+		.close-hamburger-menu {
+			position: absolute;
+			left: 100%;
+			margin: size(2) 0 size(2) size(6);
+			padding: 0;
+
+			width: size(48);
+			height: size(48);
+			border-radius: $radius-full;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			color: $red-500;
+
+			@include preferences("light") {
+				color: $red-400;
+			}
+
+			@include btn-transparent(true);
+		}
+
+		&.open {
+			left: 0;
+
+			~ .backdrop {
+				opacity: 1;
+				pointer-events: auto;
+				background-color: color.change($zinc-950, $alpha: 90%);
+
+				@include preferences("light") {
+					background-color: color.change($zinc-800, $alpha: 90%);
+				}
+
+				@include preferences("immersiveFX") {
+					backdrop-filter: blur(size(10));
+					background-color: color.change($zinc-950, $alpha: 83%);
+				}
+
+				@include preferences("immersiveFX", "light") {
+					background-color: color.change($zinc-800, $alpha: 83%);
+				}
+			}
+		}
+	}
+
+	.backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 1100;
+		opacity: 0;
+
+		pointer-events: none;
+		transition: all 0.33s ease;
+	}
+
+	// Top bar
+	header {
+		position: sticky;
+		top: 0;
+		width: 100%;
+		background-color: var(--color-component);
+		z-index: 1000;
+
+		@include glass;
+
+		@include preferences("immersiveFX") {
+			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+		}
+	}
+
+	nav {
+		display: flex;
+		width: 100%;
+		margin: auto;
+		padding: 0 size(12);
+		max-width: $page-width;
+
+		button, a {
+			display: flex;
+			align-items: center;
+			padding: size(10);
+
+			color: var(--color-heading);
+			text-decoration: none;
+
+			@include btn-transparent;
+		}
+	}
+
+	button {
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
+
+	.page-links, .header-preferences {
+		display: none;
+		margin-left: auto;
+
+		@media (min-width: $breakpoint-tablet) {
+			display: flex;
+		}
+
+		a {
+			padding-inline: size(12);
+		}
+	}
+
+	h2 {
+		margin: 0;
+		line-height: 0;
+		font-size: size(28);
+
+		picture, img {
+			border-radius: 100%;
+		}
+
+		a {
+			font-weight: 900;
+			gap: size(12);
+		}
+	}
+</style>

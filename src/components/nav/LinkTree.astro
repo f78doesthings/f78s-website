@@ -1,0 +1,150 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Badge from "./Badge.astro";
+import { Icon } from "astro-icon/components";
+import { isLinkInactive } from "../utils.ts";
+import type { LinkData } from "../types";
+import type { HTMLAttributes } from "astro/types";
+import Link from "./Link.astro";
+
+interface Props {
+	collection?: CollectionEntry<"links">[];
+	links?: LinkData[];
+}
+
+const { collection = [], links = [] } = Astro.props;
+const allLinks: LinkData[] = [
+	...links,
+	...collection.map(link => ({ ...link.data, id: link.id })),
+];
+
+// HACK: Having to do 2 separate sorts seems a bit off...
+allLinks
+	.sort((a, b) => {
+		const aInactive = isLinkInactive(a);
+		const bInactive = isLinkInactive(b);
+		return (aInactive === bInactive) ? 0 : aInactive ? 1 : -1;
+	})
+	.sort((a, b) => a.order - b.order);
+---
+
+<nav>
+	<ul class="link-tree">
+		{allLinks.map(link => (
+			<li>
+				<Link href={link.url} external={!link.url.startsWith("/")} noicon
+				      class:list={["link", { inactive: isLinkInactive(link) }]}>
+
+					<Icon name={link.icon} class:list={["icon", `icon-${link.id}`]} />
+					<div class="info">
+						<div class="header">
+							<h3 class="title">{link.title}</h3>
+							<ul class="tags">
+								{link.tags?.map(tag => (
+									<li>
+										<Badge type={tag} />
+									</li>
+								))}
+							</ul>
+						</div>
+
+						<p class="description">{link.description}</p>
+					</div>
+				</Link>
+			</li>
+		))}
+	</ul>
+</nav>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+
+	ul {
+		display: flex;
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.link-tree {
+		flex-direction: column;
+	}
+
+	.link {
+		display: flex;
+		gap: 1.0625rem;
+		padding: 0.625rem 1.5rem;
+		margin-inline: -1.5rem;
+		align-items: center;
+
+		color: inherit;
+		text-decoration: none;
+
+		@media (min-width: $breakpoint-tablet) {
+			padding-inline: 1rem;
+			margin-inline: 0;
+		}
+
+		&.inactive {
+			:is(.icon, .title) {
+				color: var(--color-dim);
+			}
+
+			.description {
+				color: var(--color-dimmer);
+			}
+
+			:global(.badge) {
+				opacity: 0.83;
+			}
+		}
+
+		@include btn-transparent;
+	}
+
+	.info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.header {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		min-height: $badge-height;
+	}
+
+	.icon {
+		grid-area: icon;
+		font-size: 2rem;
+		flex-shrink: 0;
+		
+
+	}
+
+	.icon, .title {
+		color: var(--color-heading);
+	}
+
+	.title {
+		grid-area: title;
+		margin: 0;
+		font-weight: 600;
+		font-size: 1.1875rem;
+	}
+
+	.tags {
+		grid-area: tags;
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.description {
+		grid-area: description;
+		margin: 0;
+		font-size: 0.9rem;
+		color: var(--color-dim);
+	}
+</style>

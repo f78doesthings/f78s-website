@@ -1,0 +1,76 @@
+@forward "colors";
+
+$radius-full: calc(infinity * 1px);
+$badge-height: 1.625rem;
+
+@mixin hover {
+	&:focus-visible {
+		@content;
+	}
+
+	@media (hover: hover) {
+		&:hover {
+			@content;
+		}
+	}
+
+	@media (hover: none) {
+		&:active {
+			@content;
+		}
+	}
+}
+
+@mixin active {
+	@media (hover: hover) {
+		&:active {
+			@content;
+		}
+	}
+}
+
+@mixin btn-transparent {
+	position: relative;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+
+		opacity: 0;
+		background: radial-gradient(
+			hsl(0 0% 100% / 11%),
+			hsl(0 0% 100% / 8%)
+		);
+		transition: opacity 0.2s ease;
+		pointer-events: none; // Prevents the hover effect from breaking other hover functions, such as the title attribute.
+
+		@media (prefers-color-scheme: light) {
+			background: radial-gradient(
+				hsl(0 0% 0% / 13%),
+				hsl(0 0% 0% / 9.5%)
+			);
+		}
+	}
+
+	@include hover {
+		&::after {
+			opacity: 1;
+
+			@media (prefers-color-scheme: light) {
+				opacity: 0.65;
+			}
+		}
+	}
+
+	@include active {
+		&::after {
+			opacity: 0.6;
+
+			@media (prefers-color-scheme: light) {
+				opacity: 1;
+			}
+		}
+	}
+}

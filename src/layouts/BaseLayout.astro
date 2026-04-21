@@ -1,0 +1,79 @@
+---
+import Font from "astro/components/Font.astro";
+import "modern-normalize/modern-normalize.css";
+import "../styles/general.scss";
+import { BLOG_TITLE, SITE_TITLE } from "../consts.ts";
+
+interface Props {
+	title: string;
+	description: string;
+	isBlog?: boolean;
+	updatedDate?: Date;
+}
+
+const { title, description, isBlog = false, updatedDate } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-GB-oxendict">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+	<link rel="icon" href="/favicon.ico"/>
+	<link rel="sitemap" href="/sitemap-index.xml"/>
+	<link rel="alternate" type="application/rss+xml" title={BLOG_TITLE} href={new URL("rss.xml", Astro.site)}/>
+	<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}/>
+	<meta name="generator" content={Astro.generator}/>
+
+	<!-- Meta -->
+	<title>{title} &middot; {isBlog ? BLOG_TITLE : SITE_TITLE}</title>
+	<meta name="title" content={title}/>
+	<meta name="description" content={description}/>
+
+	<meta property="og:type" content="website"/>
+	<meta property="og:url" content={Astro.url}/>
+	<meta property="og:title" content={title}/>
+	<meta property="og:description" content={description}/>
+
+	<Font cssVariable="--font-body" preload/>
+	<Font cssVariable="--font-heading" preload/>
+
+	<slot name="head"/>
+</head>
+<body>
+
+<main>
+	<slot/>
+</main>
+
+<footer>
+
+</footer>
+
+</body>
+</html>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+
+	:root {
+		--color-background: white;
+		--color-text: #{$gray-100};
+
+		@media (prefers-color-scheme: dark) {
+			--color-background: #{$gray-100};
+			--color-text: #{$gray-900};
+		}
+	}
+
+	body {
+		font-family: var(--font-body), sans-serif;
+		background-color: var(--color-background);
+		color: var(--color-text);
+	}
+
+	h1, h2, h3, h4, h5, h6 {
+		font-family: var(--font-heading), sans-serif;
+	}
+</style>

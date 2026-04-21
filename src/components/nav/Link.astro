@@ -1,0 +1,44 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"a"> & {
+	/** If present, turns this link into a link that opens with a new tag. */
+	external?: boolean;
+
+	/** If present, the icon for external links will not be added. */
+	noicon?: boolean;
+
+	/** The icon to display to the left of the link. */
+	icon?: string;
+};
+
+const { external, noicon, icon, ...props } = Astro.props;
+if (external) {
+	props.target ??= "_blank";
+	props.rel ??= "noopener noreferrer";
+}
+---
+
+<a tabindex="0" {...props}>
+	{icon && <Icon name={icon} class="icon" />}
+	<slot />
+	{external && !noicon && <Icon name="fluent:open-16-regular" class="external-icon" />}
+</a>
+
+<style lang="scss">
+	a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.1875rem;
+	}
+
+	.icon {
+		font-size: 1.25rem;
+		margin-bottom: 0.0625rem;
+	}
+
+	.external-icon {
+		margin-bottom: 0.125rem;
+	}
+</style>
