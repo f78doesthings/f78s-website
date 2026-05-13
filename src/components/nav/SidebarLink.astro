@@ -1,0 +1,76 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { HTMLAttributes } from "astro/types";
+
+import { isOnPage } from "../../scripts/utils";
+
+interface Props extends HTMLAttributes<"a"> {
+	aliases?: string[];
+}
+
+const { href, aliases = [], ...props } = Astro.props;
+const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
+---
+
+<a href={href} tabindex="0" {...props} class:list={{ active: isActive }}>
+	<slot />
+	<div class="highlight"></div>
+</a>
+
+<style lang="scss">
+	@use "../../styles/colors" as *;
+	@use "../../styles/utils" as *;
+	@use "sass:color";
+
+	a {
+		gap: size(14);
+		font-family: var(--font-heading), sans-serif;
+		font-size: size(17);
+
+		@include bounce-anim;
+	}
+
+	.highlight {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: size(3);
+		height: 100%;
+		background: linear-gradient(to right, $red-500, $red-600);
+
+		opacity: 0;
+		transition: opacity $anim-ease;
+
+		a.active > & {
+			opacity: 1;
+		}
+
+		a.active + a.active > & {
+			opacity: 0.5;
+		}
+
+		&::after {
+			position: absolute;
+			inset: 0;
+
+			background: inherit;
+			filter: blur(size(3));
+			opacity: 0.65;
+
+			@include preferences("fx") {
+				content: "";
+			}
+
+			@include preferences("light") {
+				opacity: 0.35;
+			}
+		}
+	}
+</style>

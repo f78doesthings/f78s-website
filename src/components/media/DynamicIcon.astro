@@ -1,0 +1,78 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Uses @iconify/utils to dynamically fetch an icon, with (kind of crude) caching.
+// I initially added this as a replacement for astro-icon, which was causing major lag on server startup.
+//
+// This should only be used if the icon is defined outside Astro components, as it can still have a performance impact.
+// unplugin-icons should be used wherever possible.
+
+import type { HTMLAttributes } from "astro/types";
+import {
+	getIconData,
+	type IconifyIconBuildResult,
+	iconToHTML,
+	iconToSVG,
+	replaceIDs,
+	stringToIcon,
+} from "@iconify/utils";
+import { lookupCollection } from "@iconify/json";
+import { cacheDir as CACHE_DIR } from "astro:config/server";
+import * as fs from "node:fs/promises";
+
+interface Props extends HTMLAttributes<"svg"> {
+	/** The Iconify icon name. */
+	name: string;
+
+	/** The size of the icon. */
+	size?: number | string;
+}
+
+// noinspection JSUnusedGlobalSymbols
+const { name: iconName, size = "1em", ...props } = Astro.props;
+
+const icon = stringToIcon(iconName);
+if (!icon) {
+	throw new Error(`Invalid format for icon: ${iconName}`);
+}
+
+const cacheDir = new URL(`dynamic-icon/${icon.prefix}/`, CACHE_DIR);
+const cachePath = new URL(`${icon.name}.json`, cacheDir);
+let renderData: IconifyIconBuildResult;
+
+try {
+	const json = await fs.readFile(cachePath, "utf-8");
+	renderData = JSON.parse(json);
+} catch {
+	const iconSet = await lookupCollection(icon.prefix);
+	const iconData = getIconData(iconSet, icon.name);
+	if (!iconData) {
+		throw new Error(`Icon not found: ${iconName}`);
+	}
+
+	renderData = iconToSVG(iconData);
+	await fs.mkdir(cacheDir, { recursive: true });
+	await fs.writeFile(cachePath, JSON.stringify(renderData), "utf-8");
+}
+
+const attributes: Record<string, string> = {};
+for (const [key, value] of Object.entries(props)) {
+	attributes[key] = String(value);
+}
+
+const svg = iconToHTML(replaceIDs(renderData.body), {
+	...attributes,
+	...renderData.attributes,
+	width: size.toString(),
+	height: size.toString(),
+	"data-icon": iconName,
+});
+---
+
+<Fragment set:html={svg} />

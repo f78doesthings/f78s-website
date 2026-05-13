@@ -3,9 +3,16 @@ title: "Test"
 description: "This is an example post to test out the blog and its styling."
 pubDate: 2026-04-19
 draft: true
-heroImage: ../../assets/blog-placeholder.jpg
-heroAlt: The Astro mascot
+heroImage: "../../assets/blog-placeholder.jpg"
+heroDescription: "The Astro mascot."
+# (don't quote me on that)
+heroLicense: MIT
+heroCreatedIn: "2023-present"
+heroCreatedBy: "Astro contributors"
+heroSource: https://github.com/withastro/astro/blob/main/examples/blog/src/assets/blog-placeholder-about.jpg
 ---
+
+import Alert from "../../components/Alert.astro";
 
 # Heading 1
 ## Heading 2
@@ -13,15 +20,46 @@ heroAlt: The Astro mascot
 #### Heading 4
 ##### Heading 5
 ###### Heading 6
-But realistically, *who* in their right mind would be willing to use a **heading** that <small>small</small>?
+But realistically, *who* in their right mind would be willing to use a **heading** that <small>small</small>[^1]?
 
-Anyway, here's some `code`:
+## Alerts
+
+> This isn't actually an alert. It's just a `<blockquote>`.\
+> <small>Small text example</small>
+
+<Alert type="note">
+	Useful information that users should know, even when skimming content.\
+	<small>Small text example</small>
+</Alert>
+
+<Alert type="tip">
+	Helpful advice for doing things better or more easily.\
+  <small>Small text example</small>
+</Alert>
+
+<Alert type="important">
+	Key information users need to know to achieve their goal.\
+  <small>Small text example</small>
+</Alert>
+
+<Alert type="warning">
+	Urgent info that needs immediate user attention to avoid problems.\
+  <small>Small text example</small>
+</Alert>
+
+<Alert type="caution">
+	Advises about risks or negative outcomes of certain actions.\
+  <small>Small text example</small>
+</Alert>
+
+## Code
+Anyway, here's some `code`[^2]:
 
 ```astro
 ---
 // Quite meta, to be honest.
 
-import { Icon } from 'astro-icon/components';
+import Icon from "../components/Icon.astro";
 
 interface Props {
 	icon?: string;
@@ -31,7 +69,7 @@ const { icon } = Astro.props;
 ---
 
 <span>
-	{icon && <Icon name={icon} class="icon" />}
+	{icon && <Icon name={icon} />}
 	<slot />
 </span>
 
@@ -42,7 +80,7 @@ const { icon } = Astro.props;
 		gap: 0.25em;
 	}
 
-	.icon {
+	[data-icon] {
 		font-size: 1.25rem;
 	}
 </style>
@@ -51,3 +89,6 @@ const { icon } = Astro.props;
 	console.log("Hello, Astro!");
 </script>
 ```
+
+[^1]: It's a footnote. What else did you expect?
+[^2]: Oh look, another footnote. Go figure.

@@ -1,25 +1,40 @@
 ---
-import { getPreferencesByCategory, type PreferencesByCategory, type PreferenceID } from "../../scripts/preferences";
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a list of preferences by category.
+
 import PreferenceControl from "./PreferenceControl.astro";
 import { getDependencyString } from "../../scripts/preferences/utils.ts";
+import { getPreferencesByCategory, type PreferencesByCategory } from "../../scripts/preferences";
 
 interface Props {
-	level?: number;
+	depth?: number;
 	preferences?: PreferencesByCategory;
 }
 
 const {
-	level = 1,
-	preferences: { name, description, dependencies, preferences, categories } = getPreferencesByCategory(),
+	depth = 1,
+	preferences: { title, description, dependencies, preferences, categories } = getPreferencesByCategory(),
 } = Astro.props;
 
-const Heading = `h${level}`;
+if (depth < 1 || depth > 6) {
+	throw new Error(`Invalid preference depth: ${depth}`);
+}
+
+const Heading = `h${depth}` as `h${1 | 2 | 3 | 4 | 5 | 6}`;
 const dependencyVars = getDependencyString(dependencies);
 ---
 
 <fieldset data-preference-dependencies={dependencyVars} hidden={dependencyVars !== undefined}>
-	{name &&
-		<Heading>{name}</Heading>}
+	{title && (
+		<Heading id={title.toLowerCase().replace(" ", "-")}>{title}</Heading>
+	)}
 	{description && <p>{description}</p>}
 
 	{preferences?.map(preference => (
@@ -27,7 +42,7 @@ const dependencyVars = getDependencyString(dependencies);
 	))}
 
 	{categories?.map(category => (
-		<Astro.self level={level + 1} preferences={category} />
+		<Astro.self depth={depth + 1} preferences={category} />
 	))}
 </fieldset>
 

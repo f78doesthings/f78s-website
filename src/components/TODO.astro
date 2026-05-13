@@ -1,0 +1,41 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// A component to remind me that I still have something to do for a page.
+
+interface Props {
+	text: string;
+}
+
+const { text } = Astro.props;
+
+Astro.logger?.warn(`TODO: ${text}`);
+---
+
+{import.meta.env.DEV && (<small class="todo" aria-hidden={true}>
+	<em>(<strong>TODO: </strong>{text})</em>
+</small>)}
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+	@use "../styles/colors" as *;
+
+	.todo {
+		color: $yellow-500;
+		font-weight: 500;
+
+		@include preferences("light") {
+			color: $yellow-700;
+		}
+
+		strong {
+			font-weight: 900;
+		}
+	}
+</style>

@@ -1,12 +1,19 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import { createPreferences, groupPreferences } from "./utils.ts";
 import { EnumPreference } from "./types/EnumPreference.tsx";
 import { TogglePreference } from "./types/TogglePreference.tsx";
 import { PresetPreference } from "./types/PresetPreference.ts";
 import { NumberPreference } from "./types/NumberPreference.tsx";
-import type { Preference, PreferenceCategory } from "./types/Preference.ts";
 import { SITE_LANGUAGE } from "../../consts.ts";
-
-//#region Definitions
+import type { ImageRotation } from "../../types";
+import { Preference, type PreferenceCategory } from "./types/Preference.ts";
 
 const isMobile = () => /mobi/i.test(navigator.userAgent);
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -22,7 +29,7 @@ const showAdvanced = new TogglePreference("showAdvanced", {
 export const preferences = createPreferences(
 	...groupPreferences(
 		{
-			name: "General",
+			title: "General",
 		},
 		new EnumPreference("theme", {
 			icon: "fluent:dark-theme-20-regular",
@@ -31,7 +38,7 @@ export const preferences = createPreferences(
 				"Sets the theme. Note that some parts of the website (like the immersive background) " +
 				"may feel a bit off in Light mode.",
 
-			defaultValue: () => "dark",
+			defaultValue: () => "auto",
 			options: {
 				// This isn't autocompleted unless <T> is made `const`, which causes an error (see below)
 				auto: {
@@ -53,7 +60,7 @@ export const preferences = createPreferences(
 
 	...groupPreferences(
 		{
-			name: "Immersive Mode",
+			title: "Immersive Mode",
 		},
 		...new TogglePreference("immersiveMode", {
 			icon: "fluent:star-emphasis-20-regular",
@@ -65,16 +72,41 @@ export const preferences = createPreferences(
 			defaultValue: () => !prefersReducedMotion() && !isMobile(),
 		}).withDependents([true],
 
-			new TogglePreference("immersiveFX", {
+			...new TogglePreference("immersiveFX", {
 				icon: "fluent:magic-wand-20-regular",
 				title: "Immersive Effects",
-				description: "Enables a few fancy effects which can harm performance a bit, especially on low-end devices.",
+				description: "Enables some fancy effects which can harm performance a bit, especially on low-end devices.",
 
 				defaultValue: () => true,
-			}),
+			}).withDependents([true],
+				new EnumPreference("imageRotation", {
+					icon: "fluent:image-arrow-counterclockwise-20-regular",
+					title: "Image Rotation",
+					description:
+						"Controls when to enable the parallax rotation effect for images. " +
+						'"Auto" will avoid important images to reduce blurring.',
+					dependencies: [showAdvanced.asDependency(true)],
+
+					defaultValue: (): keyof typeof ImageRotation => "preferNo",
+					options: {
+						never: {
+							icon: "fluent:dismiss-20-regular",
+							displayName: "Never",
+						},
+						preferNo: {
+							icon: "fluent:arrow-counterclockwise-20-regular",
+							displayName: "Auto",
+						},
+						preferYes: {
+							icon: "fluent:checkmark-20-regular",
+							displayName: "Always",
+						},
+					},
+				}),
+			),
 			...groupPreferences(
 				{
-					name: "Background",
+					title: "Background",
 				},
 				...new TogglePreference("bgEnabled", {
 					icon: "fluent:image-circle-20-regular",
@@ -155,7 +187,7 @@ export const preferences = createPreferences(
 						},
 						...groupPreferences(
 							{
-								name: "Advanced Quality Settings",
+								title: "Advanced Quality Settings",
 								dependencies: [showAdvanced.asDependency(true)],
 							},
 							new NumberPreference("bgRenderScale", {
@@ -199,6 +231,16 @@ export const preferences = createPreferences(
 						),
 					),
 
+					new TogglePreference("bgPause", {
+						icon: "fluent:image-split-20-regular",
+						title: "Pause Background When Unfocused",
+						description:
+							"Pauses the animated background if the window is not focused. " +
+							"It will always be paused if the tab is in the background.",
+						dependencies: [showAdvanced.asDependency(true)],
+
+						defaultValue: () => !isMobile(),
+					}),
 					new EnumPreference("bgDebug", {
 						icon: "fluent:bug-20-regular",
 						title: "Background Debug Display",
@@ -228,56 +270,15 @@ export const preferences = createPreferences(
 	),
 );
 
+//#region Utilities specific to these preferences
+
 export type PreferenceID = keyof typeof preferences & string; // `& string` needed to exclude [Symbol.iterator]
-
-//#endregion
-
 export interface PreferencesByCategory extends PreferenceCategory {
 	preferences?: Preference<PreferenceID>[];
 	categories?: PreferencesByCategory[];
 }
 
 let preferencesByCategory: PreferencesByCategory | undefined;
-const PREFERENCES_KEY = "preferences";
-
-export function loadPreferences() {
-	try {
-		for (const preference of preferences) {
-			// noinspection SuspiciousTypeOfGuard
-			if (preference instanceof PresetPreference || preference.get() === undefined) {
-				preference.set(preference.defaultValue());
-			}
-		}
-
-		const json = localStorage.getItem(PREFERENCES_KEY);
-		if (!json) {
-			return;
-		}
-
-		const data = JSON.parse(json);
-		for (const [key, value] of Object.entries(data)) {
-			if (key in preferences) {
-				preferences[key as PreferenceID].set(value);
-			}
-		}
-	} catch (e) {
-		console.warn("Failed to load preferences:", e);
-		alert("Your preferences could not be loaded. Reverting to defaults.");
-	} finally {
-		document.dispatchEvent(new Event("custom:preferences-updated"));
-	}
-}
-
-export function savePreferences() {
-	try {
-		const json = JSON.stringify(preferences);
-		localStorage.setItem(PREFERENCES_KEY, json);
-		document.dispatchEvent(new Event("custom:preferences-updated"));
-	} catch (e) {
-		console.warn("Failed to save preferences:", e);
-		alert("Failed to save preferences. You may need to give permission.");
-	}
-}
 
 export function getPreferencesByCategory() {
 	if (preferencesByCategory !== undefined) {
@@ -290,7 +291,7 @@ export function getPreferencesByCategory() {
 
 		for (const subcategory of preference.category) {
 			const categories = category.categories ??= [];
-			const existing = categories.find(category => category.name === subcategory.name);
+			const existing = categories.find(category => category.title === subcategory.title);
 
 			if (existing) {
 				category = existing;
@@ -304,3 +305,5 @@ export function getPreferencesByCategory() {
 	}
 	return preferencesByCategory;
 }
+
+//#endregion

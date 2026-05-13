@@ -1,7 +1,17 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a badge.
+
 import type { BadgeType } from "../types";
-import { BADGES, SITE_LANGUAGE } from "../consts.ts";
-import { Icon } from "astro-icon/components";
+import { BADGES } from "../consts.ts";
+import DynamicIcon from "./media/DynamicIcon.astro";
 
 interface Props {
 	type: BadgeType;
@@ -13,7 +23,7 @@ const badge = BADGES[type];
 ---
 
 <div class:list={[className, "badge", `badge-${type}`]} title={badge.description} {...cid}>
-	<Icon name={badge.icon} size={20} />
+	<DynamicIcon name={badge.icon} size={20} />
 	{badge.title}
 </div>
 
@@ -34,16 +44,19 @@ const badge = BADGES[type];
 		font-size: size(16);
 		font-weight: 400;
 
+		-webkit-user-select: none; // for Safari
+		user-select: none;
+
 		> span {
 			text-transform: capitalize;
 		}
 	}
 
 	@mixin badge-color($light-start, $light-end, $dark-start, $dark-end) {
-		background: linear-gradient($light-start, $light-end);
+		background: linear-gradient($dark-start, $dark-end);
 
-		@include preferences("dark") {
-			background: linear-gradient($dark-start, $dark-end);
+		@include preferences("light") {
+			background: linear-gradient($light-start, $light-end);
 		}
 	}
 

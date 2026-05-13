@@ -1,6 +1,14 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import type { JSX } from "preact";
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
-import { type NotUndefined, type MapLike, type MapEntries, dependenciesMet } from "../utils.ts";
+import { dependenciesMet, type MapEntries, type MapLike, type NotUndefined } from "../utils.ts";
 
 export interface PreferenceConfig<T extends NotUndefined> {
 	/**
@@ -41,8 +49,13 @@ export interface PreferenceConfig<T extends NotUndefined> {
 }
 
 export interface PreferenceCategory {
-	name?: string;
+	/** The title of the category. */
+	title?: string;
+
+	/** A brief description of this category. */
 	description?: string;
+
+	/** A list of other preferences that need to have a certain value for the category and its settings to show up. */
 	dependencies?: MapEntries<Preference, NotUndefined[]>;
 }
 

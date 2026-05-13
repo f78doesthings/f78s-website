@@ -1,0 +1,417 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// A component for images that are part of the main page. Includes an image viewer and some effects.
+
+import BaseImage, { type Props as BaseProps } from "./BaseImage.astro";
+import Badge from "../Badge.astro";
+import { type CopyrightInfo, ImageRotation } from "../../types";
+import { getFileName, getImageMetadata } from "../../server-utils.ts";
+import LicenseNotice from "./LicenseNotice.astro";
+import FluentArrowDownload24Regular from "~icons/fluent/arrow-download-24-regular";
+import FluentDismiss24Regular from "~icons/fluent/dismiss-24-regular";
+
+type Props = BaseProps & CopyrightInfo & {
+	/**
+	 * Controls when the rotation effect for this image should be enabled.
+	 * - `never` always disables the rotation effect.
+	 * - `preferNo` disables the rotation effect, unless the user wants all images to be rotated. This is the default.
+	 * - `preferYes` enables the rotation effect, unless the user doesn't want any images to be rotated.
+	 */
+	rotates?: keyof typeof ImageRotation;
+};
+
+const {
+	lqip = true,
+	rotates = "preferNo",
+	src,
+	alt,
+	license = "CC-BY-SA-4.0",
+	...props
+} = Astro.props;
+
+const meta = await getImageMetadata(src);
+if (!props.width && !props.height && !props.widths) {
+	const maxWidth = meta ? Math.min(meta.width, 768) : 768;
+	props.width = maxWidth;
+	props.widths = [256, 384, 512, 640, maxWidth]
+		.filter((width): width is number =>
+			width !== undefined && width <= maxWidth,
+		);
+}
+
+const baseName = getFileName(meta?.src);
+const [fileName, extName] = baseName.split(".");
+---
+
+<figure class:list={["main-image", { "has-preview": meta !== undefined }]} data-src={meta?.src}>
+	<BaseImage lqip={lqip} src={src} alt={alt} pictureAttributes={{ "data-rotates": rotates }} {...props} />
+	<figcaption>
+		<slot />
+	</figcaption>
+
+	{
+		/* Image viewer - TODO: make this global to reduce document size */
+		meta && (
+			<article class="main-image-preview backdrop">
+				<div class="top-row">
+					<Badge type="beta" />
+
+					<div class="buttons">
+						<a href={meta.src} download={baseName} title="Download" aria-label="Download">
+							<FluentArrowDownload24Regular />
+						</a>
+						<button class="close-preview" title="Close" aria-label="Close">
+							<FluentDismiss24Regular />
+						</button>
+					</div>
+				</div>
+				{/*
+					Here we want to use the raw image, but because it's a lot bigger we don't want it to load immediately,
+					so it gets stored in an attribute to be loaded by JavaScript later.
+					This does thankfully work in the final build.
+				*/}
+				<img alt={alt} width={meta.width} height={meta.height} />
+				<footer>
+					<h2 class="title">
+						{fileName}<span class="file-type">.{extName}</span>
+						<span class="image-dimensions">({meta.width} &times; {meta.height})</span>
+					</h2>
+					<p><slot /></p>
+					<LicenseNotice license={license} {...props} />
+				</footer>
+			</article>
+		)
+	}
+</figure>
+
+<script>
+	import { preferences } from "../../scripts/preferences";
+	import { ImageRotation } from "../../types";
+	import { clamp } from "../../scripts/utils";
+
+	const ENABLE_LOGGING = false; // TODO: maybe make this an advanced preference?
+
+	let root: HTMLElement;
+	let topbar: HTMLElement | null;
+	let rotatingImages: HTMLPictureElement[];
+	let lastLogTime = 0;
+	let listening = false;
+
+	function loadImages() {
+		root = document.querySelector("main") ?? document.body;
+		topbar = document.querySelector("header");
+
+		rotatingImages = [];
+		const images = document.querySelectorAll<HTMLElement>("figure.main-image");
+		for (const figure of images) {
+			const picture = figure.querySelector("picture");
+			if (!picture) {
+				continue;
+			}
+
+			const preview = figure.querySelector<HTMLElement>(".main-image-preview");
+			if (preview) {
+				const image = preview.querySelector("img");
+
+				// Parent to the body to avoid issues with `position: fixed`
+				document.body.append(preview);
+
+				// Load the image when the viewer is opened
+				picture.addEventListener("click", () => {
+					if (image && !image.src && figure.dataset.src) {
+						image.src = figure.dataset.src;
+					}
+					preview.classList.add("open");
+				});
+
+				preview.addEventListener("click", (ev) => {
+					if (ev.target === preview) {
+						preview.classList.remove("open");
+					}
+				});
+
+				const closeButton = preview.querySelector(".close-preview");
+				closeButton?.addEventListener("click", () => {
+					preview.classList.remove("open");
+				});
+			}
+
+			rotatingImages.push(picture);
+		}
+		updateImages();
+	}
+
+	// Rotate the images based on where it is on the screen
+	function updateImages() {
+		if (!root || !rotatingImages) {
+			return;
+		}
+
+		let i = 0;
+		let shouldLog = false;
+		if (ENABLE_LOGGING) {
+			const now = Date.now();
+			shouldLog = now - lastLogTime > 400;
+			if (shouldLog) {
+				lastLogTime = now;
+			}
+		}
+
+		const rootBounds = root.getBoundingClientRect();
+		const topbarInset = topbar?.offsetHeight ?? 0;
+
+		for (const image of rotatingImages) {
+			const userRotate = ImageRotation[preferences.imageRotation.get()];
+			const imgRotate = ImageRotation[image.dataset.rotates as keyof typeof ImageRotation];
+			const rotates =
+				userRotate !== ImageRotation.never &&
+				imgRotate !== ImageRotation.never &&
+				imgRotate > userRotate;
+			image.classList.toggle("rotates", rotates);
+
+			// Determine where the image lies on the screen
+			const imgBounds = image.getBoundingClientRect();
+
+			const xPosition = imgBounds.x - rootBounds.x;
+			const pageWidth = rootBounds.width - imgBounds.width;
+			let xPercent = clamp(xPosition / pageWidth * 2 - 1, -1, 1);
+
+			// Reduce the rotation amount the wider the image is. If the image takes up the full width of the page,
+			// the rotation already cancels out on its own, so we don't need to handle that here.
+			const imageWidth = imgBounds.width / rootBounds.width;
+			xPercent *= 1 - (imageWidth ** 0.75) * 0.75;
+
+			const yPosition = imgBounds.y + imgBounds.height - topbarInset;
+			const pageHeight = innerHeight + imgBounds.height - topbarInset;
+			let yPercent = clamp(yPosition / pageHeight * 2 - 1, -1, 1);
+
+			// Accentuate the rotation from the vertical position a bit
+			yPercent = Math.abs(yPercent) ** 0.8 * Math.sign(yPercent);
+
+			const rotation = xPercent * yPercent * 1.25;
+			image.style.setProperty("--main-image-rotation", `${rotation}deg`);
+
+			if (shouldLog) {
+				console.debug(
+					`Image #${++i}: x =`, xPercent.toFixed(5),
+					"| y =", yPercent.toFixed(5),
+					"| ", rotation.toFixed(5) + "deg",
+				);
+			}
+		}
+	}
+
+	document.addEventListener("astro:after-swap", loadImages);
+	document.addEventListener("custom:preferences-updated", () => {
+		if (preferences.immersiveFX.isEnabled()) {
+			if (!listening) {
+				listening = true;
+				document.addEventListener("scroll", updateImages);
+				updateImages();
+			}
+		} else {
+			document.removeEventListener("scroll", updateImages);
+			listening = false;
+		}
+	});
+	loadImages();
+</script>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+	@use "../../styles/colors" as *;
+
+	figure.main-image {
+		> picture {
+			--main-image-rotation: 0;
+			--rotate: 0;
+
+			&.rotates {
+				--rotate: 1;
+
+				@media (prefers-reduced-motion: reduce) {
+					--rotate: 0;
+				}
+			}
+
+			max-width: min(size(768), 100svh);
+			transition: transform $anim-back, box-shadow $anim-ease;
+			transform: rotate(calc(var(--main-image-rotation) * var(--rotate)));
+
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+		}
+
+		> figcaption {
+			:global(> :first-child) {
+				margin-top: 0;
+			}
+
+			:global(> :last-child) {
+				margin-bottom: 0;
+			}
+		}
+
+		&.has-preview > picture {
+			cursor: pointer;
+
+			@include preferences("fx") {
+				@include hover {
+					transform: scale(101.5%) rotate(calc(
+						var(--main-image-rotation) * (var(--rotate) + 0.3 * (1.5 - var(--rotate) * 0.5))
+					));
+					box-shadow: $glass-shadow;
+				}
+
+				@include active {
+					transform: scale(99%) rotate(calc(
+						var(--main-image-rotation) * (var(--rotate) - 0.2 * (1.5 - var(--rotate) * 0.5))
+					));
+				}
+			}
+		}
+	}
+
+	// Image viewer
+	.main-image-preview {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		z-index: 2100;
+
+		.top-row {
+			display: flex;
+
+			width: 100%;
+			padding: $page-margin;
+			gap: size(10);
+
+			pointer-events: none;
+		}
+
+		@include preferences("fx") {
+			> img {
+				transition: transform 350ms $ease-out-back;
+				transform: scale(95%);
+			}
+
+			&.open > img {
+				transform: scale(100%);
+			}
+		}
+
+		&.open .buttons {
+			pointer-events: auto;
+		}
+
+		.buttons {
+			display: flex;
+			height: size(48);
+			overflow: hidden;
+			flex-shrink: 0;
+			margin-left: auto;
+
+			border: 1px solid var(--color-border);
+			border-radius: $radius-full;
+
+			a, button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				width: size(48);
+				height: 100%;
+				padding: 0;
+
+				background-color: transparent;
+				border: none;
+				color: var(--color-text);
+
+				@include btn-transparent;
+				@include bounce-anim;
+			}
+
+			> * {
+				&:first-child {
+					padding-left: size(2);
+				}
+
+				&:last-child {
+					padding-right: size(2);
+				}
+
+				&:not(:last-child) {
+					border-right: 1px solid var(--color-border);
+				}
+			}
+
+			[data-icon] {
+				font-size: size(24);
+			}
+
+			.close-preview {
+				color: $red-450;
+				@include bounce-anim(1);
+			}
+		}
+
+		img {
+			max-width: calc(100% - $page-margin * 2);
+			object-fit: contain;
+			min-height: 0;
+			height: auto;
+		}
+
+		footer {
+			display: flex;
+			flex-direction: column;
+			gap: size(6);
+
+			width: 100%;
+			padding: $page-margin;
+			margin-top: $page-margin;
+			border-top: 1px solid var(--color-border);
+
+			> :global(*) {
+				margin: 0;
+			}
+
+			// Don't leave a gap if there's an empty element
+			> :global(:empty) {
+				display: none;
+			}
+
+			.title {
+				margin-bottom: size(2);
+				font-size: size(22);
+				font-weight: 650;
+			}
+
+			.file-type {
+				color: var(--color-dim);
+				font-size: size(18);
+				font-weight: 500;
+			}
+
+			.image-dimensions {
+				color: var(--color-dimmer);
+				font-size: size(16);
+				font-weight: 400;
+			}
+		}
+
+		.buttons, footer {
+			background-color: var(--color-component);
+		}
+	}
+</style>

@@ -1,13 +1,24 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
 import "../styles/general.scss";
-import { BLOG_TITLE, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.ts";
+import { BLOG_TITLE, LICENSES, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.ts";
 import Header from "../components/nav/Header.astro";
 import { ClientRouter } from "astro:transitions";
-import { Icon } from "astro-icon/components";
 import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/nav/Link.astro";
+import type { ImageMetadata, MarkdownHeading } from "astro";
+import FluentCalendarClock20Regular from '~icons/fluent/calendar-clock-20-regular';
+import NotoConstruction from "~icons/noto/construction";
+import Banner from "../components/Banner.astro";
 
 interface Props {
 	/** The title of the page. */
@@ -15,6 +26,9 @@ interface Props {
 
 	/** A description of the page. */
 	description?: string;
+
+	/** The image to display in embeds. */
+	image?: ImageMetadata;
 
 	/**
 	 * Whether this page is part of the blog.
@@ -25,9 +39,12 @@ interface Props {
 
 	/** When this page was last updated. */
 	lastModified?: Date;
+
+	/** The headings on this page. Used to generate a table of contents. */
+	headings?: MarkdownHeading[];
 }
 
-const { title, description, isBlog = false, lastModified } = Astro.props;
+const { title, description, image, isBlog = false, lastModified, headings } = Astro.props;
 const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 ---
 
@@ -49,22 +66,44 @@ const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 	<meta name="author" content={SITE_AUTHOR} />
 	<meta name="generator" content={Astro.generator} />
 
+	{/* Mainly for Discord embeds */}
+	<meta name="theme-color" content="#f11325" />
+
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={Astro.url} />
 	<meta property="og:title" content={title} />
 	<meta property="og:description" content={description} />
+	{image &&
+		<meta property="og:image" content={new URL(image.src, Astro.url)} />}
+
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content={Astro.url} />
+	<meta property="twitter:title" content={title} />
+	<meta property="twitter:description" content={description} />
+	{image &&
+		<meta property="twitter:image" content={new URL(image.src, Astro.url)} />}
 
 	{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
 	<Font cssVariable="--font-body" preload />
 	<Font cssVariable="--font-heading" preload />
 	<Font cssVariable="--font-mono" />
+	<Font cssVariable="--font-serif" />
 	<ClientRouter />
 
 	<slot name="head" />
 </head>
 <body>
+<div class="loading-bar" transition:persist></div>
 
-<Header />
+<Header headings={headings} />
+
+<Banner id="under-construction">
+	<NotoConstruction />
+	<span>
+		This newly revamped version of the website is still being worked on.
+		Report any bugs you find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+	</span>
+</Banner>
 
 <main>
 	<slot />
@@ -72,16 +111,19 @@ const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 
 <footer>
 	{lastModified && (
-		<FormattedDate date={lastModified} icon="fluent:calendar-clock-20-regular">
+		<FormattedDate date={lastModified}>
+			<FluentCalendarClock20Regular slot="icon" />
 			<Fragment slot="before">Last updated:</Fragment>
 		</FormattedDate>
 	)}
 	<slot name="footer" />
 	<p>
-		The content of this website is available under the
-		<Link href="https://creativecommons.org/licenses/by-sa/4.0/" external
-		      icon={["cib:creative-commons", "cib:creative-commons-by", "cib:creative-commons-sa"]}>CC-BY-SA 4.0</Link>
-		licence.
+		<small>
+			The content of this site is available under the
+			<Link href={LICENSES["CC-BY-SA-4.0"].url} external
+			      icons={LICENSES["CC-BY-SA-4.0"].icons}>{LICENSES["CC-BY-SA-4.0"].title}</Link>
+			licence.
+		</small>
 	</p>
 </footer>
 
@@ -90,28 +132,5 @@ const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 </body>
 </html>
 
-<script>
-	import { loadPreferences, preferences } from "../scripts/preferences";
-	import { TogglePreference } from "../scripts/preferences/types/TogglePreference.tsx";
-
-	function updatePageData() {
-		const enabled = [];
-		for (const preference of preferences) {
-			// noinspection SuspiciousTypeOfGuard
-			if (preference instanceof TogglePreference && preference.isEnabled()) {
-				enabled.push(preference.id);
-			}
-		}
-		document.documentElement.dataset.preferences = enabled.join(" ");
-
-		const isLightTheme =
-			preferences.theme.equals("light") ||
-			(preferences.theme.equals("auto") && window.matchMedia("(prefers-color-scheme: light)").matches);
-		document.documentElement.classList.toggle("light-theme", isLightTheme);
-	}
-
-	document.addEventListener("astro:after-swap", () => document.dispatchEvent(new Event("custom:preferences-updated")));
-	document.addEventListener("custom:preferences-updated", updatePageData);
-	loadPreferences();
-</script>
+<script src="../scripts/client-init.ts"></script>
 <script src="../scripts/immersive-background/index.ts"></script>

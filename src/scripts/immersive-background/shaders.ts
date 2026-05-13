@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // Shader source code for the immersive background
 
 // language=GLSL
@@ -112,7 +120,7 @@ export const bgFrag = `
 		float vignette = 1.0 / (rf * rf);
 
 		// Final colour
-		vec3 background = vec3(0.0354, 0.0354, 0.0436);
+		vec3 background = vec3(0.0266, 0.0266, 0.0327);
 		vec3 colour = mix(background * vignette, vec3(1.0), stars * noise * (0.5 + vignette * 0.5));
 		//vec3 colour = vec3(noise);
 		gl_FragColor = vec4(colour, 1.0);

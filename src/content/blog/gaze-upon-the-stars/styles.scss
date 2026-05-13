@@ -1,0 +1,52 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+
+.chord-progressions {
+	$spacing: size(12);
+
+	display: flex;
+	flex-wrap: wrap;
+	gap: $spacing;
+
+	> :not(:last-child) {
+		padding-right: $spacing;
+		border-right: 1px solid var(--color-border);
+	}
+
+	h4 {
+		margin-top: 0;
+		margin-bottom: size(8);
+
+		font-size: size(16);
+		font-weight: 500;
+		font-family: var(--font-body), sans-serif;
+	}
+
+	table {
+		margin: auto;
+		border-collapse: collapse;
+
+		font-family: var(--font-serif), serif;
+		text-align: center;
+	}
+
+	th {
+		font-size: size(18);
+	}
+
+	td {
+		color: var(--color-dim);
+	}
+
+	.separator {
+		padding: 0 $spacing size(4);
+		color: var(--color-dimmer);
+	}
+}

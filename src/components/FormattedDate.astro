@@ -1,39 +1,35 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Formats a date to display to the user.
+
 import { SITE_LANGUAGE } from "../consts.ts";
-import { Icon } from "astro-icon/components";
+import FluentCalendarEmpty20Regular from '~icons/fluent/calendar-empty-20-regular';
+
 interface Props {
 	date: Date;
-	icon?: string;
 	format?: Intl.DateTimeFormatOptions;
 }
 
-const {
-	date,
-	icon = "fluent:calendar-empty-20-regular",
-	format = { dateStyle: "medium" },
-	...cid
-} = Astro.props;
+const { date, format = { dateStyle: "medium" }, ...cid } = Astro.props;
+const isValidDate = isFinite(date.valueOf());
+
+// TODO: add relative time on the client
 ---
 
-<span class="formatted-date" {...cid}>
-	<Icon name={icon} size={20} class="icon" />
-	<span>
-		<slot name="before" />
-		<time datetime={date.toISOString()}>
-			{date.toLocaleDateString(SITE_LANGUAGE, format)}
-		</time>
-		<slot name="after" />
-	</span>
-</span>
-
-<style lang="scss">
-	.formatted-date {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
-
-		.icon {
-			flex-shrink: 0;
-		}
-	}
-</style>
+<p class="formatted-date" {...cid}>
+	<slot name="icon">
+		<FluentCalendarEmpty20Regular />
+	</slot>
+	<slot name="before" />
+	<time datetime={isValidDate ? date.toISOString() : undefined}>
+		{date.toLocaleDateString(SITE_LANGUAGE, format)}
+	</time>
+	<slot name="after" />
+</p>

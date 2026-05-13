@@ -1,0 +1,130 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// A GitHub-style alert box with some additional flavour.
+
+import FluentInfo24Regular from '~icons/fluent/info-24-regular';
+import FluentLightbulb24Regular from '~icons/fluent/lightbulb-24-regular';
+import FluentChatWarning24Regular from '~icons/fluent/chat-warning-24-regular';
+import FluentWarning24Regular from '~icons/fluent/warning-24-regular';
+import FluentErrorCircle24Regular from '~icons/fluent/error-circle-24-regular';
+import type { HTMLAttributes } from "astro/types";
+
+interface Props {
+	type: keyof typeof alertTypes;
+}
+
+interface Alert {
+	title: string;
+	icon: (props: HTMLAttributes<"svg">) => astroHTML.JSX.Element;
+}
+
+const alertTypes = {
+	note: {
+		title: "Hey!",
+		icon: FluentInfo24Regular,
+	},
+	tip: {
+		title: "Fun fact!",
+		icon: FluentLightbulb24Regular,
+	},
+	important: {
+		title: "Heads up!",
+		icon: FluentChatWarning24Regular,
+	},
+	warning: {
+		title: "Warning!",
+		icon: FluentWarning24Regular,
+	},
+	caution: {
+		title: "Watch out!",
+		icon: FluentErrorCircle24Regular,
+	},
+} satisfies Record<string, Alert>;
+
+const { type } = Astro.props;
+const { icon: Icon, title } = alertTypes[type];
+---
+
+<blockquote class={`alert-${type}`}>
+	<div class="alert-type">
+		<Icon />
+		{title}
+	</div>
+	<slot />
+</blockquote>
+
+<style lang="scss">
+	@use "../styles/colors" as *;
+	@use "../styles/utils" as *;
+	@use "sass:map";
+	@use "sass:color";
+
+	@mixin alert($color-map) {
+		--alert-text: #{map.get($color-map, 50)};
+		--alert-label: #{map.get($color-map, 375)};
+		--alert-border: #{map.get($color-map, 500)};
+		--alert-background: #{color.change(map.get($color-map, 625), $alpha: 12%)};
+
+		@include preferences("light") {
+			--alert-text: #{map.get($color-map, 950)};
+			--alert-label: #{map.get($color-map, 725)};
+			--alert-border: #{map.get($color-map, 550)};
+			--alert-background: #{color.change(map.get($color-map, 275), $alpha: 18%)};
+		}
+	}
+
+	blockquote {
+		border-left-color: var(--alert-border);
+		background-color: var(--alert-background);
+		color: var(--alert-text);
+
+		[data-icon] {
+			font-size: size(24);
+		}
+
+		.alert-type {
+			display: flex;
+			align-items: center;
+			gap: size(6);
+
+			font-size: size(17);
+			font-family: var(--font-heading), sans-serif;
+			color: var(--alert-label);
+
+			+ :global(*) {
+				margin-top: size(8);
+			}
+		}
+
+		:global(small, .text-dim) {
+			color: color-mix(in srgb, var(--alert-text), transparent 25%);
+		}
+	}
+
+	.alert-note {
+		@include alert($colors-blue);
+	}
+
+	.alert-tip {
+		@include alert($colors-green);
+	}
+
+	.alert-important {
+		@include alert($colors-purple);
+	}
+
+	.alert-warning {
+		@include alert($colors-yellow);
+	}
+
+	.alert-caution {
+		@include alert($colors-red);
+	}
+</style>

@@ -1,0 +1,3 @@
+[submodule "src/assets/fonts/Edwin"]
+	path = src/assets/fonts/Edwin
+	url = https://github.com/MuseScoreFonts/Edwin.git

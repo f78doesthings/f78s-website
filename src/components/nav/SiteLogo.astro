@@ -1,0 +1,99 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Logo for the site navigation
+
+import avatar from "../../assets/avatar.avif";
+import { SITE_TITLE } from "../../consts.ts";
+import BaseImage from "../media/BaseImage.astro";
+
+interface Props {
+}
+
+const { ...cid } = Astro.props;
+---
+
+<h1 class="site-logo" {...cid}>
+	<a href="/" {...cid}>
+		<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} priority {...cid} />
+		<span class="title">{SITE_TITLE.split("").map(v => <span>{v}</span>)}<span>!</span></span>
+	</a>
+</h1>
+
+<style lang="scss">
+	@use "../../styles/colors" as *;
+	@use "../../styles/utils" as *;
+
+	@mixin letter(
+		$index,
+		$rotation: 0,
+		$pad: 0,
+		$dark-start: $taupe-50,
+		$dark-end: $taupe-150,
+		$light-start: $zinc-850,
+		$light-end: $zinc-950,
+	) {
+		> :nth-child(#{$index}) {
+			@include preferences("fx") {
+				background-image: linear-gradient($dark-start, $dark-end);
+
+				margin-left: $pad;
+				rotate: $rotation;
+				@content;
+			}
+
+			@include preferences("fx", "light") {
+				background-image: linear-gradient($light-start, $light-end);
+			}
+		}
+	}
+
+	h1 {
+		margin: 0;
+		line-height: 0;
+		font-size: size(30);
+		font-weight: 900;
+
+		picture {
+			border-radius: 100%;
+			overflow: hidden;
+			box-shadow: $glass-shadow;
+		}
+
+		a {
+			gap: size(12);
+			align-items: center;
+		}
+
+		@include bounce-anim($selector: "picture");
+	}
+
+	.title {
+		line-height: 1;
+
+		@include preferences("fx") {
+			> * {
+				display: inline-block;
+				background-clip: text;
+				color: transparent;
+			}
+		}
+
+		@include preferences("no-fx") {
+			> :last-child {
+				display: none;
+			}
+		}
+
+		@include letter(1, -5deg);
+		@include letter(2, 1deg);
+		@include letter(3, -1deg);
+		@include letter(4, 6deg, 2px, $red-500, $red-625, $red-600, $red-725);
+	}
+</style>

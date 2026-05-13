@@ -1,27 +1,38 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.ts";
 import { getCollection } from "astro:content";
 import LinkTree from "../components/nav/LinkTree.astro";
 import Link from "../components/nav/Link.astro";
-import { Icon } from 'astro-icon/components';
-import avatar from "../assets/avatar.webp";
+import avatar from "../assets/avatar.avif";
 import Badge from "../components/Badge.astro";
 import type { LinkData } from "../types";
-import MainImage from "../components/images/MainImage.astro";
+import MainImage from "../components/media/MainImage.astro";
+import CircleFlagsBe from "~icons/circle-flags/be";
+import SimpleIconsSoundcloud from "~icons/simple-icons/soundcloud";
+import SimpleIconsYoutube from "~icons/simple-icons/youtube";
+import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
 
 const links = await getCollection("links");
 const blogLink: LinkData = {
 	id: "blog",
 	title: BLOG_TITLE,
-	description: "This is quite barren right now, but I'm hoping to change that by posting announcements for new content and such here.",
+	description: "This is where I talk about whatever I feel like talking about. Right now there's not that much here yet.",
 	url: "/blog",
 	icon: "fluent:rss-24-regular",
 	order: -100,
 	tags: ["new", "beta"],
 };
 
-// TODO: consider converting this to a Markdown file for table of contents and such
+// TODO: consider converting this to MDX for table of contents and such
 ---
 
 <BaseLayout title="Home" description={SITE_DESCRIPTION}>
@@ -29,8 +40,10 @@ const blogLink: LinkData = {
 		<div>
 			<h1>Hi there!</h1>
 			<p>
-				I'm <b class="my-name">f78</b> <small>(usually pronounced eff-seven-eight)</small>, a 22-year-old guy from
-				<Icon name="circle-flags:be" class="icon" /> Belgium who's currently studying programming at college.
+				I'm <strong class="my-name">f78</strong> <small>(usually pronounced eff-seven-eight)</small>, a 22-year-old guy
+				from
+				<CircleFlagsBe />
+				<strong>Belgium</strong> who's currently studying programming at college.
 				In my spare time I like to do stuff like playing PC games, listening to and creating music, as well as
 				programming various things <i><small>(including this website you're currently browsing)</small></i>.
 			</p>
@@ -44,9 +57,10 @@ const blogLink: LinkData = {
 		</div>
 
 		<aside>
-			<MainImage src={avatar} alt="f78's avatar" width={256} height={256} loading="eager" fetchpriority="high">
+			<MainImage src={avatar} width={256} height={256} priority rotates="preferYes"
+			           alt="f78's avatar" createdIn="2025">
 				An image of my current avatar, which is just my Minecraft skin with some headphones on.
-				I might want to replace it at some point...
+				<i>I might want to replace it at some point...</i>
 			</MainImage>
 		</aside>
 	</section>
@@ -56,13 +70,15 @@ const blogLink: LinkData = {
 		Below is a list of links to my social media accounts and such. Remember that I'm quite busy with college, so I won't
 		be producing much content for the time being. Right now I'm mainly putting out <b>covers of the Home Paige OST</b>,
 		which you can listen to on
-		<Link href="https://soundcloud.com/f78music/sets/home-paige-covers" external
-		      icon="simple-icons:soundcloud">SoundCloud</Link> and
-		<Link href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs" external
-		      icon="simple-icons:youtube">YouTube</Link>*. You can also find downloads for them
+		<Link href="https://soundcloud.com/f78music/sets/home-paige-covers" external>
+			<SimpleIconsSoundcloud />
+			SoundCloud</Link> and
+		<Link href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs" external>
+			<SimpleIconsYoutube />
+			YouTube</Link>*. You can also find downloads for them
 		<Link href="https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX?dir=/Music/Home%20Paige%20covers" external>
-			in this public Nextcloud folder
-		</Link>.
+			<SimpleIconsNextcloud />
+			in this public Nextcloud folder</Link>.
 	</p>
 	<p>
 		<small>
@@ -98,10 +114,6 @@ const blogLink: LinkData = {
 	@use "../styles/utils" as *;
 	@use "sass:color";
 
-	.icon {
-		margin-bottom: -0.125rem;
-	}
-
 	.badge-legend {
 		dd {
 			margin: 0.5rem 0 1rem 2rem;
@@ -109,7 +121,7 @@ const blogLink: LinkData = {
 		}
 	}
 
-	@media (min-width: $breakpoint-tablet) {
+	@media (min-width: $breakpoint-desktop) {
 		.badge-legend {
 			display: grid;
 			grid-template-columns: auto 1fr;
@@ -137,7 +149,7 @@ const blogLink: LinkData = {
 		}
 
 		// Subtle gradient animation
-		@include preferences("immersiveFX") {
+		@include preferences("fx") {
 			position: relative;
 			background-image: linear-gradient(to right, var(--start-color), var(--end-color), var(--start-color), var(--end-color));
 			background-size: 300%;

@@ -1,21 +1,33 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 @use "../styles/utils" as *;
 @use "../styles/colors" as *;
 @use "sass:color";
 
 :root {
+	// Colours
 	--color-page: #{$zinc-950};
 	--color-component: #{$zinc-900};
-	--color-border: #{$zinc-700};
+	--color-border: #{$zinc-675};
 	--color-heading: #{$taupe-50};
 	--color-text: #{$taupe-100};
-	--color-dim: #{$taupe-300};
-	--color-dimmer: #{$neutral-400};
+	--color-dim: #{$stone-325};
+	--color-dimmer: #{$neutral-450};
 
 	color-scheme: only dark;
+	accent-color: $red-575;
 
-	// TODO: this leaves a rather ugly gap on the right (especially noticeable in light mode with the immersive background,
-	//       as well as with the navbar), is there a better solution for this?
-	scrollbar-gutter: stable;
+	@media (prefers-contrast: more) {
+		--color-border: #{$neutral-500};
+		--color-dim: #{$stone-250};
+		--color-dimmer: #{$neutral-350};
+	}
 
 	@include preferences("light", $is-root: true) {
 		--color-page: white;
@@ -23,15 +35,44 @@
 		--color-border: #{$taupe-300};
 		--color-heading: #{$zinc-950};
 		--color-text: #{$zinc-900};
-		--color-dim: #{$zinc-600};
+		--color-dim: #{$zinc-625};
 		--color-dimmer: #{$neutral-500};
 
 		color-scheme: only light;
+		accent-color: $red-625;
+
+		@media (prefers-contrast: more) {
+			--color-border: #{$neutral-500};
+			--color-dim: #{$zinc-775};
+			--color-dimmer: #{$neutral-650};
+		}
 	}
+
+	// Make sure the target we're scrolling to is in view (does not account for banners yet)
+	scroll-padding-top: size(80);
+
+	@media (min-width: $breakpoint-desktop) {
+		scroll-padding-top: $page-margin;
+	}
+
+	// Prevent scrolling when a pop-up is open
+	&:has(> body > .open) {
+		overflow: hidden;
+	}
+
+	// TODO: this leaves a rather ugly gap on the right, is there a better solution for this?
+	scrollbar-gutter: stable;
 
 	// For older Safari versions
 	@supports not (scrollbar-gutter: stable) {
 		overflow-y: scroll;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		transition: none !important;
+		animation: none !important;
 	}
 }
 
@@ -45,7 +86,65 @@ body {
 	font-family: var(--font-body), sans-serif;
 	color: var(--color-text);
 
-	scroll-padding-top: size(64);
+	> .loading-bar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: size(3);
+		z-index: 3000;
+		pointer-events: none;
+
+		background-image: linear-gradient(to right, $red-600, $red-500);
+		background-size: 100dvw;
+		border-radius: 0 size(1) size(1) 0;
+
+		@include preferences("fx") {
+			&::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+
+				background: inherit;
+				border-radius: inherit;
+				filter: blur(size(3));
+				opacity: 0.5;
+			}
+		}
+	}
+
+	@media (min-width: $breakpoint-desktop) {
+		display: grid;
+		align-items: start;
+		justify-items: center;
+		grid-template:
+			"sidebar main"
+			"sidebar footer"
+			/ auto 1fr;
+
+		&:has(> [data-banner].visible) {
+			grid-template:
+				"sidebar banner"
+				"sidebar main"
+				"sidebar footer"
+				/ auto 1fr;
+		}
+
+		[data-banner] {
+			grid-area: banner;
+		}
+
+		.sidebar {
+			grid-area: sidebar;
+		}
+
+		> main {
+			grid-area: main;
+		}
+
+		> footer {
+			grid-area: footer;
+		}
+	}
 }
 
 .debug-display {
@@ -81,9 +180,12 @@ body {
 	}
 
 	h6 {
-		font-size: inherit;
 		font-weight: 350;
 		color: var(--color-dim);
+	}
+
+	h6, pre {
+		font-size: inherit;
 	}
 
 	h5, h6, pre {
@@ -96,6 +198,9 @@ body {
 	}
 
 	@include glass;
+	@media (min-width: $breakpoint-desktop) {
+		left: size(302);
+	}
 }
 
 .immersive-background {
@@ -107,7 +212,7 @@ body {
 	z-index: -999;
 
 	@include preferences("light") {
-		filter: invert(1);
+		filter: invert(1) brightness(110%);
 	}
 
 	@include preferences("bg") {
@@ -122,14 +227,18 @@ h1, h2, h3, h4, h5, h6 {
 	line-height: 1;
 }
 
-p small, figcaption {
+small, figcaption {
 	color: var(--color-dim);
-	font-size: size(14);
+	font-size: size(14, true);
 }
 
-pre, code {
+small small, .text-dimmer {
+	color: var(--color-dimmer);
+}
+
+code {
 	font-family: var(--font-mono), monospace;
-	font-size: size(14);
+	font-size: size(14, true);
 }
 
 .astro-code {
@@ -146,15 +255,30 @@ pre, code {
 	}
 }
 
-p a, [data-banner] a {
+p [data-icon] {
+	margin-top: size(-2, true);
+	vertical-align: middle;
+	font-size: 1.25em;
+}
+
+p a, small a, [data-banner] a {
 	color: $red-450;
 	font-weight: 500;
-	text-underline-offset: size(3);
+	text-underline-offset: size(3, true);
 	text-decoration-color: color-mix(in srgb, currentColor, transparent 50%);
 	transition: color $anim-ease, text-decoration-color $anim-ease;
 
+	.external-icon [data-icon] {
+		margin-left: size(3, true);
+		margin-top: size(-3, true);
+		margin-right: 0;
+
+		vertical-align: middle;
+		font-size: size(16);
+	}
+
 	@include hover {
-		color: $red-350;
+		color: $red-375;
 	}
 
 	@include active {
@@ -165,11 +289,11 @@ p a, [data-banner] a {
 		color: $red-700;
 
 		@include hover {
-			color: $red-800;
+			color: $red-825;
 		}
 
 		@include active {
-			color: $red-900;
+			color: $red-912;
 		}
 	}
 }
@@ -202,14 +326,16 @@ option {
 	color: var(--color-heading);
 	text-decoration: none;
 
-	transition: filter $anim-ease;
+	transition: filter $anim-ease, transform $anim-back;
 
 	@include hover {
 		filter: brightness(115%);
+		transform: scale(104%) rotate(-1deg);
 	}
 
 	@include active {
 		filter: brightness(90%);
+		transform: scale(98%) rotate(0.5deg);
 	}
 
 	@include preferences("light") {
@@ -225,10 +351,14 @@ main {
 	line-height: 1.25;
 
 	@include preferences("bg") {
-		background-color: color-mix(in srgb, var(--color-page), transparent 50%);
+		background-color: color-mix(in srgb, var(--color-page), transparent 35%);
 	}
 
-	@media (min-width: $breakpoint-tablet) {
+	@include preferences("fx", "bg") {
+		backdrop-filter: blur(size(1.5));
+	}
+
+	@media (min-width: $breakpoint-desktop) {
 		width: calc(100% - ($page-margin + 1px) * 2);
 		margin: calc($page-margin + 1px) calc($page-margin + 1px) 1px;
 
@@ -245,27 +375,58 @@ main {
 			border: 1px solid var(--color-border);
 			border-radius: size(16);
 			overflow: hidden;
-		}
 
-		@include glass("bg");
+			box-shadow: $glass-shadow;
+		}
 
 		.section-with-image {
 			display: flex;
 			gap: $page-margin;
 
 			// Fix margins
-			> div > :last-child {
-				margin-bottom: 0;
+			div {
+				padding-bottom: $page-margin;
+
+				> :last-child {
+					margin-bottom: 0;
+				}
 			}
 
+			+ :is(h1, h2, h3, h4, h5, h6) {
+				margin-top: 0;
+			}
+
+			// Move the image to the side - BUG: image has wrong size if not loaded
 			aside {
-				width: min-content;
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
 				margin-top: $page-margin;
 
 				figure {
+					width: min-content;
 					margin: 0;
 				}
+
+				picture, img {
+					width: auto;
+					max-width: none !important;
+				}
 			}
+		}
+	}
+
+	[data-footnote-ref] {
+		&::before {
+			content: "[";
+		}
+
+		&::after {
+			content: "]";
+		}
+
+		&::before, &::after {
+			opacity: 0.5;
 		}
 	}
 
@@ -280,6 +441,48 @@ main {
 		margin: size(16) 0;
 	}
 
+	blockquote {
+		width: 100%;
+
+		border-left: size(3) solid var(--color-border);
+		border-radius: size(4) size(16) size(16) size(4);
+		background: var(--color-component);
+
+		margin-left: 0;
+		padding: size(14) size(16);
+
+		> :first-child {
+			margin-top: 0;
+		}
+
+		> :last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	ul, ol {
+		padding-left: size(28);
+
+		> li {
+			> p {
+				margin-block: size(4);
+			}
+
+			&:not(:last-child) {
+				margin-bottom: size(8);
+			}
+
+			> ul, > ol {
+				margin: size(8) 0 size(12) 0;
+			}
+
+			&::marker {
+				color: var(--color-dimmer);
+			}
+		}
+	}
+
+	// Text styles
 	p code {
 		background-color: var(--color-component);
 		border: 1px solid var(--color-border);
@@ -291,6 +494,23 @@ main {
 	figcaption {
 		font-style: italic;
 		margin-top: size(6);
+
+		> .license-notice {
+			opacity: 0.85;
+			font-style: normal;
+		}
+
+		&:empty {
+			display: none;
+		}
+
+		> :first-child {
+			margin-top: 0;
+		}
+
+		> :last-child {
+			margin-bottom: 0;
+		}
 	}
 
 	h1, h2, h3, h4, h5, h6 {
@@ -298,16 +518,19 @@ main {
 	}
 
 	h1 {
+		margin-top: size(24);
 		font-weight: heading-weight(1);
 		font-size: size(36);
 	}
 
 	h2 {
+		margin-top: size(32);
 		font-weight: heading-weight(2);
 		font-size: size(27);
 	}
 
 	h3 {
+		margin-top: size(26);
 		font-weight: heading-weight(3);
 		font-size: size(22);
 	}
@@ -318,13 +541,23 @@ main {
 	}
 
 	h5 {
+		margin-top: size(20);
 		font-weight: heading-weight(5);
 		font-size: size(16);
 	}
 
 	h6 {
+		margin-top: size(18);
 		font-weight: heading-weight(6);
 		font-size: size(14);
+	}
+
+	.font-serif {
+		font-family: var(--font-serif), serif;
+	}
+
+	.text-dim {
+		color: var(--color-dim);
 	}
 }
 
@@ -339,12 +572,16 @@ body > footer {
 	padding: $page-margin;
 
 	background-color: hsl(0 0% 0% / 75%);
+	box-shadow: $glass-shadow;
 	border-top: 1px solid var(--color-border);
 	color: var(--color-dim);
 
-	@include glass;
 	@include preferences("light") {
 		background-color: hsl(0 0% 100% / 75%);
+	}
+
+	@include preferences("bg", "fx") {
+		backdrop-filter: blur(size(1.5));
 	}
 
 	> * {
@@ -352,9 +589,11 @@ body > footer {
 		max-width: $page-width;
 		margin: 0;
 
-		@include preferences("bg") {
-			@media (min-width: $breakpoint-tablet) {
-				padding: 0 $page-margin;
+		@media (min-width: $breakpoint-desktop) {
+			padding: 0 $page-margin;
+
+			@include preferences("loaded", "no-bg") {
+				padding: 0;
 			}
 		}
 	}
@@ -367,11 +606,13 @@ body > footer {
 	z-index: 2000;
 
 	pointer-events: none;
-	transition: all 0.28s ease;
+	visibility: collapse;
+	transition: all 275ms ease allow-discrete;
 
-	.open + &, &.open {
+	:not(.backdrop).open + &, &.open {
 		opacity: 1;
 		pointer-events: auto;
+		visibility: visible;
 		background-color: color.change($zinc-950, $alpha: 90%);
 
 		@include preferences("light") {

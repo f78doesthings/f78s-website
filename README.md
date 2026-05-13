@@ -10,14 +10,29 @@ the [official Astro blog template](https://github.com/withastro/astro/tree/main/
 
 ## Browser support
 
-This website is best experienced with a fairly recent version of a Chromium- or Firefox-based browser, or Safari. A
-decently modern device is also recommended, particularly for Immersive Mode.
+This website is best experienced with a **fairly recent version** of a browser based on **Chromium, Firefox or Safari**.
+A decently modern device is also recommended, particularly for Immersive Mode.
 
-I only test up-to-date versions of Vivaldi (based on Chromium) on both Linux and Android, and occasionally Safari
-on macOS or Firefox, so there is a chance an issue might pop up on an older browser.
-However, I also mostly stick to features that
-are [Baseline Widely available](https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility) (which have
-been supported by the major browsers for at least 2.5 years), so that shouldn't really happen.
+I only test up-to-date versions of Vivaldi (based on **Chromium**) on both **Linux** and **Android**, and occasionally
+Safari on macOS, as well as Firefox. (I do not currently have a way of testing on iOS.)
+
+That could mean there is a chance an issue might pop up on an older browser, however I also mostly stick to features
+that are [Baseline Widely available](https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility) (which
+have been supported by the major browsers for at least 2.5 years), so that shouldn't really happen.
+
+### Media
+
+All media files, like images, audio and videos, are compressed quite a bit in order to reduce the size of this
+repository. Of course, I'll do my best to strike a good balance between compression and quality for each file.
+
+- **Images** are automatically optimized by Astro using various formats and sizes to save your bandwidth.
+  These will have a **lower quality**, so make sure to use the image viewer to download them.
+	- The **image viewer** always displays (and downloads) the **source image**, which is typically in **WebP** or
+	  **AVIF** format. As such, older browsers and applications might not load these properly.
+
+- **Video** and **audio** are currently encoded as **H.264** and **AAC** respectively, using an **MP4** container. This
+  is simply because better formats aren't supported very well, especially by Safari. I use FFmpeg to encode these, with
+  the help of [this script](./scripts/convert.ts) (available through `npm run convert`).
 
 ## Improvements over the old Jekyll site
 
@@ -35,11 +50,28 @@ been supported by the major browsers for at least 2.5 years), so that shouldn't 
 - Several modern features provided by Astro, like page transitions and responsive images
 - And much more!
 
+## Looking to clone this repository?
+
+There are 2 things you need to keep in mind.
+
+- First, this repository
+  uses [Git LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage)
+  to store media files. Make sure to install it properly to get those media files. *(and maybe configure it as well?
+  not sure)*
+- Second, **submodules** are also used for things like the serif font (Edwin).
+	- Haven't cloned yet? Then make sure to use `git clone --recurse-submodules`.
+	- If you already cloned it and forgot about the submodules, run `git submodule update --init --recursive` inside
+	  the repository.
+
+To run a local dev server, you can use `npm run dev` as you normally would with Astro. `npm start` has also been added
+as an alias. These scripts have been modified a bit to suit my use case better.
+
 ## Licence
 
-The content of the website (i.e. the written text and any images I made) is available under
-the [Creative Commons Attribution-ShareAlike (CC-BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/) -
-see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
+The content of the website (i.e. the written text and most media I made) is available under
+the [Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/)
+unless stated otherwise - see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
 
 The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead falls under
-the [ISC licence](./LICENSE).
+the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best due to my lack of Astro
+experience.

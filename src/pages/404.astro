@@ -1,10 +1,31 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Link from "../components/nav/Link.astro";
+import FluentHome20Regular from "~icons/fluent/home-20-regular";
 ---
 
 <BaseLayout>
 	<h1>404: <small>Not Found</small></h1>
 	<p>The page you were looking for could not be found.</p>
-	<p><Link href="/" icon="fluent:home-20-regular">Go back to the home page</Link></p>
+	<p>
+		<Link href="/">
+			<FluentHome20Regular />
+			Go back to the home page</Link>
+	</p>
 </BaseLayout>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+
+	small {
+		font-weight: heading-weight(2);
+	}
+</style>

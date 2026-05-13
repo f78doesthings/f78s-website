@@ -1,64 +1,69 @@
 ---
-// Top bar and hamburger menu
-import avatar from "../../assets/avatar.webp";
-import { SITE_TITLE } from "../../consts.ts";
-import HeaderLink from "./HeaderLink.astro";
-import BaseImage from "../images/BaseImage.astro";
-import { Icon } from "astro-icon/components";
-import { isOnPage } from "../../utils.ts";
-import PreferenceControl from "../preferences/PreferenceControl.astro";
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Site navigation (top bar and sidebar)
+
+import type { MarkdownHeading } from "astro";
+import FluentLineHorizontal320Regular from "~icons/fluent/line-horizontal-3-20-regular";
+import FluentHome20Regular from "~icons/fluent/home-20-regular";
+import FluentRss20Regular from "~icons/fluent/rss-20-regular";
+import FluentSettings20Regular from "~icons/fluent/settings-20-regular";
+import FluentDismiss20Regular from "~icons/fluent/dismiss-20-regular";
 import Badge from "../Badge.astro";
-import Link from "./Link.astro";
+import PreferenceControl from "../preferences/PreferenceControl.astro";
+import SiteLogo from "./SiteLogo.astro";
+import SidebarLink from "./SidebarLink.astro";
 
 interface Props {
+	headings?: MarkdownHeading[];
 }
 
-// TODO: implement this on the client
-const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
-	? undefined
-	: `/preferences?from=${Astro.url.pathname}`;
----
+const { headings } = Astro.props;
 
+// TODO: add Skip Navigation and re-add close button
+---
 <header>
 	<nav>
-		<button title="Open the menu" class="open-hamburger-menu">
-			<Icon name="fluent:line-horizontal-3-20-regular" size={20} />
+		<button title="Open navigation menu" aria-label="Open navigation menu" class="show-sidebar">
+			<FluentLineHorizontal320Regular />
 		</button>
-		<h1>
-			<a href="/">
-				<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} loading="eager" fetchpriority="high" />
-				{SITE_TITLE}
-			</a>
-		</h1>
-
-		<div class="page-links">
-			<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
-			<HeaderLink href="/blog" icon="fluent:rss-20-regular">Blog</HeaderLink>
-		</div>
-
-		<div class="header-preferences">
-			<PreferenceControl preference="theme" noMobile />
-			<HeaderLink href={prefsLink} icon="fluent:settings-20-regular" title="Preferences"
-			            aria-label="Preferences"></HeaderLink>
-		</div>
+		<SiteLogo />
 	</nav>
 </header>
 
-<div data-banner="under-construction">
-	<Icon name="noto:construction" size={20} class="icon" />
-	<span>
-		This newly revamped version of the website is still being worked on.
-		Report any bugs you find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
-	</span>
-	<button>Got it!</button>
-</div>
+<aside class="sidebar">
+	<button title="Close" aria-label="Close navigation menu" class="hide-sidebar">
+		<FluentDismiss20Regular />
+	</button>
 
-<aside class="hamburger-menu">
-	<h2>Navigation</h2>
-	<HeaderLink href="/" icon="fluent:home-20-regular">Home</HeaderLink>
-	<HeaderLink href="/blog" icon="fluent:rss-20-regular">Blog</HeaderLink>
+	<SiteLogo />
+	<SidebarLink href="/">
+		<FluentHome20Regular />
+		Home
+	</SidebarLink>
+	<SidebarLink href="/blog">
+		<FluentRss20Regular />
+		Blog
+	</SidebarLink>
 
-	<div class="spacer"></div>
+	{headings && <h2>Table of Contents</h2>}
+	<div class="table-of-contents">
+		{headings &&
+			<SidebarLink href="#top" class="depth-1">(Top)</SidebarLink>}
+
+		{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
+		{headings?.map(({ depth, slug, text }) => {
+			return (
+				<SidebarLink href={`#${slug}`} class={`hide-sidebar depth-${depth}`} data-slug={slug}>{text}</SidebarLink>
+			);
+		})}
+	</div>
 
 	<h2>
 		Preferences
@@ -66,113 +71,242 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 	</h2>
 	<PreferenceControl preference="immersiveMode" showIcon showTitle="Immersive Mode" noMobile />
 	<PreferenceControl preference="theme" showIcon showTitle noMobile />
-	<HeaderLink href={prefsLink} icon="fluent:settings-20-regular">
+	<SidebarLink href="/preferences">
+		<FluentSettings20Regular />
 		More Settings
-	</HeaderLink>
-
-	<button title="Close the menu" class="close-hamburger-menu">
-		<Icon name="fluent:dismiss-20-filled" size={20} />
-	</button>
+	</SidebarLink>
 </aside>
-<div class="backdrop close-hamburger-menu"></div>
+<div class="backdrop hide-sidebar"></div>
 
 <script>
-	// Hamburger menu
-	import { getStorageItem } from "../../scripts/storage-utils.ts";
+	const TIME_BETWEEN_HEADING_UPDATES = 500;
+
+	let tableOfContents: HTMLElement | null;
+	let headings: [HTMLAnchorElement, HTMLElement][] = [];
+	let currentHeading = "";
+	let lastHeadingUpdate = 0;
+	let justNavigated = true;
+	let handle: number | undefined;
+
+	// TODO: add a button to scroll the active link into view when it's offscreen
 
 	document.addEventListener("astro:page-load", () => {
-		const menu = document.querySelector(".hamburger-menu");
+		const menu = document.querySelector(".sidebar");
 		if (!menu) {
 			return;
 		}
 
-		const openButtons = document.querySelectorAll<HTMLElement>(".open-hamburger-menu");
-		const closeButtons = document.querySelectorAll<HTMLElement>(".close-hamburger-menu");
-
+		const openButtons = document.querySelectorAll<HTMLElement>(".show-sidebar");
 		for (const openButton of openButtons) {
 			openButton.addEventListener("click", () => {
 				menu.classList.add("open");
 			});
 		}
 
+		const closeButtons = document.querySelectorAll<HTMLElement>(".hide-sidebar");
 		for (const closeButton of closeButtons) {
 			closeButton.addEventListener("click", () => {
 				menu.classList.remove("open");
 			});
 		}
+
+		tableOfContents = menu.querySelector(".table-of-contents");
+		if (!tableOfContents) {
+			return;
+		}
+
+		const contents = tableOfContents.querySelectorAll<HTMLAnchorElement>("a");
+		headings = [];
+		for (const item of contents) {
+			const slug = item.dataset.slug;
+			const heading = document.querySelector<HTMLElement>(slug ? `main #${slug}` : "main > article > header");
+			if (heading) {
+				headings.push([item, heading]);
+			}
+		}
+
+		currentHeading = location.hash.substring(1);
+		justNavigated = true;
+		updateHeadings();
+		justNavigated = false;
 	});
 
-	// Banner
-	function setupBanners() {
-		const banners = document.querySelectorAll<HTMLElement>("[data-banner]");
-		for (const banner of banners) {
-			const bannerButton = banner?.querySelector("button");
-			if (!bannerButton) {
-				console.warn("Banner has no button:", banner);
-				continue;
-			}
+	function updateHeadings() {
+		// Find the last link that hasn't gone off the top of the screen
+		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
+		const activeIndex = headings.findIndex(
+			([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
+		) - 1;
+		const [activeLink, activeHeading] = headings[activeIndex] ?? [];
 
-			const id = banner.dataset.banner;
-			if (!id) {
-				console.warn("Banner has no ID:", id);
-				continue;
-			}
+		// Update the sidebar links
+		for (const [link, heading] of headings) {
+			const rect = heading.getBoundingClientRect();
+			const isOnScreen = rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
+			link.classList.toggle("active", link === activeLink || isOnScreen);
 
-			const dismissedBanners = getStorageItem<string[]>("dismissedBanners") ?? [];
-			if (!dismissedBanners.includes(id)) {
-				banner.classList.add("visible");
-
-				bannerButton.addEventListener(
-					"click",
-					() => {
-						banner.classList.remove("visible");
-						dismissedBanners.push(id);
-						localStorage.setItem("dismissedBanners", JSON.stringify(dismissedBanners));
-					},
-					{ once: true },
-				);
+			// If the browser didn't feel like scrolling the heading into view, then do so manually
+			if (justNavigated && currentHeading && heading.id === currentHeading && window.scrollY < 1) {
+				console.info(`Forcefully scrolling heading "${link.hash}" into view`);
+				heading.scrollIntoView();
 			}
+		}
+
+		if (justNavigated || activeHeading === undefined || currentHeading === activeHeading.id) {
+			return;
+		}
+
+		// Update the address bar hash
+		// Browsers don't like it when we spam the History API, so we need to throttle it here
+		// TODO: make a throttle utility for stuff like this (including logging)
+		const now = Date.now();
+		const timeSinceUpdate = now - lastHeadingUpdate;
+		currentHeading = activeHeading.id;
+		clearTimeout(handle);
+
+		if (timeSinceUpdate >= TIME_BETWEEN_HEADING_UPDATES) {
+			setHeading(activeHeading.id);
+		} else {
+			handle = window.setTimeout(
+				() => setHeading(activeHeading.id),
+				TIME_BETWEEN_HEADING_UPDATES - timeSinceUpdate,
+			);
 		}
 	}
 
-	document.addEventListener("astro:after-swap", setupBanners);
-	setupBanners();
+	function setHeading(id: string) {
+		const hash = `#${id}`;
+		if (location.hash !== hash) {
+			lastHeadingUpdate = Date.now();
+			history.replaceState(null, "", hash);
+		}
+	}
+
+	document.addEventListener("scroll", updateHeadings);
 </script>
 
 <style lang="scss">
 	@use "../../styles/colors" as *;
 	@use "../../styles/utils" as *;
 	@use "sass:color";
+	@use "sass:map";
+	@use "sass:list";
 
-	$header-transparency: 12.5%;
+	// Top bar
+	header {
+		position: sticky;
+		top: 0;
+		width: 100%;
+		z-index: 1000;
+		background-color: var(--color-component);
 
-	// Hamburger menu
-	.hamburger-menu {
+		@media (min-width: $breakpoint-desktop) {
+			display: none;
+		}
+
+		@media (prefers-contrast: more) {
+			border-bottom: 1px solid var(--color-border);
+		}
+
+		@include glass;
+		@include preferences("fx") {
+			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+		}
+
+		nav {
+			display: flex;
+			width: 100%;
+			max-width: $page-width;
+			margin: auto;
+			padding: 0 size(12);
+		}
+
+		a, button {
+			padding: size(10);
+		}
+
+		[data-icon] {
+			font-size: size(20);
+		}
+	}
+
+	button, a {
+		display: flex;
+		align-items: center;
+
+		background: none;
+		border: none;
+
+		color: var(--color-heading);
+		text-decoration: none;
+
+		cursor: pointer;
+		@include btn-transparent;
+	}
+
+	// Sidebar
+	@mixin toc-depth($depth) {
+		$font-weight: list.nth(400 385 360 335 315 300, $depth);
+		$color-step: list.nth(50 100 200 250 300 325, $depth);
+
+		&.depth-#{$depth} {
+			padding: size(6) $page-margin size(6) calc($page-margin * ($depth + 1) / 2);
+			font-weight: $font-weight;
+			color: map.get($colors-taupe, $color-step);
+
+			@include preferences("light") {
+				color: map.get($colors-zinc, 1000 - $color-step);
+			}
+
+			@media (prefers-contrast: more) {
+				color: var(--color-text);
+			}
+
+			@if $depth > 1 {
+				@for $upper-depth from 1 through $depth - 1 {
+					+ .depth-#{$upper-depth} {
+						$margin: size(6);
+						margin-top: $margin;
+
+						& :global(.highlight) {
+							height: calc(100% + $margin);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.sidebar {
+		$sidebar-width: size(280);
+
 		position: fixed;
 		left: size(-384);
-		transition: left 0.33s ease, visibility 0.33s allow-discrete;
+		width: calc(100% - #{size(64)});
+		max-width: $sidebar-width;
+		height: 100%;
 
 		display: flex;
 		flex-direction: column;
-
-		width: calc(100% - #{size(64)});
-		max-width: size(256);
-		height: 100%;
-		padding: size(4) 0;
+		padding: size(8) 0;
+		visibility: collapse;
 		z-index: 2100;
 
 		background-color: var(--color-component);
+		box-shadow: $glass-shadow;
+		transition: left 350ms ease, visibility 350ms allow-discrete;
 
-		> * {
-			padding: size(12) size(20);
+		&.open {
+			left: 0;
+			visibility: visible;
 		}
 
-		label {
-			border: none;
+		:where(h2, a, label) {
+			padding: size(10) $page-margin;
+		}
 
-			.icon {
-				margin-right: size(-8);
-			}
+		[data-icon] {
+			font-size: size(30);
 		}
 
 		h2 {
@@ -181,7 +315,8 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			gap: size(8);
 
 			margin: 0;
-			padding-bottom: size(6);
+			padding-top: size(12);
+			padding-bottom: 0;
 			font-weight: 500;
 			font-size: size(16);
 			color: var(--color-dimmer);
@@ -191,12 +326,22 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			}
 		}
 
-		.spacer {
-			padding: 0;
+		.table-of-contents {
+			position: relative;
+			margin-top: size(8);
 			flex-grow: 1;
+			overflow-y: auto;
+
+			a {
+				padding-block: size(6);
+
+				@for $depth from 1 through 6 {
+					@include toc-depth($depth);
+				}
+			}
 		}
 
-		.close-hamburger-menu {
+		> .hide-sidebar {
 			position: absolute;
 			left: 100%;
 			margin: size(2) 0 size(2) size(6);
@@ -219,164 +364,39 @@ const prefsLink = isOnPage(Astro.url, import.meta.env.BASE_URL, "/preferences")
 			@include btn-transparent(true);
 		}
 
-		&:not(.open) {
-			visibility: collapse;
+		@media (prefers-contrast: more) {
+			border-right: 1px solid var(--color-border);
 		}
 
-		&.open {
+		@media (min-width: $breakpoint-desktop) {
+			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+
+			position: sticky;
+			top: 0;
 			left: 0;
-		}
-	}
+			visibility: visible;
+			width: $sidebar-width;
+			height: 100dvh;
 
-	// Top bar
-	header {
-		position: sticky;
-		top: 0;
-		width: 100%;
-		background-color: var(--color-component);
-		z-index: 1000;
+			> .hide-sidebar {
+				display: none;
+			}
 
-		@include glass;
-		@include preferences("immersiveFX") {
-			background-color: color-mix(in srgb, var(--color-component), transparent $header-transparency);
-		}
-	}
-
-	nav {
-		display: flex;
-		width: 100%;
-		margin: auto;
-		padding: 0 size(12);
-		max-width: $page-width;
-
-		button, a {
-			display: flex;
-			align-items: center;
-			padding: size(10);
-
-			color: var(--color-heading);
-			text-decoration: none;
-
-			@include btn-transparent;
+			@include preferences("fx") {
+				backdrop-filter: blur(size(1.5));
+			}
 		}
 
-		label {
-			padding-right: 0;
-		}
-
-		.open-hamburger-menu {
-			@media (min-width: $breakpoint-tablet) {
+		@media not (min-width: $breakpoint-desktop) {
+			.site-logo {
 				display: none;
 			}
 		}
 	}
 
-	button {
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
-
-	.page-links, .header-preferences {
-		display: none;
-		margin-left: auto;
-
-		@media (min-width: $breakpoint-tablet) {
-			display: flex;
-		}
-
-		a {
-			padding-inline: size(12);
-		}
-	}
-
-	h1 {
-		margin: 0;
-		line-height: 0;
-		font-size: size(28);
-		font-weight: 900;
-
-		picture, img {
-			border-radius: 100%;
-		}
-
-		a {
-			gap: size(12);
-		}
-	}
-
-	// Banner
-	[data-banner] {
-		$banner-alpha: 100% - $header-transparency;
-
-		position: sticky;
-		top: size(60);
-
-		width: 100%;
-		display: none;
-		align-items: center;
-		justify-content: center;
-
-		gap: size(8);
-		padding: size(10) $page-margin;
-		margin: 0 (-$page-margin);
-		z-index: 900;
-
-		background: linear-gradient(
-			color.change($red-850, $alpha: $banner-alpha),
-			color.change($red-925, $alpha: $banner-alpha)
-		);
-
-		@include glass;
-
-		&.visible {
-			display: flex;
-
-			header:has(+ &) {
-				box-shadow: none;
-			}
-		}
-
-		.icon, button {
-			flex-shrink: 0;
-		}
-
-		a {
-			color: var(--color-heading);
-		}
-
-		button {
-			--hover-text: #{$red-950};
-
-			padding: size(4) size(10);
-
-			background-color: transparent;
-			border: 1px solid color-mix(in srgb, var(--color-heading), transparent 50%);
-			border-radius: $radius-full;
-			font-weight: 500;
-
-			transition: background-color $anim-ease, color $anim-ease, border-color $anim-ease;
-
-			@include hover {
-				background-color: color-mix(in srgb, var(--color-heading), transparent 15%);
-				color: var(--hover-text);
-			}
-
-			@include active {
-				background-color: color-mix(in srgb, var(--color-heading), transparent 40%);
-				color: var(--hover-text);
-			}
-		}
-
-		@include preferences("light") {
-			background: linear-gradient(
-				color.change($red-200, $alpha: $banner-alpha),
-				color.change($red-250, $alpha: $banner-alpha)
-			);
-
-			button {
-				--hover-text: #{$red-150};
-			}
+	.backdrop {
+		@media (min-width: $breakpoint-desktop) {
+			display: none;
 		}
 	}
 </style>

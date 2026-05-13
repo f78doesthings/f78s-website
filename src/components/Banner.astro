@@ -1,0 +1,170 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a banner on the top of the page.
+
+interface Props {
+	id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div data-banner={id}>
+	<slot />
+	<button>
+		<slot name="dismiss-button">
+			Got it!
+		</slot>
+	</button>
+</div>
+
+<script>
+	import { getStorageItem } from "../scripts/utils/storage-utils.ts";
+
+	function setupBanners() {
+		const banners = document.querySelectorAll<HTMLElement>("[data-banner]");
+		for (const banner of banners) {
+			const bannerButton = banner?.querySelector("button");
+			if (!bannerButton) {
+				console.warn("Banner has no button:", banner);
+				continue;
+			}
+
+			const id = banner.dataset.banner;
+			if (!id) {
+				console.warn("Banner has no ID:", id);
+				continue;
+			}
+
+			const dismissedBanners = getStorageItem<string[]>("dismissedBanners") ?? [];
+			if (!dismissedBanners.includes(id)) {
+				banner.classList.add("visible");
+
+				bannerButton.addEventListener(
+					"click",
+					() => {
+						banner.classList.remove("visible");
+						dismissedBanners.push(id);
+						localStorage.setItem("dismissedBanners", JSON.stringify(dismissedBanners));
+					},
+					{ once: true },
+				);
+			}
+		}
+	}
+
+	document.addEventListener("astro:after-swap", setupBanners);
+	setupBanners();
+</script>
+
+<style lang="scss">
+	@use "../styles/utils" as *;
+	@use "../styles/colors" as *;
+	@use "sass:color";
+
+	[data-banner] {
+		$banner-alpha: 88%;
+
+		position: sticky;
+		top: size(60);
+
+		width: 100%;
+		display: none;
+		align-items: center;
+		justify-content: center;
+
+		gap: size(8);
+		padding: size(10) $page-margin;
+		margin: 0 (-$page-margin);
+		z-index: 900;
+
+		background: linear-gradient(
+			color.change($red-850, $alpha: $banner-alpha),
+			color.change($red-925, $alpha: $banner-alpha)
+		);
+
+		&.visible {
+			display: flex;
+
+			:global(header):has(+ &) {
+				box-shadow: none;
+			}
+		}
+
+		:global([data-icon]), button {
+			flex-shrink: 0;
+		}
+
+		:global(a) {
+			color: var(--color-heading);
+			transition: filter $anim-ease;
+
+			@include hover {
+				filter: brightness(87%);
+			}
+
+			@include active {
+				filter: brightness(78%);
+			}
+
+			@include preferences("light") {
+				color: var(--color-heading);
+
+				@include hover {
+					color: var(--color-dim);
+				}
+
+				@include active {
+					color: var(--color-text);
+				}
+			}
+		}
+
+		button {
+			--hover-text: #{$red-950};
+
+			padding: size(4) size(10);
+
+			background-color: transparent;
+			border: 1px solid color-mix(in srgb, var(--color-heading), transparent 50%);
+			border-radius: $radius-full;
+			font-weight: 500;
+
+			transition: background-color $anim-ease, color $anim-ease, border-color $anim-ease;
+			cursor: pointer;
+
+			@include hover {
+				background-color: color-mix(in srgb, var(--color-heading), transparent 15%);
+				color: var(--hover-text);
+			}
+
+			@include active {
+				background-color: color-mix(in srgb, var(--color-heading), transparent 40%);
+				color: var(--hover-text);
+			}
+		}
+
+		@include glass;
+		@include preferences("light") {
+			background: linear-gradient(
+				color.change($red-200, $alpha: $banner-alpha),
+				color.change($red-250, $alpha: $banner-alpha)
+			);
+
+			button {
+				--hover-text: #{$red-150};
+			}
+		}
+
+		@media (min-width: $breakpoint-desktop) {
+			top: 0;
+		}
+	}
+</style>

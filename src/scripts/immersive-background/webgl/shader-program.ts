@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 export function initShaderProgram(gl: WebGLRenderingContext, vertSource: string, fragSource: string) {
 	const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertSource)!;
 	const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragSource)!;

@@ -1,0 +1,44 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a notice of a work's licence.
+
+import type { CopyrightInfo, LicenseType } from "../../types";
+import { LICENSES, SITE_TITLE } from "../../consts.ts";
+import Link from "../nav/Link.astro";
+
+type Props = CopyrightInfo;
+
+const { license, createdIn, createdBy = SITE_TITLE, source } = Astro.props;
+const { icons, title, type, url } = license ? LICENSES[license] : {};
+
+const MESSAGES: Record<LicenseType, string> = {
+	publicDomain: "Dedicated to the public domain under the",
+	open: "Available under the",
+};
+
+const copyrightString = type === "publicDomain"
+	? `By ${createdBy}${createdIn ? `, ${createdIn}` : ""}.`
+	: type === "open"
+		? `🄯 ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`
+		: `© ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`;
+
+const message = type ? MESSAGES[type] : "All rights reserved.";
+---
+
+<p class="license-notice">
+	<small>
+		{source
+			? <Link href={source} external>{copyrightString}</Link>
+			: copyrightString}
+		{message}
+		{title && url ? <Link href={url} icons={icons} external>{title}</Link> : title}
+		{title && (!/licen[sc]e/i.test(title) ? "licence." : ".")}
+	</small>
+</p>

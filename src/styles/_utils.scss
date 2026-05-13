@@ -1,3 +1,12 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "sass:color";
 @use "sass:list";
 @use "sass:math";
 @use "sass:map";
@@ -9,57 +18,37 @@
 ///
 /// @param {number} $px
 /// 	The number of pixels.
-@function size($px) {
-	@return #{math.div($px, 16)}rem;
+///
+/// @param {boolean} $relative
+/// 	Whether to use `em` instead of `rem`.
+@function size($px, $relative: false) {
+	$unit: rem;
+	@if ($relative) {
+		$unit: em;
+	}
+
+	@return #{math.div($px, 16)}#{$unit};
 }
 
-@function heading-weight($level) {
-	@return 820 - $level * 60;
-}
-
-$badge-height: size(26);
+// TODO: add more variables
 $page-width: size(1024);
 $page-margin: size(22);
-
-$breakpoint-tablet: size(768);
-
-$anim-ease: 175ms ease;
-$anim-back: 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+$badge-height: size(26);
 
 $radius-full: calc(infinity * 1px);
+$breakpoint-desktop: size(960);
 
-/// @deprecated
+$glass-shadow: 0 0 size(20) hsl(0 0% 0% / 9%);
+
 $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+$anim-ease: 170ms ease;
+$anim-back: 250ms $ease-out-back;
 
-/// @deprecated Use preferences("dark") instead
-@mixin dark($root: false) {
-	@warn 'The dark() mixin is deprecated, use preferences("dark") instead.';
-	@if ($root) {
-		&:not(.light-theme) {
-			@content;
-		}
-	} @else {
-		:root:not(.light-theme) & {
-			@content;
-		}
-	}
+@function heading-weight($level) {
+	@return 780 - $level * 55;
 }
 
-/// @deprecated Use preferences("light") instead
-@mixin light($root: false) {
-	@warn 'The light() mixin is deprecated, use preferences("light") instead.';
-	@if ($root) {
-		&.light-theme {
-			@content;
-		}
-	} @else {
-		:root.light-theme & {
-			@content;
-		}
-	}
-}
-
-@function _preference($name) {
+@function -preference($name) {
 	@return "[data-preferences~='#{$name}']";
 }
 
@@ -74,29 +63,43 @@ $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 	$is-root: map.get($keywords, "is-root");
 
 	$selector: ":root";
-
+	$theme: null;
 	@if ($is-root) {
 		$selector: "&";
 	}
 
 	@each $preference in $preferences {
-		@if ($preference == "dark") {
-			$selector: $selector + ":not(.light-theme)";
-		} @else if ($preference == "light") {
-			$selector: $selector + ".light-theme";
+		@if ($preference == "dark" or $preference == "light") {
+			$theme: $preference;
 		} @else if ($preference == "bg") {
-			$selector: $selector + ".bg-supported#{_preference("bgEnabled")}";
+			$selector: $selector + ".bg-supported#{-preference("bgEnabled")}";
 		} @else if ($preference == "no-bg") {
-			$selector: $selector + ":not(.bg-supported#{_preference("bgEnabled")})";
+			$selector: $selector + ":not(.bg-supported#{-preference("bgEnabled")})";
 		} @else if ($preference == "fx") {
-			$selector: $selector + _preference("immersiveFX");
+			$selector: $selector + -preference("immersiveFX");
 		} @else if ($preference == "no-fx") {
-			$selector: $selector + ":not(#{_preference("immersiveFX")})";
+			$selector: $selector + ":not(#{-preference("immersiveFX")})";
 		} @else if ($preference == "loaded") {
 			$selector: $selector + ".loaded";
 		} @else {
-			$selector: $selector + _preference($preference);
+			$selector: $selector + -preference($preference);
 		}
+	}
+
+	@if ($theme) {
+		$auto-selector: $selector + ":is(:not(.loaded), [data-theme='auto'])";
+
+		@if (not $is-root) {
+			$auto-selector: $auto-selector + " &";
+		}
+
+		#{$auto-selector} {
+			@media (prefers-color-scheme: #{$theme}) {
+				@content;
+			}
+		}
+
+		$selector: $selector + "[data-theme='#{$theme}']";
 	}
 
 	@if (not $is-root) {
@@ -118,33 +121,11 @@ $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 			@content;
 		}
 	}
-
-	@media (hover: none) {
-		&:active {
-			@content;
-		}
-	}
 }
 
 @mixin active {
-	@media (hover: hover) {
-		&:active {
-			@content;
-		}
-	}
-}
-
-@mixin glass($preferences...) {
-	@include preferences($preferences...) {
-		box-shadow: 0 0 size(16) hsl(0 0% 0% / 50%);
-	}
-
-	@include preferences("light", $preferences...) {
-		box-shadow: 0 0 size(16) hsl(0 0% 0% / 12%);
-	}
-
-	@include preferences("fx", $preferences...) {
-		backdrop-filter: blur(size(8));
+	&:active {
+		@content;
 	}
 }
 
@@ -170,6 +151,7 @@ $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 
 		background: radial-gradient(
 			hsl(0 0% 100% / 11%),
+			hsl(0 0% 100% / 10.2%),
 			hsl(0 0% 100% / 8%)
 		);
 
@@ -177,6 +159,7 @@ $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 			@include preferences("light") {
 				background: radial-gradient(
 					hsl(0 0% 0% / 13.5%),
+					hsl(0 0% 0% / 12.5%),
 					hsl(0 0% 0% / 10%)
 				);
 			}
@@ -223,6 +206,34 @@ $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 				&::after {
 					opacity: 1;
 				}
+			}
+		}
+	}
+}
+
+@mixin glass($preferences...) {
+	box-shadow: $glass-shadow;
+
+	@include preferences("fx", $preferences...) {
+		backdrop-filter: blur(size(8));
+	}
+}
+
+@mixin bounce-anim($rotate: -1, $selector: "> :global([data-icon])") {
+	@include preferences("fx") {
+		#{$selector} {
+			transition: transform $anim-back;
+		}
+
+		@include hover {
+			#{$selector} {
+				transform: scale(105%) rotate(1.5deg * $rotate);
+			}
+		}
+
+		@include active {
+			#{$selector} {
+				transform: scale(97%) rotate(-0.9deg * $rotate);
 			}
 		}
 	}

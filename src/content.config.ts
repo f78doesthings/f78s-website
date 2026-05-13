@@ -1,7 +1,15 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { BADGE_TYPES } from "./consts.ts";
+import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.ts";
 
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -16,15 +24,31 @@ const blog = defineCollection({
 		/** The date the blog post was published. */
 		pubDate: z.coerce.date(),
 
-		// Extra
+		// Development
 		/** Whether this post is a draft and should not be published yet. */
 		draft: z.boolean().default(false),
 
+		// Cover / hero image
 		/** An optional cover image for the blog post. */
 		heroImage: image().optional(),
 
-		/** The alt text for the cover image. */
+		/** The alt text for the cover image. This is also used as the title in the image viewer. */
 		heroAlt: z.string().default(""),
+
+		/** The description of the cover image. This is only shown in the image viewer. */
+		heroDescription: z.string().default(""),
+
+		/** The licence of the cover image. Defaults to the standard licence for this website's content (CC-BY-SA-4.0). */
+		heroLicense: z.enum(KNOWN_LICENSES).nullable().default("CC-BY-SA-4.0"),
+
+		/** The year the cover image was copyrighted under, if applicable. */
+		heroCreatedIn: z.string().optional(),
+
+		/** The copyright owner of the cover image, if applicable. */
+		heroCreatedBy: z.string().optional(),
+
+		/** The source of the cover image, if applicable. */
+		heroSource: z.url().optional(),
 	}),
 });
 

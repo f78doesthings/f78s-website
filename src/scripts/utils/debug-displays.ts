@@ -1,5 +1,13 @@
-import { dependenciesMet, type MapLike, type NotUndefined } from "./preferences/utils.ts";
-import type { Preference } from "./preferences/types/Preference.ts";
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import { dependenciesMet, type MapLike, type NotUndefined } from "../preferences/utils.ts";
+import type { Preference } from "../preferences/types/Preference.ts";
 
 const root = document.querySelector<HTMLElement>(".debug-display")!;
 
@@ -67,6 +75,7 @@ export class DebugDisplay implements DebugDisplayConfig {
 	readonly format;
 
 	isVisible = false;
+	private _value?: unknown;
 
 	private readonly _nameElement;
 	private readonly _valueElement;
@@ -105,16 +114,23 @@ export class DebugDisplay implements DebugDisplayConfig {
 	}
 
 	set(value: unknown) {
-		this._valueElement.textContent = this.format(value);
+		this._value = value;
+		this._updateText();
 	}
 
 	updateVisibility() {
 		const visible = dependenciesMet(this.dependencies);
 		this._nameElement.hidden = this._valueElement.hidden = !visible;
-		return this.isVisible = visible;
+		this.isVisible = visible;
+		this._updateText();
+		return visible;
+	}
+
+	private _updateText() {
+		if (this.isVisible) {
+			this._valueElement.textContent = this.format(this._value);
+		}
 	}
 }
 
-document.addEventListener("custom:preferences-updated", () => {
-	DebugCategory.updateVisibilities();
-});
+document.addEventListener("custom:preferences-updated", () => DebugCategory.updateVisibilities());

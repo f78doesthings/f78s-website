@@ -1,4 +1,14 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a blog post.
+
 import type { GetStaticPaths } from "astro";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
@@ -7,16 +17,17 @@ export const getStaticPaths = (async () => {
 	const posts = await getCollection("blog", post => import.meta.env.DEV || !post.data.draft);
 	return posts.map(post => ({
 		params: { slug: post.id },
-		props: post,
+		props: post satisfies Props,
 	}));
 }) satisfies GetStaticPaths;
 
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
-const { Content, remarkPluginFrontmatter: { lastModified, readingTime } } = await render(post);
+const { Content, remarkPluginFrontmatter: { lastModified, readingTime }, headings } = await render(post);
 ---
 
-<BlogPost {...post.data} lastModified={new Date(lastModified)} readingTime={readingTime}>
+<BlogPost {...post.data} lastModified={lastModified && new Date(lastModified)} readingTime={readingTime}
+          headings={headings}>
 	<Content />
 </BlogPost>

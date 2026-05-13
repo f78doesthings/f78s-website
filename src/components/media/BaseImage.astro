@@ -1,0 +1,60 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// A minimal image component.
+
+import { Picture as LqipPicture, type LqipType } from "astro-lqip/components";
+import type { Replace } from "../../types.ts";
+import type { ComponentProps } from "astro/types";
+
+type Props = Replace<ComponentProps<typeof LqipPicture>, {
+	/** Enables LQIP if present and not false. Can also be a string value for the LQIP type. */
+	lqip?: boolean | LqipType;
+}>;
+
+// Needs to be separate, or else Astro gets upset for some reason
+export type { Props };
+
+const { lqip, ...props } = Astro.props;
+
+// Assign defaults
+props.formats ??= ["avif", "webp"];
+props.fallbackFormat ??= "jpg";
+
+const widths = props.widths;
+if (widths) {
+	// Default value for the sizes attribute (Astro mentions that it must be specified when using widths)
+	let sizes = "";
+	for (let i = 0; i < widths.length - 1; i++) {
+		sizes += `(max-width: ${widths[i + 1]}px) ${widths[i]}px,\n`;
+	}
+	props.sizes ??= sizes + `${widths[widths.length - 1]}px`;
+} else {
+	// Default densities
+	props.densities ??= [1, 1.5, 2, 3];
+}
+
+// TODO: a custom LQIP solution would be more ideal, but maybe later.
+// Conversion to `any` added to hide a likely false error message.
+---
+
+<LqipPicture lqip={lqip === true ? undefined : lqip ?? false} {...props as any} />
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	picture, img {
+		border-radius: size(16);
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+</style>

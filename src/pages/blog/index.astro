@@ -1,12 +1,29 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a list of all blog posts.
+// TODO: pagination?
+
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { BLOG_TITLE } from "../../consts.ts";
 import Link from "../../components/nav/Link.astro";
 import Badge from "../../components/Badge.astro";
 import { type CollectionEntry, getCollection } from "astro:content";
-import BaseImage from "../../components/images/BaseImage.astro";
+import BaseImage from "../../components/media/BaseImage.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import fallbackImage from "../../assets/blog-fallback.jpg";
+import type { Props as PictureProps } from "astro/components/Picture.astro";
+import FluentEdit20Regular from "~icons/fluent/edit-20-regular";
+import FluentRss20Regular from "~icons/fluent/rss-20-regular";
+
+// This is needed because you can't use angle brackets in the JSX below
+type PartialPictureProps = Partial<PictureProps>;
 
 type PostData = CollectionEntry<"blog">["data"] & {
 	id?: string;
@@ -16,19 +33,29 @@ const DAY_TIME = 1000 * 60 * 60 * 24;
 
 const collection = await getCollection("blog", post => import.meta.env.DEV || !post.data.draft);
 const posts: PostData[] = collection.map(post => ({ id: post.id, ...post.data }));
+
+// Sort posts by publication date
 posts.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 
-if (import.meta.env.DEV) {
+// Make sure the most recent published post is always in the front
+const lastPublishIndex = posts.findIndex(post => !post.draft);
+posts.unshift(posts.splice(lastPublishIndex, 1)[0]);
+
+// Add placeholders
+const placeholdersToAdd = 6 - posts.length;
+if (import.meta.env.DEV && placeholdersToAdd > 0) {
 	let timestamp = Date.now();
-	for (let i = 1; i <= 5; i++) {
+	for (let i = 1; i <= placeholdersToAdd; i++) {
 		timestamp -= DAY_TIME * i;
 		posts.push({
 			title: `Placeholder ${i}`,
-			description: "This is merely here to test out the blog post overview page.",
+			description: "This is merely here to test out this page, and is not visible in production.",
 			pubDate: new Date(timestamp),
 			draft: true,
 			heroImage: fallbackImage,
 			heroAlt: "",
+			heroDescription: "",
+			heroLicense: null,
 		});
 	}
 }
@@ -40,33 +67,53 @@ if (import.meta.env.DEV) {
 		<Badge type="beta" />
 	</h1>
 	<p>
-		Welcome to my blog! Right now it's quite barren, but I'm hoping to change that soon by posting
-		announcements for new content and such here.
+		Welcome to my blog! This is where I talk about... well, whatever I want to talk about, to be honest.
+		Right now there's not that much here yet.
 	</p>
 	<p>
-		<Link href="/rss.xml" icon="fluent:rss-20-regular" external>
-			Subscribe with your RSS reader of choice
-		</Link>
+		<Link href="/rss.xml" external>
+			<FluentRss20Regular />
+			Subscribe with your RSS reader of choice</Link>
 	</p>
 
 	{posts.length > 0 &&
 		<section class="posts">
 			{
 				posts.map((post, index) => {
-					const width = index === 0 ? 640 : 320;
-					const height = index === 0 ? 360 : 180;
+					// We don't want this to be typed as PartialPictureProps, because that causes the error to pop up again
+
+					const props = (index === 0 ? {
+						widths: [320, 480, 640, 960],
+						sizes:
+							"(max-width: 480px) 320px, " +
+							"(max-width: 640px) 480px, " +
+							"(min-resolution: 1.5x) 960px, " +
+							"640px",
+						width: 640,
+						height: 320,
+					} : {
+						width: 320,
+						height: 160,
+					}) satisfies PartialPictureProps;
+
 					return (
-						<article>
+						<article class:list={{ draft: post.draft }}>
 							<a href={post.id && `/blog/${post.id}`} tabindex="0">
 								{post.heroImage && (
-									<BaseImage src={post.heroImage} alt={post.heroAlt} width={width} height={height} lqip
-									           loading={index === 0 ? "eager" : "lazy"} />
+									<BaseImage src={post.heroImage} alt={post.heroAlt} lqip priority={index === 0} {...props} />
 								)}
 								<div>
 									<h3 class="title">{post.title}</h3>
-									<p class="info">
-										<FormattedDate date={post.pubDate} />
-									</p>
+									{
+										post.draft ? (
+											<p class="formatted-date">
+												<FluentEdit20Regular />
+												Draft
+											</p>
+										) : (
+											<FormattedDate date={post.pubDate} />
+										)
+									}
 									<p class="description">{post.description}</p>
 								</div>
 							</a>
@@ -101,12 +148,26 @@ if (import.meta.env.DEV) {
 		justify-content: center;
 		width: calc(size(320) - $page-margin / 2);
 
+		&.draft {
+			opacity: 0.75;
+		}
+
 		&:first-child {
 			width: 100%;
 
 			.title {
 				font-size: size(27);
 				font-weight: heading-weight(2);
+			}
+
+			a {
+				@include hover {
+					transform: scale(101.5%);
+				}
+
+				@include active {
+					transform: scale(99.25%);
+				}
 			}
 		}
 
@@ -122,13 +183,14 @@ if (import.meta.env.DEV) {
 			text-decoration: none;
 			color: inherit;
 			transition: transform $anim-back;
+			max-width: 640px;
 
 			@include hover {
-				transform: scale(101.8%);
+				transform: scale(102.25%);
 			}
 
 			@include active {
-				transform: scale(99.2%);
+				transform: scale(98.75%);
 			}
 
 			> div {
@@ -136,23 +198,18 @@ if (import.meta.env.DEV) {
 				flex-direction: column;
 			}
 
-			img {
-				width: 100%;
-				height: auto;
-			}
-
 			.title {
 				margin: size(12) 0 size(8) 0;
 			}
 
-			.info {
+			.formatted-date {
 				margin: 0;
 				color: var(--color-dim);
 			}
 
 			.description {
 				color: var(--color-dimmer);
-				margin: size(2) 0 0 0;
+				margin: size(6) 0 0 0;
 			}
 
 			time {

@@ -1,43 +1,83 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import BaseLayout from "./BaseLayout.astro";
 import type { CollectionEntry } from "astro:content";
-import MainImage from "../components/images/MainImage.astro";
+import MainImage from "../components/media/MainImage.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { Icon } from "astro-icon/components";
+import FluentClock20Regular from "~icons/fluent/clock-20-regular";
+import FluentEdit20Regular from '~icons/fluent/edit-20-regular';
+import type { MarkdownHeading } from "astro";
 
 type Props = CollectionEntry<"blog">["data"] & {
 	isBlog?: boolean;
 	lastModified?: Date;
 	readingTime?: string;
+	headings?: MarkdownHeading[];
 };
+
 const {
 	title,
 	description,
 	pubDate,
+	draft,
 	heroImage,
 	heroAlt,
-	draft,
+	heroDescription,
+	heroLicense,
+	heroCreatedBy,
+	heroCreatedIn,
+	heroSource,
+
 	isBlog = true,
 	lastModified,
 	readingTime,
+	headings,
+	...cid
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} isBlog={isBlog} lastModified={lastModified}>
+<BaseLayout title={title} description={description} image={heroImage} isBlog={isBlog} lastModified={lastModified}
+            headings={headings}>
 	<article>
 		<header>
-			{heroImage && <MainImage src={heroImage} alt={heroAlt} width={960} height={540} noLicense={draft} />}
+			{heroImage && (
+				<MainImage src={heroImage} alt={heroAlt} width={960} height={480} widths={[320, 480, 640, 800, 960]} priority
+				           license={heroLicense} createdIn={heroCreatedIn} createdBy={heroCreatedBy} source={heroSource}
+				           {...cid}>
+					{heroDescription}
+				</MainImage>
+			)}
 
 			<h1>{title}</h1>
-			<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
-				<Fragment slot="before">Published:</Fragment>
-			</FormattedDate>
-			{readingTime && (
-				<p>
-					<Icon name="fluent:clock-20-regular" size={20} />
-					{readingTime}
-				</p>
-			)}
+			<div class="details">
+				{
+					draft ? (
+						<p>
+							<FluentEdit20Regular />
+							Draft
+						</p>
+					) : (
+						<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
+							<Fragment slot="before">Published on
+							</Fragment>
+						</FormattedDate>
+					)
+				}
+				<span class="separator">&bullet;</span>
+				{readingTime && (
+					<p>
+						<FluentClock20Regular class="icon" />
+						{readingTime}
+					</p>
+				)}
+			</div>
 		</header>
 
 		<slot />
@@ -51,35 +91,42 @@ const {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: size(4);
 		padding-top: $page-margin;
+		padding-bottom: size(8);
+
+		text-align: center;
 		color: var(--color-dim);
 
 		:global(> figure) {
 			margin: 0;
+
+			> picture {
+				max-width: 100% !important;
+			}
 		}
 
-		picture, img {
-			object-fit: cover;
-			width: 100%;
-			height: auto;
-		}
-
-		@media (min-width: $breakpoint-tablet) {
-			margin: size(10);
+		@media (min-width: $breakpoint-desktop) {
+			margin: size(8);
 		}
 
 		h1 {
 			display: flex;
 			align-items: center;
-			margin: size(12) 0;
+			margin-top: size(16);
 		}
 
 		p {
-			display: flex;
-			align-items: center;
-			gap: size(4);
 			margin: 0;
+		}
+
+		.details {
+			display: flex;
+			flex-wrap: wrap;
+			gap: size(6);
+		}
+
+		.separator {
+			color: var(--color-dimmer);
 		}
 	}
 </style>

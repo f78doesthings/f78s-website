@@ -1,11 +1,21 @@
 ---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+// Displays a single preference.
+
 import { EnumPreference } from "../../scripts/preferences/types/EnumPreference.tsx";
-import { Icon } from "astro-icon/components";
 import { InnerPreferenceControl } from "./InnerPreferenceControl.tsx";
 import { type PreferenceID, preferences } from "../../scripts/preferences";
 import { NumberPreference } from "../../scripts/preferences/types/NumberPreference.tsx";
 import { getDependencyString } from "../../scripts/preferences/utils.ts";
 import { TogglePreference } from "../../scripts/preferences/types/TogglePreference.tsx";
+import DynamicIcon from "../media/DynamicIcon.astro";
 
 interface Props {
 	/** The preference to create a control for. */
@@ -108,13 +118,13 @@ const dependencyVars = getDependencyString(preference.dependencies);
 				 "mobile-rearrange": !(noMobile ?? preference instanceof TogglePreference),
 				 "mobile-margin": !noMobile,
 			 }}>
-	{hasIcon && <Icon name={preference.icon} class="icon" size={30} {...cid} />}
-	{hasTitle && <span class="title">{typeof showTitle === "string" ? showTitle : preference.title}</span>}
-	{hasDescription && <span class="description">{preference.description}</span>}
+	{hasIcon && <DynamicIcon name={preference.icon} size={30} {...cid} />}
+	{hasTitle && <span class="title" {...cid}>{typeof showTitle === "string" ? showTitle : preference.title}</span>}
+	{hasDescription && <span class="description" {...cid}>{preference.description}</span>}
 
-	<InnerPreferenceControl preference={id} client:load>
+	<InnerPreferenceControl client:load preference={id} {...cid}>
 		{icons.map(([icon, option]) => (
-			<Icon name={icon} data-option-icon={option} class="before-input" size={20} />
+			<DynamicIcon name={icon} data-option-icon={option} class="before-input" size={20} />
 		))}
 	</InnerPreferenceControl>
 </label>
@@ -152,7 +162,9 @@ const dependencyVars = getDependencyString(preference.dependencies);
 		padding: size(12) $line-extension;
 		cursor: pointer;
 
-		@media (max-width: $breakpoint-tablet) {
+		@include bounce-anim;
+
+		@media not (min-width: $breakpoint-desktop) {
 			&.mobile-rearrange {
 				grid: var(--grid-mobile);
 			}
@@ -166,7 +178,7 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			display: none;
 		}
 
-		.icon {
+		[data-icon] {
 			grid-area: icon;
 		}
 
@@ -182,7 +194,7 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			font-size: size(14);
 
 			margin-bottom: size(4);
-			@media (min-width: $breakpoint-tablet) {
+			@media (min-width: $breakpoint-desktop) {
 				margin-bottom: 0;
 			}
 		}

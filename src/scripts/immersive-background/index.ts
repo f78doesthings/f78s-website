@@ -1,12 +1,20 @@
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // Immersive background
 import { initShaderProgram } from "./webgl/shader-program.ts";
 import type { ProgramInfo } from "./webgl/types";
 import { initBuffers } from "./webgl/buffers.ts";
 import { drawScene } from "./webgl/draw-scene.ts";
 import { preferences } from "../preferences";
-import { DebugCategory, DebugDisplay } from "../debug-displays.ts";
-import { truncate } from "../../utils.ts";
+import { DebugCategory, DebugDisplay } from "../utils/debug-displays.ts";
 import { bgFrag, bgVert } from "./shaders.ts";
+import { truncate } from "../utils";
 
 const debugCategory = new DebugCategory("Background");
 const debugFPS = new DebugDisplay({
@@ -133,8 +141,6 @@ function main() {
 		const timeSinceUpdate = (now - lastUpdateTime) / 1000;
 		if (timeSinceUpdate > 1) {
 			debugFPS.set(`${truncate(frames / timeSinceUpdate)} / ${truncate(animationFrames / timeSinceUpdate)}`);
-			//`${canvas!.width} x ${canvas!.height}`,
-			//Math.round(frames / timeSinceUpdate),
 			lastUpdateTime = now;
 			frames = 0;
 			animationFrames = 0;
@@ -153,7 +159,7 @@ function main() {
 	const onActiveFrame = () => {
 		if (framesSinceRender >= preferences.bgActiveFrameSkip.get()) {
 			framesSinceRender = -1;
-			if (preferences.bgEnabled.isEnabled() && document.hasFocus()) {
+			if (preferences.bgEnabled.isEnabled()) {
 				render();
 			}
 		}
@@ -185,4 +191,7 @@ function updateImmersiveBackgroundState() {
 
 main();
 document.addEventListener("astro:after-swap", updateImmersiveBackgroundState);
-document.addEventListener("custom:preferences-updated", resizeCanvas);
+document.addEventListener("custom:preferences-updated", () => {
+	resizeCanvas();
+	updateImmersiveBackgroundState();
+});
