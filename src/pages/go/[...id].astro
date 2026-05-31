@@ -14,10 +14,12 @@ import type { GetStaticPaths } from "astro";
 
 export const getStaticPaths = (async () => {
 	const links = await getCollection("links");
-	return links.flatMap(link => [link.id, ...(link.data.aliases ?? [])].map(id => ({
-		params: { id },
-		props: link,
-	})));
+	return links.flatMap((link) =>
+		[link.id, ...(link.data.aliases ?? [])].map((id) => ({
+			params: { id },
+			props: link,
+		})),
+	);
 }) satisfies GetStaticPaths;
 
 type Props = CollectionEntry<"links">;

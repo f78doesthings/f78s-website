@@ -27,18 +27,21 @@ type PartialPictureProps = Partial<PictureProps>;
 
 type PostData = CollectionEntry<"blog">["data"] & {
 	id?: string;
-}
+};
 
 const DAY_TIME = 1000 * 60 * 60 * 24;
 
-const collection = await getCollection("blog", post => import.meta.env.DEV || !post.data.draft);
-const posts: PostData[] = collection.map(post => ({ id: post.id, ...post.data }));
+const collection = await getCollection("blog", (post) => import.meta.env.DEV || !post.data.draft);
+const posts: PostData[] = collection.map((post) => ({
+	id: post.id,
+	...post.data,
+}));
 
 // Sort posts by publication date
 posts.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 
 // Make sure the most recent published post is always in the front
-const lastPublishIndex = posts.findIndex(post => !post.draft);
+const lastPublishIndex = posts.findIndex((post) => !post.draft);
 posts.unshift(posts.splice(lastPublishIndex, 1)[0]);
 
 // Add placeholders
@@ -49,7 +52,8 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		timestamp -= DAY_TIME * i;
 		posts.push({
 			title: `Placeholder ${i}`,
-			description: "This is merely here to test out this page, and is not visible in production.",
+			description:
+				"This is merely here to test out this page, and is not visible in production.",
 			pubDate: new Date(timestamp),
 			draft: true,
 			heroImage: fallbackImage,
@@ -67,61 +71,70 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		<Badge type="beta" />
 	</h1>
 	<p>
-		Welcome to my blog! This is where I talk about... well, whatever I want to talk about, to be honest.
-		Right now there's not that much here yet.
+		Welcome to my blog! This is where I talk about... well, whatever I want to talk about, to be
+		honest. Right now there's not that much here yet.
 	</p>
 	<p>
 		<Link href="/rss.xml" external>
 			<FluentRss20Regular />
-			Subscribe with your RSS reader of choice</Link>
+			Subscribe with your RSS reader of choice
+		</Link>
 	</p>
 
-	{posts.length > 0 &&
-		<section class="posts">
-			{
-				posts.map((post, index) => {
+	{
+		posts.length > 0 && (
+			<section class="posts">
+				{posts.map((post, index) => {
 					// We don't want this to be typed as PartialPictureProps, because that causes the error to pop up again
 
-					const props = (index === 0 ? {
-						widths: [320, 480, 640, 960],
-						sizes:
-							"(max-width: 480px) 320px, " +
-							"(max-width: 640px) 480px, " +
-							"(min-resolution: 1.5x) 960px, " +
-							"640px",
-						width: 640,
-						height: 320,
-					} : {
-						width: 320,
-						height: 160,
-					}) satisfies PartialPictureProps;
+					const props = (
+						index === 0
+							? {
+									widths: [320, 480, 640, 960],
+									sizes:
+										"(max-width: 480px) 320px, " +
+										"(max-width: 640px) 480px, " +
+										"(min-resolution: 1.5x) 960px, " +
+										"640px",
+									width: 640,
+									height: 320,
+								}
+							: {
+									width: 320,
+									height: 160,
+								}
+					) satisfies PartialPictureProps;
 
 					return (
 						<article class:list={{ draft: post.draft }}>
 							<a href={post.id && `/blog/${post.id}`} tabindex="0">
 								{post.heroImage && (
-									<BaseImage src={post.heroImage} alt={post.heroAlt} lqip priority={index === 0} {...props} />
+									<BaseImage
+										src={post.heroImage}
+										alt={post.heroAlt}
+										lqip
+										priority={index === 0}
+										{...props}
+									/>
 								)}
 								<div>
 									<h3 class="title">{post.title}</h3>
-									{
-										post.draft ? (
-											<p class="formatted-date">
-												<FluentEdit20Regular />
-												Draft
-											</p>
-										) : (
-											<FormattedDate date={post.pubDate} />
-										)
-									}
+									{post.draft ? (
+										<p class="formatted-date">
+											<FluentEdit20Regular />
+											Draft
+										</p>
+									) : (
+										<FormattedDate date={post.pubDate} />
+									)}
 									<p class="description">{post.description}</p>
 								</div>
 							</a>
 						</article>
 					);
-				})
-			}
-		</section>
+				})}
+			</section>
+		)
 	}
 </BaseLayout>
 
@@ -199,7 +212,7 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 			}
 
 			.title {
-				margin: size(12) 0 size(8) 0;
+				margin: size(12) 0 size(8);
 			}
 
 			.formatted-date {
@@ -209,7 +222,7 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 
 			.description {
 				color: var(--color-dimmer);
-				margin: size(6) 0 0 0;
+				margin: size(6) 0 0;
 			}
 
 			time {

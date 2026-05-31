@@ -20,7 +20,13 @@ interface Props {
 
 const {
 	depth = 1,
-	preferences: { title, description, dependencies, preferences, categories } = getPreferencesByCategory(),
+	preferences: {
+		title,
+		description,
+		dependencies,
+		preferences,
+		categories,
+	} = getPreferencesByCategory(),
 } = Astro.props;
 
 if (depth < 1 || depth > 6) {
@@ -32,18 +38,16 @@ const dependencyVars = getDependencyString(dependencies);
 ---
 
 <fieldset data-preference-dependencies={dependencyVars} hidden={dependencyVars !== undefined}>
-	{title && (
-		<Heading id={title.toLowerCase().replace(" ", "-")}>{title}</Heading>
-	)}
+	{title && <Heading id={title.toLowerCase().replace(" ", "-")}>{title}</Heading>}
 	{description && <p>{description}</p>}
 
-	{preferences?.map(preference => (
-		<PreferenceControl preference={preference.id} showIcon showTitle showDescription />
-	))}
+	{
+		preferences?.map((preference) => (
+			<PreferenceControl preference={preference.id} showIcon showTitle showDescription />
+		))
+	}
 
-	{categories?.map(category => (
-		<Astro.self depth={depth + 1} preferences={category} />
-	))}
+	{categories?.map((category) => <Astro.self depth={depth + 1} preferences={category} />)}
 </fieldset>
 
 <style lang="scss">
@@ -58,8 +62,13 @@ const dependencyVars = getDependencyString(dependencies);
 			display: none;
 		}
 
-		h1, h2, h3, h4, h5, h6 {
-			margin: calc(0.5rem + 0.5em) 0 calc(0.25rem + 0.25em) 0;
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			margin: calc(0.5rem + 0.5em) 0 calc(0.25rem + 0.25em);
 		}
 	}
 </style>

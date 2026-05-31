@@ -6,9 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { Preference } from "./Preference.ts";
 import { type PreferenceKeys, type PreferenceValues } from "../utils.ts";
-import { EnumPreference, type EnumPreferenceConfig, type EnumPreferenceValue } from "./EnumPreference.tsx";
+import {
+	EnumPreference,
+	type EnumPreferenceConfig,
+	type EnumPreferenceValue,
+} from "./EnumPreference.tsx";
+import { Preference } from "./Preference.ts";
 
 interface PresetValue<T extends Preference[]> extends EnumPreferenceValue {
 	/**
@@ -20,17 +24,19 @@ interface PresetValue<T extends Preference[]> extends EnumPreferenceValue {
 	settings?: PreferenceValues<T>;
 }
 
-interface PresetPreferenceConfig<T extends string, P extends Preference[]>
-	extends EnumPreferenceConfig<T, PresetValue<P>> {
-
+interface PresetPreferenceConfig<
+	T extends string,
+	P extends Preference[],
+> extends EnumPreferenceConfig<T, PresetValue<P>> {
 	/** The list of preferences this preset setting affects. */
 	preferences: P;
 }
 
 /** A setting that allows the user to choose from a list of presets that affect some preferences. */
 export class PresetPreference<K extends string, T extends string, P extends Preference[]>
-	extends EnumPreference<K, T, PresetValue<P>> implements PresetPreferenceConfig<T, P> {
-
+	extends EnumPreference<K, T, PresetValue<P>>
+	implements PresetPreferenceConfig<T, P>
+{
 	readonly preferences: P;
 
 	constructor(id: K, config: PresetPreferenceConfig<T, P>) {
@@ -38,7 +44,10 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 		for (const presetName in config.options) {
 			if (config.options[presetName].settings === undefined) {
 				if (customValue !== undefined) {
-					console.warn(`Preset preference ${id} has more than 1 custom value, using ${customValue}:`, presetName);
+					console.warn(
+						`Preset preference ${id} has more than 1 custom value, using ${customValue}:`,
+						presetName,
+					);
 				} else {
 					customValue = presetName;
 				}
@@ -51,12 +60,14 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 
 		super(id, config, customValue);
 		this.preferences = config.preferences;
-		this._customValue = customValue;
+		this.customValue = customValue;
 	}
 
 	/** Creates a new preset setting for the given preferences and returns all of them. */
 	static create<K extends string, const T extends string, P extends Preference[]>(
-		id: K, config: EnumPreferenceConfig<T, PresetValue<P>>, ...preferences: P
+		id: K,
+		config: EnumPreferenceConfig<T, PresetValue<P>>,
+		...preferences: P
 	) {
 		return [new PresetPreference(id, { ...config, preferences }), ...preferences] as const;
 	}
@@ -72,6 +83,7 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 			for (const preference of this.preferences) {
 				if (
 					preference.id in preset.settings &&
+					// oxlint-disable-next-line typescript/no-unsafe-type-assertion - checked above
 					!preference.equals(preset.settings[preference.id as PreferenceKeys<P>])
 				) {
 					matches = false;
@@ -97,6 +109,7 @@ export class PresetPreference<K extends string, T extends string, P extends Pref
 
 			for (const preference of this.preferences) {
 				if (preference.id in preset.settings) {
+					// oxlint-disable-next-line typescript/no-unsafe-type-assertion - checked above
 					preference.set(preset.settings[preference.id as PreferenceKeys<P>]);
 				}
 			}

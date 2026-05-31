@@ -3,8 +3,5 @@
 	"description": "Listen to all the music I've made here. Most of it is lo-fi hip hop, so I suppose you can study to it.",
 	"url": "https://soundcloud.com/f78music",
 	"icon": "simple-icons:soundcloud",
-	"aliases": [
-		"sc",
-		"music"
-	]
+	"aliases": ["sc", "music"]
 }

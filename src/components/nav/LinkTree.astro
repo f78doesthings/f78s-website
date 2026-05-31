@@ -24,44 +24,48 @@ interface Props {
 const { collection = [], links = [] } = Astro.props;
 const allLinks: LinkData[] = [
 	...links,
-	...collection.map(link => ({ ...link.data, id: link.id })),
+	...collection.map((link) => ({ ...link.data, id: link.id })),
 ];
 
 // HACK: Having to do 2 separate sorts seems a bit off...
-allLinks
-	.sort((a, b) => {
-		const aInactive = isLinkInactive(a);
-		const bInactive = isLinkInactive(b);
-		return (aInactive === bInactive) ? 0 : aInactive ? 1 : -1;
-	})
-	.sort((a, b) => a.order - b.order);
+allLinks.sort((a, b) => {
+	const aInactive = isLinkInactive(a);
+	const bInactive = isLinkInactive(b);
+	return aInactive === bInactive ? 0 : aInactive ? 1 : -1;
+});
+allLinks.sort((a, b) => a.order - b.order);
 ---
 
 <nav>
 	<ul class="link-tree">
-		{allLinks.map(link => (
-			<li>
-				<Link href={link.url} external={!link.url.startsWith("/")} noIcon
-				      class:list={["link", { inactive: isLinkInactive(link) }]}>
+		{
+			allLinks.map((link) => (
+				<li>
+					<Link
+						href={link.url}
+						external={!link.url.startsWith("/")}
+						noIcon
+						class:list={["link", { inactive: isLinkInactive(link) }]}
+					>
+						<DynamicIcon name={link.icon} class={`icon-${link.id}`} />
+						<div class="info">
+							<div class="header">
+								<h3 class="title">{link.title}</h3>
+								<ul class="tags">
+									{link.tags?.map((tag) => (
+										<li>
+											<Badge type={tag} />
+										</li>
+									))}
+								</ul>
+							</div>
 
-					<DynamicIcon name={link.icon} class={`icon-${link.id}`} />
-					<div class="info">
-						<div class="header">
-							<h3 class="title">{link.title}</h3>
-							<ul class="tags">
-								{link.tags?.map(tag => (
-									<li>
-										<Badge type={tag} />
-									</li>
-								))}
-							</ul>
+							<p class="description">{link.description}</p>
 						</div>
-
-						<p class="description">{link.description}</p>
-					</div>
-				</Link>
-			</li>
-		))}
+					</Link>
+				</li>
+			))
+		}
 	</ul>
 </nav>
 
@@ -100,7 +104,8 @@ allLinks
 		}
 
 		&.inactive {
-			[data-icon], .title {
+			[data-icon],
+			.title {
 				color: var(--color-dim);
 			}
 
@@ -139,7 +144,8 @@ allLinks
 		flex-shrink: 0;
 	}
 
-	[data-icon], .title {
+	[data-icon],
+	.title {
 		color: var(--color-heading);
 	}
 

@@ -6,10 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// noinspection JSUnusedGlobalSymbols
-
-export {};
-
 declare global {
 	interface DocumentEventMap {
 		/** Fired when a preference is changed. */

@@ -28,6 +28,7 @@ const { headings } = Astro.props;
 
 // TODO: add Skip Navigation and re-add close button
 ---
+
 <header>
 	<nav>
 		<button title="Open navigation menu" aria-label="Open navigation menu" class="show-sidebar">
@@ -54,15 +55,28 @@ const { headings } = Astro.props;
 
 	{headings && <h2>Table of Contents</h2>}
 	<div class="table-of-contents">
-		{headings &&
-			<SidebarLink href="#top" class="depth-1">(Top)</SidebarLink>}
+		{
+			headings && (
+				<SidebarLink href="#top" class="depth-1">
+					(Top)
+				</SidebarLink>
+			)
+		}
 
 		{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
-		{headings?.map(({ depth, slug, text }) => {
-			return (
-				<SidebarLink href={`#${slug}`} class={`hide-sidebar depth-${depth}`} data-slug={slug}>{text}</SidebarLink>
-			);
-		})}
+		{
+			headings?.map(({ depth, slug, text }) => {
+				return (
+					<SidebarLink
+						href={`#${slug}`}
+						class={`hide-sidebar depth-${depth}`}
+						data-slug={slug}
+					>
+						{text}
+					</SidebarLink>
+				);
+			})
+		}
 	</div>
 
 	<h2>
@@ -119,7 +133,9 @@ const { headings } = Astro.props;
 		headings = [];
 		for (const item of contents) {
 			const slug = item.dataset.slug;
-			const heading = document.querySelector<HTMLElement>(slug ? `main #${slug}` : "main > article > header");
+			const heading = document.querySelector<HTMLElement>(
+				slug ? `main #${slug}` : "main > article > header",
+			);
 			if (heading) {
 				headings.push([item, heading]);
 			}
@@ -133,20 +149,29 @@ const { headings } = Astro.props;
 
 	function updateHeadings() {
 		// Find the last link that hasn't gone off the top of the screen
-		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
-		const activeIndex = headings.findIndex(
-			([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
-		) - 1;
+		const scrollPadding = parseFloat(
+			getComputedStyle(document.documentElement).scrollPaddingTop,
+		);
+		const activeIndex =
+			headings.findIndex(
+				([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
+			) - 1;
 		const [activeLink, activeHeading] = headings[activeIndex] ?? [];
 
 		// Update the sidebar links
 		for (const [link, heading] of headings) {
 			const rect = heading.getBoundingClientRect();
-			const isOnScreen = rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
+			const isOnScreen =
+				rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
 			link.classList.toggle("active", link === activeLink || isOnScreen);
 
 			// If the browser didn't feel like scrolling the heading into view, then do so manually
-			if (justNavigated && currentHeading && heading.id === currentHeading && window.scrollY < 1) {
+			if (
+				justNavigated &&
+				currentHeading &&
+				heading.id === currentHeading &&
+				window.scrollY < 1
+			) {
 				console.info(`Forcefully scrolling heading "${link.hash}" into view`);
 				heading.scrollIntoView();
 			}
@@ -209,6 +234,7 @@ const { headings } = Astro.props;
 		}
 
 		@include glass;
+
 		@include preferences("fx") {
 			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
 		}
@@ -221,7 +247,8 @@ const { headings } = Astro.props;
 			padding: 0 size(12);
 		}
 
-		a, button {
+		a,
+		button {
 			padding: size(10);
 		}
 
@@ -230,7 +257,8 @@ const { headings } = Astro.props;
 		}
 	}
 
-	button, a {
+	button,
+	a {
 		display: flex;
 		align-items: center;
 
@@ -241,6 +269,7 @@ const { headings } = Astro.props;
 		text-decoration: none;
 
 		cursor: pointer;
+
 		@include btn-transparent;
 	}
 
@@ -294,7 +323,9 @@ const { headings } = Astro.props;
 
 		background-color: var(--color-component);
 		box-shadow: $glass-shadow;
-		transition: left 350ms ease, visibility 350ms allow-discrete;
+		transition:
+			left 350ms ease,
+			visibility 350ms allow-discrete;
 
 		&.open {
 			left: 0;

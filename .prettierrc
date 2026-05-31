@@ -1,0 +1,6 @@
+{
+	"//": "Only for formatting Astro files with the Astro VSCode extension. Use Oxfmt elsewhere.",
+	"useTabs": true,
+	"tabWidth": 2,
+	"printWidth": 100
+}

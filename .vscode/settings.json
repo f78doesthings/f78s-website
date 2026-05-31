@@ -1,0 +1,26 @@
+{
+	// Linting
+	"astro.content-intellisense": true,
+	"markdown.validate.enabled": true,
+	"stylelint.validate": ["css", "postcss", "scss", "astro"],
+	"css.validate": false,
+	"scss.validate": false,
+
+	// Formatting
+	"editor.insertSpaces": false,
+	"editor.rulers": [100],
+	"editor.defaultFormatter": "oxc.oxc-vscode",
+	"[astro]": {
+		"editor.defaultFormatter": "astro-build.astro-vscode"
+	},
+	"[mdx]": {
+		"editor.defaultFormatter": "oxc.oxc-vscode"
+	},
+
+	// Copyright
+	"copyrightInserter.license": "mpl2",
+	"copyrightInserter.holder": "f78",
+
+	// Spellcheck (optional, for Code Spell Checker w/ British English dictionary)
+	"cSpell.language": "en-GB"
+}

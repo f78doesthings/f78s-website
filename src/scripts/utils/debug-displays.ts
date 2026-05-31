@@ -6,13 +6,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { dependenciesMet, type MapLike, type NotUndefined } from "../preferences/utils.ts";
+import type { NotUndefined } from "../../types.ts";
 import type { Preference } from "../preferences/types/Preference.ts";
+import { dependenciesMet, type MapLike } from "../preferences/utils.ts";
 
+// TODO: could this be handled better?
 const root = document.querySelector<HTMLElement>(".debug-display")!;
+if (!root) {
+	throw new Error("Could not find root element for the debug display");
+}
 
 export class DebugCategory {
-	private static readonly _instances: DebugCategory[] = [];
+	static readonly #instances: DebugCategory[] = [];
 
 	readonly container;
 	readonly displays: DebugDisplay[] = [];
@@ -31,12 +36,12 @@ export class DebugCategory {
 		}
 
 		this.container = container;
-		DebugCategory._instances.push(this);
+		DebugCategory.#instances.push(this);
 	}
 
 	static updateVisibilities() {
 		let visible = false;
-		for (const category of this._instances) {
+		for (const category of this.#instances) {
 			if (category.updateVisibility()) {
 				visible = true;
 			}
@@ -73,22 +78,22 @@ export class DebugDisplay implements DebugDisplayConfig {
 	readonly category;
 	readonly dependencies;
 	readonly format;
-
 	isVisible = false;
-	private _value?: unknown;
-
-	private readonly _nameElement;
-	private readonly _valueElement;
+	#value?: unknown;
+	readonly #nameElement;
+	readonly #valueElement;
 
 	constructor(config: DebugDisplayConfig, initialValue?: unknown) {
 		this.name = config.name;
 		this.description = config.description ?? "";
 		this.category = config.category;
 		this.dependencies = new Map(config.dependencies);
-		this.format = config.format ?? (value => String(value));
+		this.format = config.format ?? ((value) => String(value));
 
 		const container = this.category.container;
-		let valueElement = container.querySelector<HTMLElement>(`[data-debug-display-value="${this.name}"]`);
+		let valueElement = container.querySelector<HTMLElement>(
+			`[data-debug-display-value="${this.name}"]`,
+		);
 		if (!valueElement) {
 			valueElement = document.createElement("pre");
 			valueElement.dataset.debugDisplayValue = this.name;
@@ -96,7 +101,9 @@ export class DebugDisplay implements DebugDisplayConfig {
 			container.append(valueElement);
 		}
 
-		let nameElement = container.querySelector<HTMLElement>(`[data-debug-display-name="${this.name}"]`);
+		let nameElement = container.querySelector<HTMLElement>(
+			`[data-debug-display-name="${this.name}"]`,
+		);
 		if (!nameElement) {
 			nameElement = document.createElement("h6");
 			nameElement.dataset.debugDisplayName = this.name;
@@ -105,8 +112,8 @@ export class DebugDisplay implements DebugDisplayConfig {
 			container.insertBefore(nameElement, valueElement);
 		}
 
-		this._nameElement = nameElement;
-		this._valueElement = valueElement;
+		this.#nameElement = nameElement;
+		this.#valueElement = valueElement;
 		this.category.displays.push(this);
 
 		DebugCategory.updateVisibilities();
@@ -114,21 +121,21 @@ export class DebugDisplay implements DebugDisplayConfig {
 	}
 
 	set(value: unknown) {
-		this._value = value;
-		this._updateText();
+		this.#value = value;
+		this.#updateText();
 	}
 
 	updateVisibility() {
 		const visible = dependenciesMet(this.dependencies);
-		this._nameElement.hidden = this._valueElement.hidden = !visible;
+		this.#nameElement.hidden = this.#valueElement.hidden = !visible;
 		this.isVisible = visible;
-		this._updateText();
+		this.#updateText();
 		return visible;
 	}
 
-	private _updateText() {
+	#updateText() {
 		if (this.isVisible) {
-			this._valueElement.textContent = this.format(this._value);
+			this.#valueElement.textContent = this.format(this.#value);
 		}
 	}
 }

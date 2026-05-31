@@ -19,9 +19,7 @@ const { id } = Astro.props;
 <div data-banner={id}>
 	<slot />
 	<button>
-		<slot name="dismiss-button">
-			Got it!
-		</slot>
+		<slot name="dismiss-button">Got it!</slot>
 	</button>
 </div>
 
@@ -43,7 +41,9 @@ const { id } = Astro.props;
 				continue;
 			}
 
-			const dismissedBanners = getStorageItem<string[]>("dismissedBanners") ?? [];
+			const dismissedBanners =
+				getStorageItem<string[]>("dismissedBanners", Array.isArray) ?? [];
+
 			if (!dismissedBanners.includes(id)) {
 				banner.classList.add("visible");
 
@@ -98,7 +98,8 @@ const { id } = Astro.props;
 			}
 		}
 
-		:global([data-icon]), button {
+		:global([data-icon]),
+		button {
 			flex-shrink: 0;
 		}
 
@@ -137,7 +138,10 @@ const { id } = Astro.props;
 			border-radius: $radius-full;
 			font-weight: 500;
 
-			transition: background-color $anim-ease, color $anim-ease, border-color $anim-ease;
+			transition:
+				background-color $anim-ease,
+				color $anim-ease,
+				border-color $anim-ease;
 			cursor: pointer;
 
 			@include hover {
@@ -152,6 +156,7 @@ const { id } = Astro.props;
 		}
 
 		@include glass;
+
 		@include preferences("light") {
 			background: linear-gradient(
 				color.change($red-200, $alpha: $banner-alpha),

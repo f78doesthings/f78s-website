@@ -11,16 +11,19 @@
 
 import type { HTMLAttributes } from "astro/types";
 import type { MediaInfo, Replace } from "../../types.ts";
-import { getFileName, resolveMedia } from "../../server-utils.ts";
+import { getFileName, resolveMedia } from "../../server-utils";
 import LicenseNotice from "./LicenseNotice.astro";
 
-type Props = Replace<HTMLAttributes<"video">, MediaInfo & {
-	/** The width of the video in pixels. This is enforced for now to prevent layout shift. */
-	width: number;
+type Props = Replace<
+	HTMLAttributes<"video">,
+	MediaInfo & {
+		/** The width of the video in pixels. This is enforced for now to prevent layout shift. */
+		width: number;
 
-	/** The height of the video in pixels. This is enforced for now to prevent layout shift. */
-	height: number;
-}>;
+		/** The height of the video in pixels. This is enforced for now to prevent layout shift. */
+		height: number;
+	}
+>;
 
 const { src, license = "CC-BY-SA-4.0", ...props } = Astro.props;
 const resolvedSrc = await resolveMedia(src);
@@ -29,9 +32,16 @@ const baseName = getFileName(resolvedSrc);
 
 <figure>
 	<video src={resolvedSrc} controls preload="metadata" {...props}>
-		{resolvedSrc && (<p>
-			Can't play this back? <a href={resolvedSrc} download={baseName}>Download the video file here.</a>
-		</p>)}
+		{
+			resolvedSrc && (
+				<p>
+					Can't play this back?{" "}
+					<a href={resolvedSrc} download={baseName}>
+						Download the video file here.
+					</a>
+				</p>
+			)
+		}
 	</video>
 	<figcaption>
 		<slot />

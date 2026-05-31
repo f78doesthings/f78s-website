@@ -57,7 +57,8 @@ if (preference instanceof EnumPreference) {
 const hasIcon = showIcon && preference.icon !== undefined;
 const hasTitle = !!showTitle;
 const hasDescription = showDescription && preference.description !== undefined;
-const hasBefore = icons.length > 0 || (preference instanceof NumberPreference && preference.useSlider);
+const hasBefore =
+	icons.length > 0 || (preference instanceof NumberPreference && preference.useSlider);
 const hasAfter = false;
 
 const areaIcon = hasIcon && "icon";
@@ -70,12 +71,21 @@ const gridAreas = [
 	hasDescription && [areaIcon, "description", areaBefore, "input", areaAfter],
 ];
 const gridColumns = [
-	hasIcon && "auto", (hasTitle || hasDescription) && "1fr", hasBefore && "auto", "auto", hasAfter && "auto",
+	hasIcon && "auto",
+	(hasTitle || hasDescription) && "1fr",
+	hasBefore && "auto",
+	"auto",
+	hasAfter && "auto",
 ];
 
 const mobileGridAreas = [
 	hasTitle && [areaIcon, hasBefore && areaTitle, areaTitle, hasAfter && areaTitle],
-	hasDescription && [areaIcon, hasBefore && "description", "description", hasAfter && "description"],
+	hasDescription && [
+		areaIcon,
+		hasBefore && "description",
+		"description",
+		hasAfter && "description",
+	],
 	[areaIcon, areaBefore, "input", areaAfter],
 ];
 const mobileGridColumns = [hasIcon && "auto", hasBefore && "auto", "1fr", hasAfter && "auto"];
@@ -108,30 +118,50 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 const dependencyVars = getDependencyString(preference.dependencies);
 ---
 
-<label {...cid} hidden={dependencyVars !== undefined} aria-label={preference.title}
-       data-preference-control={id} data-preference-dependencies={dependencyVars}
-       style={{
-				 "--grid": gridTemplate(gridAreas, gridColumns),
-				 "--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
-			 }}
-       class:list={{
-				 "mobile-rearrange": !(noMobile ?? preference instanceof TogglePreference),
-				 "mobile-margin": !noMobile,
-			 }}>
+<label
+	{...cid}
+	hidden={dependencyVars !== undefined}
+	aria-label={preference.title}
+	data-preference-control={id}
+	data-preference-dependencies={dependencyVars}
+	style={{
+		"--grid": gridTemplate(gridAreas, gridColumns),
+		"--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
+	}}
+	class:list={{
+		"mobile-rearrange": !(noMobile ?? preference instanceof TogglePreference),
+		"mobile-margin": !noMobile,
+	}}
+>
 	{hasIcon && <DynamicIcon name={preference.icon} size={30} {...cid} />}
-	{hasTitle && <span class="title" {...cid}>{typeof showTitle === "string" ? showTitle : preference.title}</span>}
-	{hasDescription && <span class="description" {...cid}>{preference.description}</span>}
+	{
+		hasTitle && (
+			<span class="title" {...cid}>
+				{typeof showTitle === "string" ? showTitle : preference.title}
+			</span>
+		)
+	}
+	{
+		hasDescription && (
+			<span class="description" {...cid}>
+				{preference.description}
+			</span>
+		)
+	}
 
 	<InnerPreferenceControl client:load preference={id} {...cid}>
-		{icons.map(([icon, option]) => (
-			<DynamicIcon name={icon} data-option-icon={option} class="before-input" size={20} />
-		))}
+		{
+			icons.map(([icon, option]) => (
+				<DynamicIcon name={icon} data-option-icon={option} class="before-input" size={20} />
+			))
+		}
 	</InnerPreferenceControl>
 </label>
 
 <script>
 	import { preferences, type PreferenceID } from "../../scripts/preferences";
-	import { dependenciesMet, type MapEntries, type NotUndefined } from "../../scripts/preferences/utils.ts";
+	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils.ts";
+	import type { NotUndefined } from "../../types";
 
 	document.addEventListener("custom:preferences-updated", () => {
 		const dependents = document.querySelectorAll<HTMLElement>("[data-preference-dependencies]");
@@ -141,8 +171,11 @@ const dependencyVars = getDependencyString(preference.dependencies);
 				continue;
 			}
 
-			const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
-			const resolved = dependencies.map(([id, expectedValues]) => [preferences[id], expectedValues] as const);
+			const dependencies: MapEntries<PreferenceID, NotUndefined[]> =
+				JSON.parse(jsonDependencies);
+			const resolved = dependencies.map(
+				([id, expectedValues]) => [preferences[id], expectedValues] as const,
+			);
 			dependent.hidden = !dependenciesMet(resolved);
 		}
 	});
@@ -192,8 +225,8 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			grid-area: description;
 			color: var(--color-dim);
 			font-size: size(14);
-
 			margin-bottom: size(4);
+
 			@media (min-width: $breakpoint-desktop) {
 				margin-bottom: 0;
 			}
@@ -221,11 +254,14 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			text-align: right;
 		}
 
-		input, select, textarea {
+		input,
+		select,
+		textarea {
 			grid-area: input;
 		}
 
-		input[type="checkbox"], select {
+		input[type="checkbox"],
+		select {
 			cursor: pointer;
 		}
 

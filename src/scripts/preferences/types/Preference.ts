@@ -7,8 +7,10 @@
  */
 
 import type { JSX } from "preact";
+
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
-import { dependenciesMet, type MapEntries, type MapLike, type NotUndefined } from "../utils.ts";
+import type { NotUndefined } from "../../../types.ts";
+import { dependenciesMet, type MapEntries, type MapLike } from "../utils.ts";
 
 export interface PreferenceConfig<T extends NotUndefined> {
 	/**
@@ -60,9 +62,10 @@ export interface PreferenceCategory {
 }
 
 /** The base class for all preferences. */
-export abstract class Preference<K extends string = string, T extends NotUndefined = NotUndefined>
-	implements PreferenceConfig<T> {
-
+export abstract class Preference<
+	K extends string = string,
+	T extends NotUndefined = NotUndefined,
+> implements PreferenceConfig<T> {
 	readonly title: string;
 	readonly description?: string;
 	readonly icon?: string;
@@ -74,9 +77,13 @@ export abstract class Preference<K extends string = string, T extends NotUndefin
 	/** The most recent category that was assigned to the preference by {@linkcode groupPreferences}. */
 	currentCategory?: PreferenceCategory;
 
-	protected _value!: T;
+	protected value!: T;
 
-	protected constructor(readonly id: K, config: PreferenceConfig<T>, public fallbackValue: T) {
+	protected constructor(
+		readonly id: K,
+		config: PreferenceConfig<T>,
+		public fallbackValue: T,
+	) {
 		this.title = config.title ?? id;
 		this.description = config.description;
 		this.icon = config.icon;
@@ -88,14 +95,14 @@ export abstract class Preference<K extends string = string, T extends NotUndefin
 
 	/** Gets the current value of this preference. */
 	get() {
-		return this._value;
+		return this.value;
 	}
 
 	/** Attempts to set the value of this preference. */
 	set(value: unknown) {
 		const transformedValue = this.validate(value);
 		if (transformedValue !== undefined) {
-			this._value = transformedValue;
+			this.value = transformedValue;
 		} else {
 			console.warn("Attempted to assign invalid value", value, "to", this);
 		}

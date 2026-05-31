@@ -7,6 +7,7 @@
  */
 
 import type { RemarkPlugin } from "@astrojs/markdown-remark";
+
 import { getModifiedTime } from "../src/server-utils.ts";
 
 export function remarkLastModified() {

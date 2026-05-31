@@ -3,15 +3,6 @@
 	"description": "I do not intend to stream any time soon, so for now you won't find anything here at all.",
 	"url": "https://twitch.tv/f78live",
 	"icon": "simple-icons:twitch",
-	"tags": [
-		"inactive"
-	],
-	"aliases": [
-		"ttv",
-		"live",
-		"stream",
-		"streams",
-		"livestream",
-		"livestreams"
-	]
+	"tags": ["inactive"],
+	"aliases": ["ttv", "live", "stream", "streams", "livestream", "livestreams"]
 }

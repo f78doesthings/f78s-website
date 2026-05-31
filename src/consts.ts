@@ -23,18 +23,21 @@ export const BADGES: Record<BadgeType, Badge> = {
 	},
 	beta: {
 		title: "Beta",
-		description: "This part of the website is still being worked on. Report any issues you find on GitHub.",
+		description:
+			"This part of the website is still being worked on. Report any issues you find on GitHub.",
 		icon: "fluent:beaker-20-regular",
 	},
 	inactive: {
 		title: "Inactive",
-		description: "I'm not currently planning to use this platform, but I might use it (again) in the future.",
+		description:
+			"I'm not currently planning to use this platform, but I might use it (again) in the future.",
 		icon: "fluent:pause-circle-20-regular",
 		inactive: true,
 	},
 	archived: {
 		title: "Archived",
-		description: "I will no longer be using this. If you want newer content, you'll have to go to a different platform.",
+		description:
+			"I will no longer be using this. If you want newer content, you'll have to go to a different platform.",
 		icon: "fluent:archive-20-regular",
 		inactive: true,
 	},
@@ -54,7 +57,7 @@ export const LICENSES: Record<KnownLicense, License> = {
 		url: "https://creativecommons.org/licenses/by-sa/4.0/",
 		type: "open",
 	},
-	"MIT": {
+	MIT: {
 		icons: [],
 		title: "MIT",
 		url: "https://spdx.org/licenses/MIT.html",

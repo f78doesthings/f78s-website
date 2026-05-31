@@ -23,7 +23,8 @@
 /// 	Whether to use `em` instead of `rem`.
 @function size($px, $relative: false) {
 	$unit: rem;
-	@if ($relative) {
+
+	@if $relative {
 		$unit: em;
 	}
 
@@ -34,11 +35,10 @@
 $page-width: size(1024);
 $page-margin: size(22);
 $badge-height: size(26);
-
-$radius-full: calc(infinity * 1px);
 $breakpoint-desktop: size(960);
+$radius-full: calc(infinity * 1px);
 
-$glass-shadow: 0 0 size(20) hsl(0 0% 0% / 9%);
+$glass-shadow: 0 0 size(20) hsl(0deg 0% 0% / 9%);
 
 $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 $anim-ease: 170ms ease;
@@ -54,42 +54,43 @@ $anim-back: 250ms $ease-out-back;
 
 /// Includes styles only when certain preferences are enabled, or under certain conditions.
 ///
-/// **Do not nest these**. Instead, include this again at the same level, but with multiple preferences.
+/// **Do not nest these**. Instead, include this again at the same level and pass multiple
+/// preferences instead.
 ///
 /// @param {string} $preferences
 /// 	The preferences that need to be enabled to include these styles.
 @mixin preferences($preferences...) {
 	$keywords: meta.keywords($preferences);
 	$is-root: map.get($keywords, "is-root");
-
 	$selector: ":root";
 	$theme: null;
-	@if ($is-root) {
+
+	@if $is-root {
 		$selector: "&";
 	}
 
 	@each $preference in $preferences {
-		@if ($preference == "dark" or $preference == "light") {
+		@if $preference == "dark" or $preference == "light" {
 			$theme: $preference;
-		} @else if ($preference == "bg") {
+		} @else if $preference == "bg" {
 			$selector: $selector + ".bg-supported#{-preference("bgEnabled")}";
-		} @else if ($preference == "no-bg") {
+		} @else if $preference == "no-bg" {
 			$selector: $selector + ":not(.bg-supported#{-preference("bgEnabled")})";
-		} @else if ($preference == "fx") {
+		} @else if $preference == "fx" {
 			$selector: $selector + -preference("immersiveFX");
-		} @else if ($preference == "no-fx") {
+		} @else if $preference == "no-fx" {
 			$selector: $selector + ":not(#{-preference("immersiveFX")})";
-		} @else if ($preference == "loaded") {
+		} @else if $preference == "loaded" {
 			$selector: $selector + ".loaded";
 		} @else {
 			$selector: $selector + -preference($preference);
 		}
 	}
 
-	@if ($theme) {
+	@if $theme {
 		$auto-selector: $selector + ":is(:not(.loaded), [data-theme='auto'])";
 
-		@if (not $is-root) {
+		@if not $is-root {
 			$auto-selector: $auto-selector + " &";
 		}
 
@@ -102,7 +103,7 @@ $anim-back: 250ms $ease-out-back;
 		$selector: $selector + "[data-theme='#{$theme}']";
 	}
 
-	@if (not $is-root) {
+	@if not $is-root {
 		$selector: $selector + " &";
 	}
 
@@ -150,17 +151,17 @@ $anim-back: 250ms $ease-out-back;
 		pointer-events: none; // Prevents the hover effect from breaking other hover functions, such as the title attribute.
 
 		background: radial-gradient(
-			hsl(0 0% 100% / 11%),
-			hsl(0 0% 100% / 10.2%),
-			hsl(0 0% 100% / 8%)
+			hsl(0deg 0% 100% / 11%),
+			hsl(0deg 0% 100% / 10.2%),
+			hsl(0deg 0% 100% / 8%)
 		);
 
-		@if (not $dark-only) {
+		@if not $dark-only {
 			@include preferences("light") {
 				background: radial-gradient(
-					hsl(0 0% 0% / 13.5%),
-					hsl(0 0% 0% / 12.5%),
-					hsl(0 0% 0% / 10%)
+					hsl(0deg 0% 0% / 13.5%),
+					hsl(0deg 0% 0% / 12.5%),
+					hsl(0deg 0% 0% / 10%)
 				);
 			}
 		}
@@ -172,12 +173,12 @@ $anim-back: 250ms $ease-out-back;
 		}
 
 		@include preferences("no-fx") {
-			background-color: hsl(0 0% 100% / 9.5%);
+			background-color: hsl(0deg 0% 100% / 9.5%);
 		}
 
-		@if (not $dark-only) {
+		@if not $dark-only {
 			@include preferences("no-fx", "light") {
-				background-color: hsl(0 0% 0% / 8%);
+				background-color: hsl(0deg 0% 0% / 8%);
 			}
 
 			@include preferences("light") {
@@ -194,12 +195,12 @@ $anim-back: 250ms $ease-out-back;
 		}
 
 		@include preferences("no-fx") {
-			background-color: hsl(0 0% 100% / 6%);
+			background-color: hsl(0deg 0% 100% / 6%);
 		}
 
-		@if (not $dark-only) {
+		@if not $dark-only {
 			@include preferences("no-fx light") {
-				background-color: hsl(0 0% 0% / 12%);
+				background-color: hsl(0deg 0% 0% / 12%);
 			}
 
 			@include preferences("light") {

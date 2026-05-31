@@ -1,0 +1,17 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"ignorePatterns": ["src/assets/fonts"], // Ignore submodules
+
+	"plugins": ["eslint", "typescript", "unicorn", "oxc"],
+	"categories": {
+		"correctness": "error",
+		"suspicious": "warn"
+	},
+	"env": {
+		"builtin": true
+	},
+	"options": {
+		"typeAware": true,
+		"typeCheck": true
+	}
+}

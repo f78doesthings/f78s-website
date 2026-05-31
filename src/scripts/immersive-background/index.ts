@@ -6,44 +6,42 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { preferences } from "../preferences";
+import { truncate } from "../utils";
+import { DebugCategory, DebugDisplay } from "../utils/debug-displays.ts";
+import bgFrag from "./shaders/bg.frag?raw";
+import bgVert from "./shaders/bg.vert?raw";
+import { initBuffers } from "./webgl/buffers.ts";
+import { drawScene } from "./webgl/draw-scene.ts";
 // Immersive background
 import { initShaderProgram } from "./webgl/shader-program.ts";
 import type { ProgramInfo } from "./webgl/types";
-import { initBuffers } from "./webgl/buffers.ts";
-import { drawScene } from "./webgl/draw-scene.ts";
-import { preferences } from "../preferences";
-import { DebugCategory, DebugDisplay } from "../utils/debug-displays.ts";
-import { bgFrag, bgVert } from "./shaders.ts";
-import { truncate } from "../utils";
 
 const debugCategory = new DebugCategory("Background");
-const debugFPS = new DebugDisplay({
-	name: "FPS",
-	description:
-		"The current FPS of the immersive background. " +
-		"The second value represents the browser's FPS, which is typically your screen's refresh rate.",
-	category: debugCategory,
-	dependencies: [
-		preferences.bgDebug.asDependency("fps", "resolution", "full"),
-	],
-}, "N / A");
+const debugFPS = new DebugDisplay(
+	{
+		name: "FPS",
+		description:
+			"The current FPS of the immersive background. " +
+			"The second value represents the browser's FPS, which is typically your screen's refresh rate.",
+		category: debugCategory,
+		dependencies: [preferences.bgDebug.asDependency("fps", "resolution", "full")],
+	},
+	"N / A",
+);
 
 const debugResolution = new DebugDisplay({
 	name: "Resolution",
 	description: "The final resolution the immersive background is being rendered at.",
 	category: debugCategory,
-	dependencies: [
-		preferences.bgDebug.asDependency("resolution", "full"),
-	],
+	dependencies: [preferences.bgDebug.asDependency("resolution", "full")],
 });
 
 const debugScreen = new DebugDisplay({
 	name: "Page Size",
 	description: "Information about the page size.",
 	category: debugCategory,
-	dependencies: [
-		preferences.bgDebug.asDependency("full"),
-	],
+	dependencies: [preferences.bgDebug.asDependency("full")],
 });
 const debugDPI = new DebugDisplay({
 	name: "Pixel Density",
@@ -53,9 +51,7 @@ const debugDPI = new DebugDisplay({
 		"\n- Scaled is the pixel density scaled by the Pixel Density Scaling setting." +
 		"\n- Final is the final pixel density of the background.",
 	category: debugCategory,
-	dependencies: [
-		preferences.bgDebug.asDependency("full"),
-	],
+	dependencies: [preferences.bgDebug.asDependency("full")],
 });
 
 // TODO: better immersive background toggle / refactoring
@@ -67,9 +63,10 @@ function resizeCanvas() {
 		return;
 	}
 
-	const dpr = devicePixelRatio > 1
-		? 1 + (devicePixelRatio - 1) * preferences.bgDPIFactor.get()
-		: devicePixelRatio;
+	const dpr =
+		devicePixelRatio > 1
+			? 1 + (devicePixelRatio - 1) * preferences.bgDPIFactor.get()
+			: devicePixelRatio;
 	const renderScale = dpr * preferences.bgRenderScale.get();
 
 	const bounds = canvas.getBoundingClientRect();
@@ -79,15 +76,19 @@ function resizeCanvas() {
 	debugResolution.set(`${displayWidth} x ${displayHeight}`);
 	debugScreen.set(
 		`Perceived: ${Math.round(bounds.width)} x ${Math.round(bounds.height)}\n` +
-		`Native: ${Math.round(bounds.width * devicePixelRatio)} x ${Math.round(bounds.height * devicePixelRatio)}`,
+			`Native: ${Math.round(bounds.width * devicePixelRatio)} x ${Math.round(bounds.height * devicePixelRatio)}`,
 	);
 	debugDPI.set(
 		`Native: ${truncate(devicePixelRatio, 3)}x\n` +
-		`Scaled: ${truncate(dpr, 3)}x\n` +
-		`Final: ${truncate(renderScale, 3)}x`,
+			`Scaled: ${truncate(dpr, 3)}x\n` +
+			`Final: ${truncate(renderScale, 3)}x`,
 	);
 
-	if ((canvas.width !== displayWidth || canvas.height !== displayHeight) && displayWidth > 0 && displayHeight > 0) {
+	if (
+		(canvas.width !== displayWidth || canvas.height !== displayHeight) &&
+		displayWidth > 0 &&
+		displayHeight > 0
+	) {
 		canvas.width = displayWidth;
 		canvas.height = displayHeight;
 	}
@@ -140,7 +141,9 @@ function main() {
 
 		const timeSinceUpdate = (now - lastUpdateTime) / 1000;
 		if (timeSinceUpdate > 1) {
-			debugFPS.set(`${truncate(frames / timeSinceUpdate)} / ${truncate(animationFrames / timeSinceUpdate)}`);
+			debugFPS.set(
+				`${truncate(frames / timeSinceUpdate)} / ${truncate(animationFrames / timeSinceUpdate)}`,
+			);
 			lastUpdateTime = now;
 			frames = 0;
 			animationFrames = 0;
@@ -183,10 +186,7 @@ function main() {
 
 function updateImmersiveBackgroundState() {
 	document.documentElement.classList.add("loaded");
-	document.documentElement.classList.toggle(
-		"bg-supported",
-		immersiveModeSupported && preferences.bgEnabled.isEnabled(),
-	);
+	document.documentElement.classList.toggle("bg-supported", immersiveModeSupported);
 }
 
 main();

@@ -8,7 +8,12 @@
 
 import type { Buffers, ProgramInfo } from "./types";
 
-export function drawScene(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, time: number) {
+export function drawScene(
+	gl: WebGLRenderingContext,
+	programInfo: ProgramInfo,
+	buffers: Buffers,
+	time: number,
+) {
 	// Update the viewport size
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -32,15 +37,12 @@ export function drawScene(gl: WebGLRenderingContext, programInfo: ProgramInfo, b
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-function setPositionAttribute(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers) {
+function setPositionAttribute(
+	gl: WebGLRenderingContext,
+	programInfo: ProgramInfo,
+	buffers: Buffers,
+) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-	gl.vertexAttribPointer(
-		programInfo.attribLocations.vertexPosition,
-		2,
-		gl.FLOAT,
-		false,
-		0,
-		0,
-	);
+	gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 }

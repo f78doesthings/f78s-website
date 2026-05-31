@@ -1,31 +1,36 @@
 ---
 title: "Test"
 description: "This is an example post to test out the blog and its styling."
-pubDate: 2026-04-19
+pubDate: 2026-04-19T00:00:00Z
 draft: true
 heroImage: "../../assets/blog-placeholder.jpg"
 heroDescription: "The Astro mascot."
-# (don't quote me on that)
-heroLicense: MIT
-heroCreatedIn: "2023-present"
-heroCreatedBy: "Astro contributors"
+heroLicense: MIT # (don't quote me on the image licence, it's for a test page anyway)
+heroCreatedIn: 2023-present
+heroCreatedBy: Astro contributors
 heroSource: https://github.com/withastro/astro/blob/main/examples/blog/src/assets/blog-placeholder-about.jpg
 ---
 
 import Alert from "../../components/Alert.astro";
 
 # Heading 1
+
 ## Heading 2
+
 ### Heading 3
+
 #### Heading 4
+
 ##### Heading 5
+
 ###### Heading 6
-But realistically, *who* in their right mind would be willing to use a **heading** that <small>small</small>[^1]?
+
+But realistically, _who_ in their right mind would be willing to use a **heading** that <small {
+...{/* dummy */}}>small</small>[^1]?
 
 ## Alerts
 
-> This isn't actually an alert. It's just a `<blockquote>`.\
-> <small>Small text example</small>
+> This isn't actually an alert. It's just a `<blockquote>`.<br /><small>Small text example</small>
 
 <Alert type="note">
 	Useful information that users should know, even when skimming content.\
@@ -34,25 +39,26 @@ But realistically, *who* in their right mind would be willing to use a **heading
 
 <Alert type="tip">
 	Helpful advice for doing things better or more easily.\
-  <small>Small text example</small>
+	<small>Small text example</small>
 </Alert>
 
 <Alert type="important">
 	Key information users need to know to achieve their goal.\
-  <small>Small text example</small>
+	<small>Small text example</small>
 </Alert>
 
 <Alert type="warning">
 	Urgent info that needs immediate user attention to avoid problems.\
-  <small>Small text example</small>
+	<small>Small text example</small>
 </Alert>
 
 <Alert type="caution">
 	Advises about risks or negative outcomes of certain actions.\
-  <small>Small text example</small>
+	<small>Small text example</small>
 </Alert>
 
 ## Code
+
 Anyway, here's some `code`[^2]:
 
 ```astro
@@ -91,4 +97,5 @@ const { icon } = Astro.props;
 ```
 
 [^1]: It's a footnote. What else did you expect?
+
 [^2]: Oh look, another footnote. Go figure.

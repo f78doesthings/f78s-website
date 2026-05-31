@@ -7,10 +7,10 @@
  */
 
 import { preferences } from "./preferences";
-import { TogglePreference } from "./preferences/types/TogglePreference.tsx";
-import { EnumPreference } from "./preferences/types/EnumPreference.tsx";
-import { isOnPage } from "./utils";
 import { loadPreferences } from "./preferences/client.ts";
+import { EnumPreference } from "./preferences/types/EnumPreference.tsx";
+import { TogglePreference } from "./preferences/types/TogglePreference.tsx";
+import { isOnPage } from "./utils";
 
 function updatePageData() {
 	const enabled = [];
@@ -27,13 +27,12 @@ function updatePageData() {
 document.addEventListener("astro:before-preparation", (ev) => {
 	const originalLoader = ev.loader;
 	ev.loader = async () => {
-		if (
-			isOnPage(ev.to, "/preferences") &&
-			!isOnPage(ev.from, "/preferences")
-		) {
+		if (isOnPage(ev.to, "/preferences") && !isOnPage(ev.from, "/preferences")) {
 			ev.to.searchParams.set("from", `${ev.from.pathname}${ev.from.search}${ev.from.hash}`);
 		}
 
+		// BUG: The loading bar disappears sometimes. Cloudflare also throws 503 Service Unavailable
+		//      errors when prefetching.
 		const loadingBar = document.querySelector<HTMLElement>(".loading-bar");
 		let loaded = false;
 		if (loadingBar && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -46,14 +45,19 @@ document.addEventListener("astro:before-preparation", (ev) => {
 					loadingBar.style.width = `${progress * 100}%`;
 					requestAnimationFrame(nextFrame);
 				} else {
-					loadingBar.animate([{
-						width: "100%",
-						opacity: "0",
-					}], {
-						duration: 1000,
-						easing: "ease",
-						fill: "forwards",
-					});
+					loadingBar.animate(
+						[
+							{
+								width: "100%",
+								opacity: "0",
+							},
+						],
+						{
+							duration: 1000,
+							easing: "ease",
+							fill: "forwards",
+						},
+					);
 				}
 			};
 
@@ -70,6 +74,8 @@ document.addEventListener("astro:before-preparation", (ev) => {
 		loaded = true;
 	};
 });
-document.addEventListener("astro:after-swap", () => document.dispatchEvent(new Event("custom:preferences-updated")));
+document.addEventListener("astro:after-swap", () =>
+	document.dispatchEvent(new Event("custom:preferences-updated")),
+);
 document.addEventListener("custom:preferences-updated", updatePageData);
 loadPreferences();

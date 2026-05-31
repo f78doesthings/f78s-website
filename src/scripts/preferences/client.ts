@@ -7,8 +7,9 @@
  */
 
 // Client-side functions for preferences (such as loading and saving)
-import { PresetPreference } from "./types/PresetPreference.ts";
+
 import { type PreferenceID, preferences } from "./index.ts";
+import { PresetPreference } from "./types/PresetPreference.ts";
 
 const PREFERENCES_KEY = "preferences";
 
@@ -28,6 +29,7 @@ export function loadPreferences() {
 		const data = JSON.parse(json);
 		for (const [key, value] of Object.entries(data)) {
 			if (key in preferences) {
+				// oxlint-disable-next-line typescript/no-unsafe-type-assertion - checked above
 				preferences[key as PreferenceID].set(value);
 			}
 		}

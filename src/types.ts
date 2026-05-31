@@ -6,12 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.ts";
 import type { CollectionEntry } from "astro:content";
+
+import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.ts";
 
 //#region Badges & tags
 
-export type BadgeType = typeof BADGE_TYPES[number];
+export type BadgeType = (typeof BADGE_TYPES)[number];
 
 export interface Badge {
 	icon: string;
@@ -24,7 +25,7 @@ export interface Badge {
 
 //#region Licensing & copyright
 
-export type KnownLicense = typeof KNOWN_LICENSES[number];
+export type KnownLicense = (typeof KNOWN_LICENSES)[number];
 
 export type LicenseType = "publicDomain" | "open";
 
@@ -79,11 +80,13 @@ export interface MediaInfo extends CopyrightInfo {
 
 export type Replace<T, U> = Omit<T, keyof U> & U;
 
-// noinspection JSUnusedGlobalSymbols - Used implicitly
+/** All values including `null` but not `undefined`. */
+export type NotUndefined = {} | null;
+
 export enum ImageRotation {
 	never,
 	preferNo,
-	preferYes
+	preferYes,
 }
 
 export type LinkData = CollectionEntry<"links">["data"] & {

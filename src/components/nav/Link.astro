@@ -37,5 +37,9 @@ if (external) {
 ---
 
 <a tabindex="0" rel="" {...props}>
-	{icons?.map(icon => <DynamicIcon name={icon} />)}
-	<slot />{external && !noIcon && <span class="external-icon"><FluentOpen16Regular /></span>}</a>
+	{icons?.map((icon) => <DynamicIcon name={icon} />)}
+	<slot />{
+		external && !noIcon &&
+			/* prettier-ignore */ <span class="external-icon"><FluentOpen16Regular /></span>
+	}</a
+>

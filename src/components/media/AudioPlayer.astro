@@ -11,7 +11,7 @@
 
 import type { MediaInfo, Replace } from "../../types.ts";
 import type { HTMLAttributes } from "astro/types";
-import { getFileName, resolveMedia } from "../../server-utils.ts";
+import { getFileName, resolveMedia } from "../../server-utils";
 import LicenseNotice from "./LicenseNotice.astro";
 
 type Props = Replace<HTMLAttributes<"audio">, MediaInfo>;
@@ -23,9 +23,16 @@ const baseName = getFileName(resolvedSrc);
 
 <figure>
 	<audio src={resolvedSrc} controls preload="metadata" {...props}>
-		{resolvedSrc && (<p>
-			Can't play this back? <a href={resolvedSrc} download={baseName}>Download the audio file here.</a>
-		</p>)}
+		{
+			resolvedSrc && (
+				<p>
+					Can't play this back?
+					<a href={resolvedSrc} download={baseName}>
+						Download the audio file here.
+					</a>
+				</p>
+			)
+		}
 	</audio>
 	<figcaption>
 		<slot />

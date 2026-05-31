@@ -6,11 +6,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-export function getStorageItem<T>(key: string, storage: Storage = localStorage): T | undefined {
+import type { NotUndefined } from "../../types";
+
+export function getStorageItem<T extends NotUndefined>(
+	key: string,
+	verify: (value: unknown) => value is T,
+	storage: Storage = localStorage,
+): T | undefined {
 	try {
 		const json = storage.getItem(key);
-		return json ? JSON.parse(json) : undefined;
+		if (!json) {
+			return undefined;
+		}
+
+		const value = JSON.parse(json);
+		if (!verify(value)) {
+			return undefined;
+		}
+
+		return value;
 	} catch (e) {
 		console.warn(`Error while getting storage item ${key}:`, e);
+		return undefined;
 	}
 }

@@ -3,10 +3,6 @@
 	"description": "This server is not being used right now and may be archived soon, though you can still join it if you want to DM me or peruse though some old messages.",
 	"url": "https://discord.gg/cVFCPfptFM",
 	"icon": "simple-icons:discord",
-	"tags": [
-		"inactive"
-	],
-	"aliases": [
-		"dc"
-	]
+	"tags": ["inactive"],
+	"aliases": ["dc"]
 }

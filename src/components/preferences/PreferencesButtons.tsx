@@ -27,7 +27,9 @@ export function PreferencesButtons() {
 
 	return (
 		<div class="buttons">
-			<a href={target} class="btn">Apply!</a>
+			<a href={target} class="btn">
+				Apply!
+			</a>
 		</div>
 	);
 }

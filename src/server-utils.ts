@@ -7,11 +7,14 @@
  */
 
 // A bunch of miscellaneous server-side utilities.
+
 import * as child_process from "node:child_process";
-import type { UnresolvedImageTransform } from "astro";
-import type { MediaSource } from "./types.ts";
-import * as path from "node:path";
 import * as fs from "node:fs";
+import * as path from "node:path";
+
+import type { UnresolvedImageTransform } from "astro";
+
+import type { MediaSource } from "./types.ts";
 
 export function getFileName(src?: string) {
 	if (!src) {
@@ -35,7 +38,9 @@ export function getModifiedTime(filePath: string) {
 			return stats.mtime.toISOString();
 		}
 
-		const result = child_process.execSync(`git log -1 --pretty="format:%cI" "${filePath}"`, { encoding: "utf-8" });
+		const result = child_process.execSync(`git log -1 --pretty="format:%cI" "${filePath}"`, {
+			encoding: "utf-8",
+		});
 		return result || new Date().toISOString();
 	} catch (e) {
 		console.warn("Failed to get last modified time:\n ", e);
@@ -59,4 +64,6 @@ export async function resolveMedia(src: MediaSource) {
 	} else if (typeof src === "string") {
 		return src;
 	}
+
+	return undefined;
 }

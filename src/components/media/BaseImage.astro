@@ -13,10 +13,13 @@ import { Picture as LqipPicture, type LqipType } from "astro-lqip/components";
 import type { Replace } from "../../types.ts";
 import type { ComponentProps } from "astro/types";
 
-type Props = Replace<ComponentProps<typeof LqipPicture>, {
-	/** Enables LQIP if present and not false. Can also be a string value for the LQIP type. */
-	lqip?: boolean | LqipType;
-}>;
+type Props = Replace<
+	ComponentProps<typeof LqipPicture>,
+	{
+		/** Enables LQIP if present and not false. Can also be a string value for the LQIP type. */
+		lqip?: boolean | LqipType;
+	}
+>;
 
 // Needs to be separate, or else Astro gets upset for some reason
 export type { Props };
@@ -40,16 +43,17 @@ if (widths) {
 	props.densities ??= [1, 1.5, 2, 3];
 }
 
-// TODO: a custom LQIP solution would be more ideal, but maybe later.
+// TODO: a custom LQIP solution would be more ideal, but maybe later
 // Conversion to `any` added to hide a likely false error message.
 ---
 
-<LqipPicture lqip={lqip === true ? undefined : lqip ?? false} {...props as any} />
+<LqipPicture lqip={lqip === true ? undefined : (lqip ?? false)} {...props as any} />
 
 <style lang="scss">
 	@use "../../styles/utils" as *;
 
-	picture, img {
+	picture,
+	img {
 		border-radius: size(16);
 	}
 

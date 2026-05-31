@@ -3,10 +3,6 @@
 	"description": "Watch some old gaming videos of mine here. I'm not planning to release new ones any time soon.",
 	"url": "https://youtube.com/@f78.",
 	"icon": "simple-icons:youtube",
-	"tags": [
-		"inactive"
-	],
-	"aliases": [
-		"yt"
-	]
+	"tags": ["inactive"],
+	"aliases": ["yt"]
 }

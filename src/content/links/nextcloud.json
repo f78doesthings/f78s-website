@@ -3,13 +3,7 @@
 	"description": "Here you can download some stuff I've made, such as my music. This is hosted on tab.digital, a trusted Nextcloud partner.",
 	"url": "https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX",
 	"icon": "simple-icons:nextcloud",
-	"tags": [
-		"new"
-	],
+	"tags": ["new"],
 	"order": -90,
-	"aliases": [
-		"cloud",
-		"files",
-		"storage"
-	]
+	"aliases": ["cloud", "files", "storage"]
 }

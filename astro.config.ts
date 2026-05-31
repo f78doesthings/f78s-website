@@ -6,26 +6,34 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { defineConfig, fontProviders, sharpImageService } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
+import { unified } from "@astrojs/markdown-remark";
+import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
-import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
-import { remarkLastModified } from "./plugins/remark-last-modified.ts";
-import Icons from "unplugin-icons/vite";
-import rehypeExternalLinks, { type Options as RehypeExternalLinksOptions } from "rehype-external-links";
+import sitemap from "@astrojs/sitemap";
+import { defineConfig, fontProviders, sharpImageService } from "astro/config";
+import type { Element } from "hast";
 import { fromHtml } from "hast-util-from-html";
-import remarkSmartypants from "remark-smartypants";
-import type { RemarkPlugin } from "@astrojs/markdown-remark";
-import type { Options as RetextSmartypantsOptions } from "retext-smartypants";
+import rehypeExternalLinks, {
+	type Options as RehypeExternalLinksOptions,
+} from "rehype-external-links";
+import Icons from "unplugin-icons/vite";
+
+import { remarkLastModified } from "./plugins/remark-last-modified.ts";
+import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
+
+/** Placeholder to make Oxfmt format an HTML snippet */
+const html = String.raw;
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://www.f78.be",
-	integrations: [mdx(), sitemap(), preact()],
 	redirects: {
 		"/feed.xml": "/rss.xml",
 	},
+	experimental: {
+		contentIntellisense: true,
+	},
+	integrations: [mdx(), sitemap(), preact()],
 	image: {
 		service: sharpImageService({
 			kernel: "mks2021",
@@ -51,6 +59,10 @@ export default defineConfig({
 		}),
 	},
 	vite: {
+		server: {
+			// Crash if port is in use
+			strictPort: true,
+		},
 		plugins: [
 			Icons({
 				compiler: "astro",
@@ -62,34 +74,43 @@ export default defineConfig({
 		],
 	},
 	markdown: {
-		remarkPlugins: [
-			// For some reason passing this config to markdown.smartypants doesn't work currently
-			[remarkSmartypants as RemarkPlugin, {
+		processor: unified({
+			smartypants: {
 				dashes: "oldschool",
-			} satisfies RetextSmartypantsOptions],
-			remarkReadingTime,
-			remarkLastModified,
-		],
-		rehypePlugins: [
-			[rehypeExternalLinks, {
-				contentProperties: { class: "external-icon" },
-				rel: ["nofollow", "noopener", "noreferrer"],
-				content: fromHtml(
-					// language=html
-					`
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
-						     data-icon="fluent:open-16-regular">
-							<rect width="16" height="16" fill="none" />
-							<path fill="currentColor"
-							      d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5" />
-						</svg>
-					`.trim(),
+			},
+			remarkPlugins: [remarkReadingTime, remarkLastModified],
+			rehypePlugins: [
+				[
+					rehypeExternalLinks,
 					{
-						fragment: true,
-					},
-				).children[0] as never,
-			} satisfies RehypeExternalLinksOptions],
-		],
+						contentProperties: { class: "external-icon" },
+						rel: ["nofollow", "noopener", "noreferrer"],
+						// HACK: is there a better way to do this?
+						// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+						content: fromHtml(
+							html`
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 16 16"
+									data-icon="fluent:open-16-regular"
+								>
+									<rect width="16" height="16" fill="none" />
+									<path
+										fill="currentColor"
+										d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5"
+									/>
+								</svg>
+							`.trim(),
+							{
+								fragment: true,
+							},
+						).children[0] as Element,
+					} satisfies RehypeExternalLinksOptions,
+				],
+			],
+		}),
 		shikiConfig: {
 			themes: {
 				light: "one-light",

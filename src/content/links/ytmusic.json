@@ -3,10 +3,5 @@
 	"description": "My second YouTube channel for music-related content, mainly music videos. Only some of my most recent music is available here.",
 	"url": "https://youtube.com/@f78music",
 	"icon": "simple-icons:youtubemusic",
-	"aliases": [
-		"ytm",
-		"youtube-music",
-		"youtubemusic",
-		"youtube_music"
-	]
+	"aliases": ["ytm", "youtube-music", "youtubemusic", "youtube_music"]
 }

@@ -12,20 +12,21 @@
 import BaseImage, { type Props as BaseProps } from "./BaseImage.astro";
 import Badge from "../Badge.astro";
 import { type CopyrightInfo, ImageRotation } from "../../types";
-import { getFileName, getImageMetadata } from "../../server-utils.ts";
+import { getFileName, getImageMetadata } from "../../server-utils";
 import LicenseNotice from "./LicenseNotice.astro";
 import FluentArrowDownload24Regular from "~icons/fluent/arrow-download-24-regular";
 import FluentDismiss24Regular from "~icons/fluent/dismiss-24-regular";
 
-type Props = BaseProps & CopyrightInfo & {
-	/**
-	 * Controls when the rotation effect for this image should be enabled.
-	 * - `never` always disables the rotation effect.
-	 * - `preferNo` disables the rotation effect, unless the user wants all images to be rotated. This is the default.
-	 * - `preferYes` enables the rotation effect, unless the user doesn't want any images to be rotated.
-	 */
-	rotates?: keyof typeof ImageRotation;
-};
+type Props = BaseProps &
+	CopyrightInfo & {
+		/**
+		 * Controls when the rotation effect for this image should be enabled.
+		 * - `never` always disables the rotation effect.
+		 * - `preferNo` disables the rotation effect, unless the user wants all images to be rotated. This is the default.
+		 * - `preferYes` enables the rotation effect, unless the user doesn't want any images to be rotated.
+		 */
+		rotates?: keyof typeof ImageRotation;
+	};
 
 const {
 	lqip = true,
@@ -40,10 +41,9 @@ const meta = await getImageMetadata(src);
 if (!props.width && !props.height && !props.widths) {
 	const maxWidth = meta ? Math.min(meta.width, 768) : 768;
 	props.width = maxWidth;
-	props.widths = [256, 384, 512, 640, maxWidth]
-		.filter((width): width is number =>
-			width !== undefined && width <= maxWidth,
-		);
+	props.widths = [256, 384, 512, 640, maxWidth].filter(
+		(width): width is number => width !== undefined && width <= maxWidth,
+	);
 }
 
 const baseName = getFileName(meta?.src);
@@ -51,7 +51,13 @@ const [fileName, extName] = baseName.split(".");
 ---
 
 <figure class:list={["main-image", { "has-preview": meta !== undefined }]} data-src={meta?.src}>
-	<BaseImage lqip={lqip} src={src} alt={alt} pictureAttributes={{ "data-rotates": rotates }} {...props} />
+	<BaseImage
+		lqip={lqip}
+		src={src}
+		alt={alt}
+		pictureAttributes={{ "data-rotates": rotates }}
+		{...props}
+	/>
 	<figcaption>
 		<slot />
 	</figcaption>
@@ -64,7 +70,12 @@ const [fileName, extName] = baseName.split(".");
 					<Badge type="beta" />
 
 					<div class="buttons">
-						<a href={meta.src} download={baseName} title="Download" aria-label="Download">
+						<a
+							href={meta.src}
+							download={baseName}
+							title="Download"
+							aria-label="Download"
+						>
 							<FluentArrowDownload24Regular />
 						</a>
 						<button class="close-preview" title="Close" aria-label="Close">
@@ -79,11 +90,17 @@ const [fileName, extName] = baseName.split(".");
 				*/}
 				<img alt={alt} width={meta.width} height={meta.height} />
 				<footer>
+					{/* It's trying to add whitespaces here... */}
+					{/* prettier-ignore */}
 					<h2 class="title">
 						{fileName}<span class="file-type">.{extName}</span>
-						<span class="image-dimensions">({meta.width} &times; {meta.height})</span>
+						<span class="image-dimensions">
+							({meta.width} &times; {meta.height})
+						</span>
 					</h2>
-					<p><slot /></p>
+					<p>
+						<slot />
+					</p>
 					<LicenseNotice license={license} {...props} />
 				</footer>
 			</article>
@@ -181,16 +198,16 @@ const [fileName, extName] = baseName.split(".");
 
 			const xPosition = imgBounds.x - rootBounds.x;
 			const pageWidth = rootBounds.width - imgBounds.width;
-			let xPercent = clamp(xPosition / pageWidth * 2 - 1, -1, 1);
+			let xPercent = clamp((xPosition / pageWidth) * 2 - 1, -1, 1);
 
 			// Reduce the rotation amount the wider the image is. If the image takes up the full width of the page,
 			// the rotation already cancels out on its own, so we don't need to handle that here.
 			const imageWidth = imgBounds.width / rootBounds.width;
-			xPercent *= 1 - (imageWidth ** 0.75) * 0.75;
+			xPercent *= 1 - imageWidth ** 0.75 * 0.75;
 
 			const yPosition = imgBounds.y + imgBounds.height - topbarInset;
 			const pageHeight = innerHeight + imgBounds.height - topbarInset;
-			let yPercent = clamp(yPosition / pageHeight * 2 - 1, -1, 1);
+			let yPercent = clamp((yPosition / pageHeight) * 2 - 1, -1, 1);
 
 			// Accentuate the rotation from the vertical position a bit
 			yPercent = Math.abs(yPercent) ** 0.8 * Math.sign(yPercent);
@@ -200,9 +217,12 @@ const [fileName, extName] = baseName.split(".");
 
 			if (shouldLog) {
 				console.debug(
-					`Image #${++i}: x =`, xPercent.toFixed(5),
-					"| y =", yPercent.toFixed(5),
-					"| ", rotation.toFixed(5) + "deg",
+					`Image #${++i}: x =`,
+					xPercent.toFixed(5),
+					"| y =",
+					yPercent.toFixed(5),
+					"| ",
+					rotation.toFixed(5) + "deg",
 				);
 			}
 		}
@@ -242,7 +262,9 @@ const [fileName, extName] = baseName.split(".");
 			}
 
 			max-width: min(size(768), 100svh);
-			transition: transform $anim-back, box-shadow $anim-ease;
+			transition:
+				transform $anim-back,
+				box-shadow $anim-ease;
 			transform: rotate(calc(var(--main-image-rotation) * var(--rotate)));
 
 			img {
@@ -265,7 +287,11 @@ const [fileName, extName] = baseName.split(".");
 			cursor: pointer;
 
 			@include preferences("fx") {
+				// Make sure to not let Prettier format these formulas, as it likes to put whitespaces
+				// where they don't belong, upsetting both Stylelint and the browser
+
 				@include hover {
+					// prettier-ignore
 					transform: scale(101.5%) rotate(calc(
 						var(--main-image-rotation) * (var(--rotate) + 0.3 * (1.5 - var(--rotate) * 0.5))
 					));
@@ -273,6 +299,7 @@ const [fileName, extName] = baseName.split(".");
 				}
 
 				@include active {
+					// prettier-ignore
 					transform: scale(99%) rotate(calc(
 						var(--main-image-rotation) * (var(--rotate) - 0.2 * (1.5 - var(--rotate) * 0.5))
 					));
@@ -324,7 +351,8 @@ const [fileName, extName] = baseName.split(".");
 			border: 1px solid var(--color-border);
 			border-radius: $radius-full;
 
-			a, button {
+			a,
+			button {
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -361,6 +389,7 @@ const [fileName, extName] = baseName.split(".");
 
 			.close-preview {
 				color: $red-450;
+
 				@include bounce-anim(1);
 			}
 		}
@@ -410,7 +439,8 @@ const [fileName, extName] = baseName.split(".");
 			}
 		}
 
-		.buttons, footer {
+		.buttons,
+		footer {
 			background-color: var(--color-component);
 		}
 	}

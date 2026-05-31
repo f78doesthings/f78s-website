@@ -1,7 +1,7 @@
 ---
-title: 'How I made the music video for “gaze upon the stars”'
-description: 'A follow-up exploring the music video made in Unreal Engine.'
-pubDate: 2026-06-13
+title: "How I made the music video for “gaze upon the stars”"
+description: "A follow-up exploring the music video made in Unreal Engine."
+pubDate: 2026-06-13T00:00:00Z
 draft: true
 heroImage: ../assets/images/hero.avif
 heroDescription: (placeholder image)
@@ -12,52 +12,67 @@ import Link from "../../../../components/nav/Link.astro";
 import MainImage from "../../../../components/media/MainImage.astro";
 
 <Alert type="warning">
-	You're looking at a **very** unfinished version of this blog post.
+	<p>You're looking at a **very** unfinished version of this blog post.</p>
 </Alert>
 
-[Last time](/blog/gaze-upon-the-stars) I talked about how I created one of my best songs, *gaze upon the stars*.
-Today, I'm here to discuss its music video. Without further ado, let's dive into it!
+[Last time](/blog/gaze-upon-the-stars) I talked about how I created one of my best songs, _gaze upon
+the stars_. Today, I'm here to discuss its music video. Without further ado, let's dive into it!
 
 ## Chapter 2: The Music Video
 
-The animation was created in **Unreal Engine** <small>*(version **5.7.4**, to be exact)*</small>,
+The animation was created in **Unreal Engine** <small>_(version **5.7.4**, to be exact)_</small>,
 which happens to be the same engine Home Paige uses.
 
-I had previously tried both Unity and Godot, but neither of them really ended up working out. Even Unreal
-has its flaws; it has been rather buggy and even unstable at times, and their Linux support isn't the best,
-especially since version 5.7. However, its tools for creating linear content do compensate for that enough.
+I had previously tried both Unity and Godot, but neither of them really ended up working out. Even
+Unreal has its flaws; it has been rather buggy and even unstable at times, and their Linux support
+isn't the best, especially since version 5.7. However, its tools for creating linear content do
+compensate for that enough.
 
-I unfortunately cannot share the whole Unreal Engine project due to it using some Fab assets, which are not allowed to
-be redistributed. Also, since this was my first time using UE, there is a fair bit of jank involved, which...
-isn't unusual for me, to be honest. With all of that aside, let's go over how it was made, shall we?
+I unfortunately cannot share the whole Unreal Engine project due to it using some Fab assets, which
+are not allowed to be redistributed. Also, since this was my first time using UE, there is a fair
+bit of jank involved, which... isn't unusual for me, to be honest. With all of that aside, let's go
+over how it was made, shall we?
 
-<p><small>Just so you know, whenever I say **UE** or **Unreal**, I'm referring to **Unreal Engine**.</small></p>
+<small>
+	Just so you know, whenever I say **UE** or **Unreal**, I'm referring to **Unreal Engine**.
+</small>
 
 ### Gazing upon the Stars
 
-Since the song is titled "gaze upon the stars", obviously the sky needed some stars to gaze at. And for some reason,
-UE5's default sky just doesn't have any of them, which is unfortunate. You might say you can drop in the legacy sky
-blueprint left over from older versions of Unreal, which *does* have stars, but those are **not animated**.
-And that's just lame. They do offer another solution, the *Celestial Vault* plugin, but it completely broke my
-lighting setup, so I couldn't use it.
+Since the song is titled "gaze upon the stars", obviously the sky needed some stars to gaze at. And
+for some reason, UE5's default sky just doesn't have any of them, which is unfortunate. You might
+say you can drop in the legacy sky blueprint left over from older versions of Unreal, which _does_
+have stars, but those are **not animated**. And that's just lame. They do offer another solution,
+the _Celestial Vault_ plugin, but it completely broke my lighting setup, so I couldn't use it.
 
-I initially used a Fab asset called *Good Sky* for this, which did have animated stars. However, when I posted
-an [early version of the music video](https://discord.com/channels/1414500915200917597/1482484409595855041/1482484409595855041)
-in the Home Paige Discord server, people craved for more. They wanted shooting stars and constellations.
-And Good Sky wasn't going to cut it for that. So I ended up doing it myself, by making **my own sky material**.
+I initially used a Fab asset called _Good Sky_ for this, which did have animated stars. However,
+when I posted an
+[early version of the music video](https://discord.com/channels/1414500915200917597/1482484409595855041/1482484409595855041)
+in the Home Paige Discord server, people craved for more. They wanted shooting stars and
+constellations. And Good Sky wasn't going to cut it for that. So I ended up doing it myself, by
+making **my own sky material**.
 
 #### The Stars Themselves
 
-Of course, in order to make a night sky, you need some stars. And because I wanted to make them procedural, I used some
-noise for that. But first I needed a position to feed into the noise function. Good Sky did actually come in handy,
-as its skydome mesh comes with texture coordinates that are well suited for this.
+Of course, in order to make a night sky, you need some stars. And because I wanted to make them
+procedural, I used some noise for that. But first I needed a position to feed into the noise
+function. Good Sky did actually come in handy, as its skydome mesh comes with texture coordinates
+that are well suited for this.
 
 In order to get those coordinates scaled down and moving, I wrote this material function:
-<MainImage src={import("./assets/images/MF_NoiseCoords.avif")} alt="" createdIn="2026" license="CC0-1.0" />
+
+<MainImage
+	src={import("./assets/images/MF_NoiseCoords.avif")}
+	alt=""
+	createdIn="2026"
+	license="CC0-1.0"
+/>
 
 <Alert type="tip">
-	I actually used a very similar approach to create the animated starry background of this very website,
-	with the help of **WebGL**.\
-	<small>Can't see said background? Then make sure the **Immersive Mode** and **Background**
-	[preferences](/preferences) are enabled.</small>
+	I actually used a very similar approach to create the animated starry background of this very
+	website, with the help of **WebGL**.
+	<small>
+		Can't see said background? Then make sure the **Immersive Mode** and **Background**
+		[preferences](/preferences) are enabled.
+	</small>
 </Alert>

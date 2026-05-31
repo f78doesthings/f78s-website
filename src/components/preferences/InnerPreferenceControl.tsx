@@ -6,10 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { type PreferenceID, preferences } from "../../scripts/preferences";
 import type { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
+
+import { type PreferenceID, preferences } from "../../scripts/preferences";
 import { savePreferences } from "../../scripts/preferences/client.ts";
+import type { Preference } from "../../scripts/preferences/types/Preference.ts";
+import type { NotUndefined } from "../../types.ts";
 
 interface Props {
 	preference: PreferenceID;
@@ -18,7 +21,7 @@ interface Props {
 	[cid: string]: unknown;
 }
 
-export interface PreferenceControlState<T = unknown> {
+export interface PreferenceControlState<T extends NotUndefined = NotUndefined> {
 	onInput: (value: unknown) => void;
 	value: T;
 	hidden: boolean;
@@ -28,12 +31,12 @@ export interface PreferenceControlState<T = unknown> {
 
 /** A helper component containing the actual control part of the PreferenceControl component. */
 export function InnerPreferenceControl({ preference: id, children: icons, ...cid }: Props) {
-	const preference = preferences[id];
+	const preference: Preference = preferences[id];
 	const [value, setValue] = useState(preference.fallbackValue);
 	const [hidden, setHidden] = useState(true);
 
-	const onInput = (value: unknown) => {
-		const result = preference.set(value);
+	const onInput = (input: unknown) => {
+		const result = preference.set(input);
 		if (result !== undefined) {
 			savePreferences();
 		}
@@ -50,6 +53,12 @@ export function InnerPreferenceControl({ preference: id, children: icons, ...cid
 		return () => document.removeEventListener("custom:preferences-updated", update);
 	});
 
-	const state: PreferenceControlState = { onInput, value, hidden, children: icons, cid };
-	return preference.toComponent(state as never);
+	const state: PreferenceControlState = {
+		onInput,
+		value,
+		hidden,
+		children: icons,
+		cid,
+	};
+	return preference.toComponent(state);
 }

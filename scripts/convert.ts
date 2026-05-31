@@ -6,16 +6,17 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import * as path from "node:path";
 import * as child_process from "node:child_process";
+import * as path from "node:path";
+
 import { program } from "@commander-js/extra-typings";
 
 // This script converts an audio or video file for use with this website.
 
 interface Placeholder {
-	pattern: RegExp,
-	replacement: string,
-	required?: boolean
+	pattern: RegExp;
+	replacement: string;
+	required?: boolean;
 }
 
 interface Format {
@@ -33,19 +34,15 @@ program
 	.requiredOption("-o, --output-dir <output>", "The directory to .")
 	.option(
 		"-a, --aac-encoder <encoder>",
-		'The AAC encoder to use. Refer to the FFmpeg AAC encoding guide for more information.\n' +
-		'- "aac_at" generally provides the best quality, but is only natively supported on Mac.\n' +
-		'- "libfdk_aac" also offers excellent quality and works on all platforms, but is considered "non-free" ' +
-		'and therefore not included in some FFmpeg builds.\n' +
-		'- "aac" is FFmpeg\'s built-in AAC encoder, and is therefore always available. ' +
-		'Unfortunately, its quality tends to be quite poor.',
+		"The AAC encoder to use. Refer to the FFmpeg AAC encoding guide for more information.\n" +
+			'- "aac_at" generally provides the best quality, but is only natively supported on Mac.\n' +
+			'- "libfdk_aac" also offers excellent quality and works on all platforms, but is considered "non-free" ' +
+			"and therefore not included in some FFmpeg builds.\n" +
+			'- "aac" is FFmpeg\'s built-in AAC encoder, and is therefore always available. ' +
+			"Unfortunately, its quality tends to be quite poor.",
 		"libfdk_aac",
 	)
-	.option(
-		"-F, --ffmpeg-path <path>",
-		'The path to the "ffmpeg" executable.',
-		"ffmpeg",
-	)
+	.option("-F, --ffmpeg-path <path>", 'The path to the "ffmpeg" executable.', "ffmpeg")
 	.action((inputPaths, { ffmpegPath: ffmpeg, outputDir, aacEncoder }) => {
 		if (!aacEncoders.includes(aacEncoder)) {
 			console.error(
@@ -85,7 +82,7 @@ program
 		for (const inputPath of inputPaths) {
 			const inputName = path.basename(inputPath);
 			const inputType = path.extname(inputName);
-			const format = formats.find((format) => format.inputFormats.includes(inputType.substring(1)));
+			const format = formats.find((other) => other.inputFormats.includes(inputType.substring(1)));
 			if (!format) {
 				console.error(
 					`Expected output file type to be one of ${Object.keys(formats).join(", ")}, but got ${inputType}.`,
@@ -93,7 +90,10 @@ program
 				continue;
 			}
 
-			const output = path.join(outputDir, inputName.replace(inputType, `.${format.outputExtension}`));
+			const output = path.join(
+				outputDir,
+				inputName.replace(inputType, `.${format.outputExtension}`),
+			);
 			const placeholders: Placeholder[] = [
 				{
 					pattern: /(?<!(?<!%)%)%f/g,
@@ -129,7 +129,10 @@ program
 			}
 
 			console.debug(command);
-			const result = child_process.spawnSync(command, { shell: true, stdio: "inherit" });
+			const result = child_process.spawnSync(command, {
+				shell: true,
+				stdio: "inherit",
+			});
 			if (result.error) {
 				console.error(result.error);
 			}

@@ -6,29 +6,32 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { Preference, type PreferenceConfig } from "./Preference.ts";
 import { useEffect, useRef } from "preact/hooks";
+
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
+import { Preference, type PreferenceConfig } from "./Preference.ts";
 
 export type TriState<I extends boolean = true> = I extends true ? boolean | null : boolean;
 
-interface TogglePreferenceConfig<I extends boolean = false>
-	extends PreferenceConfig<TriState<I>> {
-
-	/** Allows the user to choose a third indeterminate state for this preference, presented by the value `null`. */
+interface TogglePreferenceConfig<I extends boolean = false> extends PreferenceConfig<TriState<I>> {
+	/**
+	 * Allows the user to choose a third indeterminate state for this preference,
+	 * presented by the value `null`.
+	 */
 	triState?: I;
 }
 
 /** An on-off setting that can optionally have a third indeterminate state. */
 export class TogglePreference<K extends string = string, I extends boolean = false>
 	extends Preference<K, TriState<I>>
-	implements TogglePreferenceConfig<I> {
-
+	implements TogglePreferenceConfig<I>
+{
 	readonly triState: I;
 
 	constructor(id: K, config: TogglePreferenceConfig<I> = {}) {
 		super(id, config, false);
-		this.triState = config.triState ?? false as I;
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion - not ideal
+		this.triState = config.triState ?? (false as I);
 	}
 
 	/** Returns whether this preference is both visible and enabled. */
@@ -37,9 +40,8 @@ export class TogglePreference<K extends string = string, I extends boolean = fal
 	}
 
 	override validate(value: TriState<I>): TriState<I> {
-		return this.triState && value === null
-			? null as TriState<I>
-			: !!value;
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion - this.triState is checked here
+		return this.triState && value === null ? (null as TriState<I>) : !!value;
 	}
 
 	override toComponent({ onInput, cid }: PreferenceControlState<TriState<I>>) {
@@ -51,12 +53,20 @@ export class TogglePreference<K extends string = string, I extends boolean = fal
 			}
 		}, []);
 
-		return <input name={this.id} type="checkbox" ref={ref} {...cid} onChange={e => {
-			if (this.triState) {
-				e.currentTarget.checked = this.get() === false;
-				e.currentTarget.indeterminate = this.get() === true;
-			}
-			onInput(e.currentTarget.indeterminate && this.triState ? null : e.currentTarget.checked);
-		}} />;
+		return (
+			<input
+				name={this.id}
+				type="checkbox"
+				ref={ref}
+				{...cid}
+				onChange={(e) => {
+					if (this.triState) {
+						e.currentTarget.checked = this.get() === false;
+						e.currentTarget.indeterminate = this.get() === true;
+					}
+					onInput(e.currentTarget.indeterminate && this.triState ? null : e.currentTarget.checked);
+				}}
+			/>
+		);
 	}
 }

@@ -23,22 +23,35 @@ const MESSAGES: Record<LicenseType, string> = {
 	open: "Available under the",
 };
 
-const copyrightString = type === "publicDomain"
-	? `By ${createdBy}${createdIn ? `, ${createdIn}` : ""}.`
-	: type === "open"
-		? `🄯 ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`
-		: `© ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`;
+const copyrightString =
+	type === "publicDomain"
+		? `By ${createdBy}${createdIn ? `, ${createdIn}` : ""}.`
+		: `${type === "open" ? "🄯" : "©"} ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`;
 
 const message = type ? MESSAGES[type] : "All rights reserved.";
 ---
 
 <p class="license-notice">
 	<small>
-		{source
-			? <Link href={source} external>{copyrightString}</Link>
-			: copyrightString}
+		{
+			source ? (
+				<Link href={source} external>
+					{copyrightString}
+				</Link>
+			) : (
+				copyrightString
+			)
+		}
 		{message}
-		{title && url ? <Link href={url} icons={icons} external>{title}</Link> : title}
+		{
+			title && url ? (
+				<Link href={url} icons={icons} external>
+					{title}
+				</Link>
+			) : (
+				title
+			)
+		}
 		{title && (!/licen[sc]e/i.test(title) ? "licence." : ".")}
 	</small>
 </p>

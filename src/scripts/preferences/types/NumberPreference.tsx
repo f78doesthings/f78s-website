@@ -6,15 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { Preference, type PreferenceConfig } from "./Preference.ts";
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
 import { SITE_LANGUAGE } from "../../../consts.ts";
-
 import { clampStepped } from "../../utils";
+import { Preference, type PreferenceConfig } from "./Preference.ts";
 
-interface NumberPreferenceConfig
-	extends PreferenceConfig<number> {
-
+interface NumberPreferenceConfig extends PreferenceConfig<number> {
 	/**
 	 * The lowest allowed value.
 	 * @default 0
@@ -45,8 +42,8 @@ interface NumberPreferenceConfig
 
 export class NumberPreference<K extends string>
 	extends Preference<K, number>
-	implements NumberPreference<K> {
-
+	implements NumberPreference<K>
+{
 	readonly min: number;
 	readonly max: number;
 	readonly step: number;
@@ -75,11 +72,24 @@ export class NumberPreference<K extends string>
 
 	override toComponent({ onInput, value, cid }: PreferenceControlState<number>) {
 		//console.debug("initial:", this.id, value);
-		return <>
-			{this.useSlider && <span class="before-input number-display" {...cid}>{this.format(value)}</span>}
-			<input name={this.id} type={this.useSlider ? "range" : "number"} {...cid}
-			       min={this.min} max={this.max} step={this.step} value={value}
-			       onInput={e => onInput(e.currentTarget.valueAsNumber)} />
-		</>;
+		return (
+			<>
+				{this.useSlider && (
+					<span class="before-input number-display" {...cid}>
+						{this.format(value)}
+					</span>
+				)}
+				<input
+					name={this.id}
+					type={this.useSlider ? "range" : "number"}
+					{...cid}
+					min={this.min}
+					max={this.max}
+					step={this.step}
+					value={value}
+					onInput={(e) => onInput(e.currentTarget.valueAsNumber)}
+				/>
+			</>
+		);
 	}
 }

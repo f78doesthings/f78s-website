@@ -12,7 +12,7 @@ import type { CollectionEntry } from "astro:content";
 import MainImage from "../components/media/MainImage.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import FluentClock20Regular from "~icons/fluent/clock-20-regular";
-import FluentEdit20Regular from '~icons/fluent/edit-20-regular';
+import FluentEdit20Regular from "~icons/fluent/edit-20-regular";
 import type { MarkdownHeading } from "astro";
 
 type Props = CollectionEntry<"blog">["data"] & {
@@ -43,17 +43,35 @@ const {
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} image={heroImage} isBlog={isBlog} lastModified={lastModified}
-            headings={headings}>
+<BaseLayout
+	title={title}
+	description={description}
+	image={heroImage}
+	isBlog={isBlog}
+	lastModified={lastModified}
+	headings={headings}
+>
 	<article>
 		<header>
-			{heroImage && (
-				<MainImage src={heroImage} alt={heroAlt} width={960} height={480} widths={[320, 480, 640, 800, 960]} priority
-				           license={heroLicense} createdIn={heroCreatedIn} createdBy={heroCreatedBy} source={heroSource}
-				           {...cid}>
-					{heroDescription}
-				</MainImage>
-			)}
+			{
+				heroImage && (
+					<MainImage
+						src={heroImage}
+						alt={heroAlt}
+						width={960}
+						height={480}
+						widths={[320, 480, 640, 800, 960]}
+						priority
+						license={heroLicense}
+						createdIn={heroCreatedIn}
+						createdBy={heroCreatedBy}
+						source={heroSource}
+						{...cid}
+					>
+						{heroDescription}
+					</MainImage>
+				)
+			}
 
 			<h1>{title}</h1>
 			<div class="details">
@@ -65,18 +83,19 @@ const {
 						</p>
 					) : (
 						<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
-							<Fragment slot="before">Published on
-							</Fragment>
+							<Fragment slot="before">Published on</Fragment>
 						</FormattedDate>
 					)
 				}
 				<span class="separator">&bullet;</span>
-				{readingTime && (
-					<p>
-						<FluentClock20Regular class="icon" />
-						{readingTime}
-					</p>
-				)}
+				{
+					readingTime && (
+						<p>
+							<FluentClock20Regular />
+							{readingTime}
+						</p>
+					)
+				}
 			</div>
 		</header>
 

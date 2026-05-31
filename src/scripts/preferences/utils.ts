@@ -6,24 +6,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { NotUndefined } from "../../types.ts";
 import type { Preference, PreferenceCategory } from "./types/Preference.ts";
 
-export type NotUndefined = {} | null;
 export type MapLike<K, V> = Map<K, V> | MapEntries<K, V>;
 export type MapEntries<K, V> = (readonly [K, V])[];
 
 /** Extracts the IDs from a tuple of preferences. */
-export type PreferenceKeys<T extends Preference[]>
-	= T extends Preference<infer K>[] ? K : never;
+export type PreferenceKeys<T extends Preference[]> = T extends Preference<infer K>[] ? K : never;
 
 /** Extracts the correct preference type for the given ID from a tuple of preferences. */
-export type PreferenceType<T extends Preference[], K extends PreferenceKeys<T>>
-	= Extract<T[number], Preference<K>>;
+export type PreferenceType<T extends Preference[], K extends PreferenceKeys<T>> = Extract<
+	T[number],
+	Preference<K>
+>;
 
 /** Defines a record type that maps a list of preferences to their value types. */
 export type PreferenceValues<T extends Preference[]> = {
 	[K in PreferenceKeys<T>]: PreferenceType<T, K> extends Preference<K, infer V> ? V : never;
-}
+};
 
 /** Defines a record type for a tuple of preferences. */
 type PreferencesRecord<T extends Preference[]> = Iterable<T[number]> & {
@@ -32,7 +33,7 @@ type PreferencesRecord<T extends Preference[]> = Iterable<T[number]> & {
 
 /** Creates an object from a list of preferences that can be iterated over. */
 export function createPreferences<T extends Preference[]>(...preferences: T): PreferencesRecord<T> {
-	const record: Record<string, Preference> = {};
+	const record: Record<string, T[number]> = {};
 
 	for (const preference of preferences) {
 		if (preference.id in record) {
@@ -42,6 +43,7 @@ export function createPreferences<T extends Preference[]>(...preferences: T): Pr
 		record[preference.id] = preference;
 	}
 
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion - not ideal
 	return {
 		...record,
 		[Symbol.iterator]: () => preferences.values(),
@@ -53,7 +55,10 @@ export function createPreferences<T extends Preference[]>(...preferences: T): Pr
  *
  * @returns The preferences that were passed.
  */
-export function groupPreferences<T extends Preference[]>(category: PreferenceCategory, ...preferences: T): T {
+export function groupPreferences<T extends Preference[]>(
+	category: PreferenceCategory,
+	...preferences: T
+): T {
 	for (const preference of preferences) {
 		preference.category.unshift(category);
 		preference.currentCategory = category;
@@ -62,14 +67,17 @@ export function groupPreferences<T extends Preference[]>(category: PreferenceCat
 }
 
 export function getDependencyString(dependencies?: MapLike<Preference, NotUndefined[]>) {
-	return dependencies && JSON.stringify(
-		[...dependencies].map(([preference, allowedValues]) => [preference.id, allowedValues]),
+	return (
+		dependencies &&
+		JSON.stringify(
+			[...dependencies].map(([preference, allowedValues]) => [preference.id, allowedValues]),
+		)
 	);
 }
 
 export function dependenciesMet(dependencies: MapLike<Preference, NotUndefined[]>) {
 	for (const [preference, allowedValues] of dependencies) {
-		if (!preference.isAvailable() || !allowedValues.some(value => preference.equals(value))) {
+		if (!preference.isAvailable() || !allowedValues.some((value) => preference.equals(value))) {
 			return false;
 		}
 	}

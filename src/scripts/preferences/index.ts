@@ -6,24 +6,26 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { createPreferences, groupPreferences } from "./utils.ts";
-import { EnumPreference } from "./types/EnumPreference.tsx";
-import { TogglePreference } from "./types/TogglePreference.tsx";
-import { PresetPreference } from "./types/PresetPreference.ts";
-import { NumberPreference } from "./types/NumberPreference.tsx";
 import { SITE_LANGUAGE } from "../../consts.ts";
 import type { ImageRotation } from "../../types";
+import { EnumPreference } from "./types/EnumPreference.tsx";
+import { NumberPreference } from "./types/NumberPreference.tsx";
 import { Preference, type PreferenceCategory } from "./types/Preference.ts";
+import { PresetPreference } from "./types/PresetPreference.ts";
+import { TogglePreference } from "./types/TogglePreference.tsx";
+import { createPreferences, groupPreferences } from "./utils.ts";
 
 const isMobile = () => /mobi/i.test(navigator.userAgent);
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const formatPercent = (value: number) => `${Math.round(value * 100).toLocaleString(SITE_LANGUAGE)}%`;
+const formatPercent = (value: number) =>
+	`${Math.round(value * 100).toLocaleString(SITE_LANGUAGE)}%`;
 
 const showAdvanced = new TogglePreference("showAdvanced", {
 	icon: "fluent:wrench-20-regular",
 	title: "Show Advanced Options",
-	description: "Shows even more preferences for advanced users to perfectly dial in their experience.",
+	description:
+		"Shows even more preferences for advanced users to perfectly dial in their experience.",
 });
 
 export const preferences = createPreferences(
@@ -70,15 +72,18 @@ export const preferences = createPreferences(
 				"This may be disabled by default for performance or accessibility reasons.",
 
 			defaultValue: () => !prefersReducedMotion() && !isMobile(),
-		}).withDependents([true],
+		}).withDependents(
+			[true],
 
 			...new TogglePreference("immersiveFX", {
 				icon: "fluent:magic-wand-20-regular",
 				title: "Immersive Effects",
-				description: "Enables some fancy effects which can harm performance a bit, especially on low-end devices.",
+				description:
+					"Enables some fancy effects which can harm performance a bit, especially on low-end devices.",
 
 				defaultValue: () => true,
-			}).withDependents([true],
+			}).withDependents(
+				[true],
 				new EnumPreference("imageRotation", {
 					icon: "fluent:image-arrow-counterclockwise-20-regular",
 					title: "Image Rotation",
@@ -114,9 +119,11 @@ export const preferences = createPreferences(
 					description: "Enables the animated starry background. This requires WebGL support.",
 
 					defaultValue: () => true,
-				}).withDependents([true],
+				}).withDependents(
+					[true],
 
-					...PresetPreference.create("bgQuality",
+					...PresetPreference.create(
+						"bgQuality",
 						{
 							icon: "fluent:image-sparkle-20-regular",
 							title: "Background Quality",
@@ -127,7 +134,7 @@ export const preferences = createPreferences(
 							// BUG: in this function (and if <T> is made `const` in EnumPreference),
 							//      when defaultValue is given, it won't allow any other options for some unknown reason
 							// Temporary conversion to `string` added as a workaround (prevents autocomplete)
-							defaultValue: (): string => isMobile() ? "low" : "medium",
+							defaultValue: (): string => (isMobile() ? "low" : "medium"),
 							options: {
 								custom: {
 									displayName: "Custom",
@@ -290,8 +297,8 @@ export function getPreferencesByCategory() {
 		let category = preferencesByCategory;
 
 		for (const subcategory of preference.category) {
-			const categories = category.categories ??= [];
-			const existing = categories.find(category => category.title === subcategory.title);
+			const categories = (category.categories ??= []);
+			const existing = categories.find((other) => other.title === subcategory.title);
 
 			if (existing) {
 				category = existing;

@@ -70,7 +70,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	*, *::before, *::after {
+	*,
+	*::before,
+	*::after {
 		transition: none !important;
 		animation: none !important;
 	}
@@ -114,8 +116,7 @@ body {
 
 	@media (min-width: $breakpoint-desktop) {
 		display: grid;
-		align-items: start;
-		justify-items: center;
+		place-items: start center;
 		grid-template:
 			"sidebar main"
 			"sidebar footer"
@@ -159,7 +160,6 @@ body {
 	padding: size(10) size(12);
 
 	font-size: size(12);
-	-webkit-user-select: none;
 	user-select: none;
 
 	section {
@@ -184,20 +184,25 @@ body {
 		color: var(--color-dim);
 	}
 
-	h6, pre {
+	h6,
+	pre {
 		font-size: inherit;
 	}
 
-	h5, h6, pre {
+	h5,
+	h6,
+	pre {
 		font-family: var(--font-mono), monospace;
 		margin: 0;
 	}
 
-	&[hidden], [hidden] {
+	&[hidden],
+	[hidden] {
 		display: none;
 	}
 
 	@include glass;
+
 	@media (min-width: $breakpoint-desktop) {
 		left: size(302);
 	}
@@ -221,18 +226,25 @@ body {
 }
 
 // Common styles
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--font-heading), sans-serif;
 	color: var(--color-heading);
 	line-height: 1;
 }
 
-small, figcaption {
+small,
+figcaption {
 	color: var(--color-dim);
 	font-size: size(14, true);
 }
 
-small small, .text-dimmer {
+small small,
+.text-dimmer {
 	color: var(--color-dimmer);
 }
 
@@ -248,7 +260,8 @@ code {
 	border: 1px solid var(--color-border);
 	border-radius: size(16);
 
-	&, span {
+	&,
+	span {
 		@include preferences("dark") {
 			color: var(--shiki-dark) !important;
 		}
@@ -261,12 +274,16 @@ p [data-icon] {
 	font-size: 1.25em;
 }
 
-p a, small a, [data-banner] a {
+p a,
+small a,
+[data-banner] a {
 	color: $red-450;
 	font-weight: 500;
 	text-underline-offset: size(3, true);
-	text-decoration-color: color-mix(in srgb, currentColor, transparent 50%);
-	transition: color $anim-ease, text-decoration-color $anim-ease;
+	text-decoration-color: color-mix(in srgb, currentcolor, transparent 50%);
+	transition:
+		color $anim-ease,
+		text-decoration-color $anim-ease;
 
 	.external-icon [data-icon] {
 		margin-left: size(3, true);
@@ -300,7 +317,7 @@ p a, small a, [data-banner] a {
 
 // Input elements
 // TODO: turn checkboxes into toggle switches at some point
-input[type=checkbox] {
+input[type="checkbox"] {
 	width: size(16);
 	height: size(16);
 }
@@ -326,7 +343,9 @@ option {
 	color: var(--color-heading);
 	text-decoration: none;
 
-	transition: filter $anim-ease, transform $anim-back;
+	transition:
+		filter $anim-ease,
+		transform $anim-back;
 
 	@include hover {
 		filter: brightness(115%);
@@ -408,7 +427,8 @@ main {
 					margin: 0;
 				}
 
-				picture, img {
+				picture,
+				img {
 					width: auto;
 					max-width: none !important;
 				}
@@ -425,7 +445,8 @@ main {
 			content: "]";
 		}
 
-		&::before, &::after {
+		&::before,
+		&::after {
 			opacity: 0.5;
 		}
 	}
@@ -458,9 +479,19 @@ main {
 		> :last-child {
 			margin-bottom: 0;
 		}
+
+		// HACK to temporarily fix an issue with Oxfmt, spacing is probably off
+		> small:last-child > p {
+			margin: 0;
+		}
+
+		p:has(+ small:last-child) {
+			margin-bottom: size(2);
+		}
 	}
 
-	ul, ol {
+	ul,
+	ol {
 		padding-left: size(28);
 
 		> li {
@@ -472,8 +503,9 @@ main {
 				margin-bottom: size(8);
 			}
 
-			> ul, > ol {
-				margin: size(8) 0 size(12) 0;
+			> ul,
+			> ol {
+				margin: size(8) 0 size(12);
 			}
 
 			&::marker {
@@ -513,7 +545,12 @@ main {
 		}
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		margin: $page-margin 0 size(16) 0;
 	}
 
@@ -571,13 +608,13 @@ body > footer {
 	margin-top: auto;
 	padding: $page-margin;
 
-	background-color: hsl(0 0% 0% / 75%);
+	background-color: hsl(0deg 0% 0% / 75%);
 	box-shadow: $glass-shadow;
 	border-top: 1px solid var(--color-border);
 	color: var(--color-dim);
 
 	@include preferences("light") {
-		background-color: hsl(0 0% 100% / 75%);
+		background-color: hsl(0deg 0% 100% / 75%);
 	}
 
 	@include preferences("bg", "fx") {
@@ -609,7 +646,8 @@ body > footer {
 	visibility: collapse;
 	transition: all 275ms ease allow-discrete;
 
-	:not(.backdrop).open + &, &.open {
+	:not(.backdrop).open + &,
+	&.open {
 		opacity: 1;
 		pointer-events: auto;
 		visibility: visible;
@@ -619,7 +657,7 @@ body > footer {
 			background-color: color.change($zinc-800, $alpha: 90%);
 		}
 
-		@include preferences("immersiveFX") {
+		@include preferences("fx") {
 			backdrop-filter: blur(size(12));
 		}
 	}
