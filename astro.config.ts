@@ -11,7 +11,6 @@ import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig, fontProviders, sharpImageService } from "astro/config";
-import type { Element } from "hast";
 import { fromHtml } from "hast-util-from-html";
 import rehypeExternalLinks, {
 	type Options as RehypeExternalLinksOptions,
@@ -21,8 +20,12 @@ import Icons from "unplugin-icons/vite";
 import { remarkLastModified } from "./plugins/remark-last-modified.ts";
 import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
 
-/** Placeholder to make Oxfmt format an HTML snippet */
-const html = String.raw;
+/** Converts the string to a hast {@linkcode Element}. */
+function html(...params: Parameters<typeof String.raw>) {
+	const text = String.raw(...params).trim();
+	const tree = fromHtml(text, { fragment: true });
+	return tree.children.find((child) => child.type === "element");
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -38,8 +41,9 @@ export default defineConfig({
 		service: sharpImageService({
 			kernel: "mks2021",
 			avif: {
-				// AVIF images take a while to make, so lower the effort during development where size doesn't matter
-				// (the effort for production could be higher, but I also don't want builds to take ages)
+				// AVIF images take a while to make, so lower the effort during development where size
+				// doesn't matter (the effort for production could be higher, but I also don't want builds
+				// to take ages)
 				effort: import.meta.env.DEV ? 2 : 6,
 			},
 			webp: {
@@ -65,7 +69,8 @@ export default defineConfig({
 		},
 		plugins: [
 			Icons({
-				compiler: "astro",
+				compiler: "jsx",
+				jsx: "preact",
 				scale: 1,
 				iconCustomizer(collection, icon, props) {
 					props["data-icon"] = `${collection}:${icon}`;
@@ -85,28 +90,21 @@ export default defineConfig({
 					{
 						contentProperties: { class: "external-icon" },
 						rel: ["nofollow", "noopener", "noreferrer"],
-						// HACK: is there a better way to do this?
-						// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-						content: fromHtml(
-							html`
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 16 16"
-									data-icon="fluent:open-16-regular"
-								>
-									<rect width="16" height="16" fill="none" />
-									<path
-										fill="currentColor"
-										d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5"
-									/>
-								</svg>
-							`.trim(),
-							{
-								fragment: true,
-							},
-						).children[0] as Element,
+						content: html`
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								viewBox="0 0 16 16"
+								data-icon="fluent:open-16-regular"
+							>
+								<rect width="16" height="16" fill="none" />
+								<path
+									fill="currentColor"
+									d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5"
+								/>
+							</svg>
+						`,
 					} satisfies RehypeExternalLinksOptions,
 				],
 			],
@@ -138,8 +136,9 @@ export default defineConfig({
 			weights: ["300 700"],
 		},
 		{
-			// This is the default font in MuseScore, an open source notation app. It's used (appropriately) for some
-			// musical-related stuff, like the chord progressions in the blog post for "gaze upon the stars".
+			// This is the default font in MuseScore, an open source notation app. It's used
+			// (appropriately) for some musical-related stuff, like the chord progressions in the
+			// blog post for "gaze upon the stars".
 			//
 			// It's obtained from a submodule. Check the repository's README for more information.
 			provider: fontProviders.local(),

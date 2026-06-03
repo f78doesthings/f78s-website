@@ -8,12 +8,12 @@
  */
 
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.ts";
+import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.tsx";
 import { getCollection } from "astro:content";
 import LinkTree from "../components/nav/LinkTree.astro";
-import Link from "../components/nav/Link.astro";
-import avatar from "../assets/avatar.avif";
-import Badge from "../components/Badge.astro";
+import Link from "../components/nav/Link.tsx";
+import avatar from "../assets/images/avatar.avif";
+import Badge from "../components/Badge.tsx";
 import type { LinkData } from "../types";
 import MainImage from "../components/media/MainImage.astro";
 import CircleFlagsBe from "~icons/circle-flags/be";
@@ -44,9 +44,9 @@ const blogLink: LinkData = {
 				I'm <strong class="my-name">f78</strong>
 				<small>(usually pronounced eff-seven-eight)</small>, a 22-year-old guy from
 				<CircleFlagsBe />
-				<strong>Belgium</strong> who's currently studying programming at college. In my spare
-				time I like to do stuff like playing PC games, listening to and creating music, as well
-				as programming various things
+				<strong>Belgium</strong> who's currently studying programming at college. In my spare time I like
+				to do stuff like playing PC games, listening to and creating music, as well as programming various
+				things
 				<i>
 					<small> (including this website you're currently browsing) </small>
 				</i>.
@@ -54,13 +54,12 @@ const blogLink: LinkData = {
 			<h2>Why that name?</h2>
 			<p>
 				You see, back in 2019, I thought it'd be funny to try and snag a 3 letter Minecraft
-				username, and to my surprise it actually worked. I've since decided to hold on to it
-				and use it as my nickname everywhere. I know it's not the best name, but whatever.
+				username, and to my surprise it actually worked. I've since decided to hold on to it and use
+				it as my nickname everywhere. I know it's not the best name, but whatever.
 			</p>
 			<p>
 				<small>
-					If you're curious, my actual name is Thomas, but I much prefer that you call me
-					f78.
+					If you're curious, my actual name is Thomas, but I much prefer that you call me f78.
 				</small>
 			</p>
 		</div>
@@ -75,8 +74,7 @@ const blogLink: LinkData = {
 				alt="f78's avatar"
 				createdIn="2025"
 			>
-				An image of my current avatar, which is just my Minecraft skin with some headphones
-				on.
+				An image of my current avatar, which is just my Minecraft skin with some headphones on.
 				<i>I might want to replace it at some point...</i>
 			</MainImage>
 		</aside>
@@ -84,18 +82,15 @@ const blogLink: LinkData = {
 
 	<h2>An Obligatory Link Tree</h2>
 	<p>
-		Below is a list of links to my social media accounts and such. Remember that I'm quite busy
-		with college, so I won't be producing much content for the time being. Right now I'm mainly
-		putting out
+		Below is a list of links to my social media accounts and such. Remember that I'm quite busy with
+		college, so I won't be producing much content for the time being. Right now I'm mainly putting
+		out
 		<b>covers of the Home Paige OST</b>, which you can listen to on
 		<Link href="https://soundcloud.com/f78music/sets/home-paige-covers" external>
 			<SimpleIconsSoundcloud />
 			SoundCloud</Link
 		> and
-		<Link
-			href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs"
-			external
-		>
+		<Link href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs" external>
 			<SimpleIconsYoutube />
 			YouTube</Link
 		>*. You can also find downloads for them
@@ -109,9 +104,9 @@ const blogLink: LinkData = {
 	</p>
 	<p>
 		<small>
-			*: I may not have uploaded some of the latest covers to YouTube yet. That's because I
-			make music videos for them in Unreal Engine, and that takes quite a bit of time, which,
-			again, I don't have much of.
+			*: I may not have uploaded some of the latest covers to YouTube yet. That's because I make
+			music videos for them in Unreal Engine, and that takes quite a bit of time, which, again, I
+			don't have much of.
 		</small>
 	</p>
 	{

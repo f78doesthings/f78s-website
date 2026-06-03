@@ -12,7 +12,7 @@
 import type { HTMLAttributes } from "astro/types";
 import type { MediaInfo, Replace } from "../../types.ts";
 import { getFileName, resolveMedia } from "../../server-utils";
-import LicenseNotice from "./LicenseNotice.astro";
+import LicenseNotice from "./utils/LicenseNotice.tsx";
 
 type Props = Replace<
 	HTMLAttributes<"video">,

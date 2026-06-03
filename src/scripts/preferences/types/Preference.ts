@@ -6,35 +6,41 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { JSX } from "preact";
+import type { JSX, SVGAttributes } from "preact";
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
-import type { NotUndefined } from "../../../types.ts";
+import type { IconComponent, NotUndefined } from "../../../types.ts";
 import { dependenciesMet, type MapEntries, type MapLike } from "../utils.ts";
 
 export interface PreferenceConfig<T extends NotUndefined> {
 	/**
 	 * The icon for this preference.
-	 * @remarks Omitting this is generally not recommended.
+	 *
+	 * @remarks
+	 *   Omitting this is generally not recommended.
 	 */
-	icon?: string;
+	icon?: (props: SVGAttributes<SVGSVGElement>) => JSX.Element;
 
 	/**
 	 * The display name of this preference.
 	 *
-	 * @remarks While this is technically optional, the default value simply displays the preference's ID,
-	 * which isn't very user-friendly.
+	 * @remarks
+	 *   While this is technically optional, the default value simply displays the preference's ID,
+	 *   which isn't very user-friendly.
 	 */
 	title?: string;
 
 	/**
 	 * A brief description of this preference.
-	 * @remarks Omitting this is generally not recommended.
+	 *
+	 * @remarks
+	 *   Omitting this is generally not recommended.
 	 */
 	description?: string;
 
 	/**
 	 * The (sub)category this preference is in.
+	 *
 	 * @see {@linkcode groupPreferences}
 	 */
 	category?: Iterable<PreferenceCategory>;
@@ -57,7 +63,10 @@ export interface PreferenceCategory {
 	/** A brief description of this category. */
 	description?: string;
 
-	/** A list of other preferences that need to have a certain value for the category and its settings to show up. */
+	/**
+	 * A list of other preferences that need to have a certain value for the category and its settings
+	 * to show up.
+	 */
 	dependencies?: MapEntries<Preference, NotUndefined[]>;
 }
 
@@ -68,7 +77,7 @@ export abstract class Preference<
 > implements PreferenceConfig<T> {
 	readonly title: string;
 	readonly description?: string;
-	readonly icon?: string;
+	readonly icon?: IconComponent;
 
 	readonly defaultValue: () => T;
 	readonly dependencies: Map<Preference, NotUndefined[]>;
@@ -119,7 +128,8 @@ export abstract class Preference<
 	/**
 	 * Returns whether this preference is essentially equal to the given value.
 	 *
-	 * You should use this over `preference.get() === other` to allow for things like improved number comparisons.
+	 * You should use this over `preference.get() === other` to allow for things like improved number
+	 * comparisons.
 	 */
 	equals(other: unknown) {
 		return this.get() === other;
@@ -131,8 +141,8 @@ export abstract class Preference<
 	}
 
 	/**
-	 * Makes this preference a dependency of the given preferences,
-	 * and returns an array containing itself and the children.
+	 * Makes this preference a dependency of the given preferences, and returns an array containing
+	 * itself and the children.
 	 */
 	withDependents<P extends Preference[]>(allowedValues: T[], ...children: P) {
 		if (!Array.isArray(allowedValues)) {
@@ -155,7 +165,10 @@ export abstract class Preference<
 		return [this, ...children] as const;
 	}
 
-	/** Defines this preference as a dependency. This is useful to ensure the allowed values are of the correct type. */
+	/**
+	 * Defines this preference as a dependency. This is useful to ensure the allowed values are of the
+	 * correct type.
+	 */
 	asDependency(...allowedValues: T[]) {
 		return [this, allowedValues] as const;
 	}
@@ -163,7 +176,10 @@ export abstract class Preference<
 	/** Creates a control for this preference. */
 	abstract toComponent(state: PreferenceControlState<T>): JSX.Element;
 
-	/** Allows preferences to be serialized to JSON. This returns the same value as {@linkcode get} by default. */
+	/**
+	 * Allows preferences to be serialized to JSON. This returns the same value as {@linkcode get} by
+	 * default.
+	 */
 	toJSON() {
 		return this.get();
 	}

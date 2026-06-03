@@ -37,7 +37,6 @@ strike a good balance between compression and quality for each file.
   - The **image viewer** always displays (and downloads) the **source image**, which is typically in
     **WebP** or **AVIF** format. As such, older browsers and applications might not load these
     properly.
-
 - **Video** and **audio** are currently encoded as **H.264** and **AAC** respectively, using an
   **MP4** container. This is simply because better formats aren't supported very well, especially by
   Safari. I use FFmpeg to encode these, with the help of [this script](./scripts/convert.ts)

@@ -3,7 +3,7 @@ title: "Test"
 description: "This is an example post to test out the blog and its styling."
 pubDate: 2026-04-19T00:00:00Z
 draft: true
-heroImage: "../../assets/blog-placeholder.jpg"
+heroImage: "../../assets/images/blog-placeholder.jpg"
 heroDescription: "The Astro mascot."
 heroLicense: MIT # (don't quote me on the image licence, it's for a test page anyway)
 heroCreatedIn: 2023-present
@@ -12,6 +12,7 @@ heroSource: https://github.com/withastro/astro/blob/main/examples/blog/src/asset
 ---
 
 import Alert from "../../components/Alert.astro";
+import MainImage from "../../components/media/MainImage.astro";
 
 # Heading 1
 
@@ -27,6 +28,18 @@ import Alert from "../../components/Alert.astro";
 
 But realistically, _who_ in their right mind would be willing to use a **heading** that <small {
 ...{/* dummy */}}>small</small>[^1]?
+
+## Media
+
+<MainImage
+	src={import("../../assets/images/blog-placeholder.jpg")}
+	alt=""
+	createdIn="2023-present"
+	createdBy="Astro contributors"
+	license="MIT"
+>
+	This is a caption. How exciting.
+</MainImage>
 
 ## Alerts
 

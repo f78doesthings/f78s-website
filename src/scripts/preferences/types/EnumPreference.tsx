@@ -9,6 +9,7 @@
 import { useEffect, useRef } from "preact/hooks";
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
+import type { IconComponent } from "../../../types.ts";
 import { Preference, type PreferenceConfig } from "./Preference.ts";
 
 export interface EnumPreferenceValue {
@@ -16,7 +17,7 @@ export interface EnumPreferenceValue {
 	displayName?: string;
 
 	/** The icon displayed when this option is selected. */
-	icon?: string;
+	icon?: IconComponent;
 }
 
 export interface EnumPreferenceConfig<
@@ -52,7 +53,7 @@ export class EnumPreference<
 		return this.valueNames.find((x) => x === value);
 	}
 
-	override toComponent({ onInput, value, children, cid }: PreferenceControlState<T>) {
+	override toComponent({ onInput, value, cid }: PreferenceControlState<T>) {
 		const ref = useRef<HTMLSelectElement>(null);
 		useEffect(() => {
 			const icons = ref.current?.parentElement?.querySelectorAll<SVGElement>("[data-option-icon]");
@@ -61,7 +62,19 @@ export class EnumPreference<
 
 		return (
 			<>
-				{children}
+				{this.valueNames.map((name) => {
+					const Icon = this.options[name].icon ?? (() => undefined);
+					return (
+						<Icon
+							key={name}
+							class="before-input"
+							hidden={value !== name}
+							width={20}
+							height={20}
+							{...cid}
+						/>
+					);
+				})}
 				<select ref={ref} name={this.id} {...cid} onInput={(e) => onInput(e.currentTarget.value)}>
 					{this.valueNames.map((name) => (
 						<option

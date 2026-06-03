@@ -18,8 +18,8 @@ interface PresetValue<T extends Preference[]> extends EnumPreferenceValue {
 	/**
 	 * The settings for this preset.
 	 *
-	 * If this is unspecified, this preset is treated as the "Custom" option.
-	 * As such, you should have exactly one preset without settings; no more, no less.
+	 * If this is unspecified, this preset is treated as the "Custom" option. As such, you should have
+	 * exactly one preset without settings; no more, no less.
 	 */
 	settings?: PreferenceValues<T>;
 }

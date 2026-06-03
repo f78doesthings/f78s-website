@@ -10,7 +10,7 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 
-import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.ts";
+import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -40,7 +40,10 @@ const blog = defineCollection({
 			/** The description of the cover image. This is only shown in the image viewer. */
 			heroDescription: z.string().default(""),
 
-			/** The licence of the cover image. Defaults to the standard licence for this website's content (CC-BY-SA-4.0). */
+			/**
+			 * The licence of the cover image. Defaults to the standard licence for this website's content
+			 * (CC-BY-SA-4.0).
+			 */
 			heroLicense: z.enum(KNOWN_LICENSES).nullable().default("CC-BY-SA-4.0"),
 
 			/** The year the cover image was copyrighted under, if applicable. */

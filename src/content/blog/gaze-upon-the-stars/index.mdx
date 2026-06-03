@@ -9,7 +9,7 @@ heroCreatedIn: "2026"
 ---
 
 import Alert from "../../../components/Alert.astro";
-import Link from "../../../components/nav/Link.astro";
+import Link from "../../../components/nav/Link.tsx";
 import MainImage from "../../../components/media/MainImage.astro";
 import AudioPlayer from "../../../components/media/AudioPlayer.astro";
 import VideoPlayer from "../../../components/media/VideoPlayer.astro";
@@ -142,7 +142,7 @@ as **stargazer Project**<span class="text-dim">.zip</span>.
 
 <Alert type="note">
 	The clips below were recorded in **Live 12.4**. However, the project files will also work in
-	**Live 12.3**<small>(.6+)</small>.<br />
+	**Live 12.3**<small>(.6+)</small>.
 	{/*
 		BUG: Oxfmt is making this a block when it shouldn't be one, requiring some hacky styles
 		to correct

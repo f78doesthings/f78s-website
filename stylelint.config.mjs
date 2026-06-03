@@ -1,5 +1,5 @@
 // @ts-check
-/** @type {import('stylelint').Config} */
+/** @type {import("stylelint").Config} */
 export default {
 	extends: ["stylelint-config-standard-scss", "stylelint-config-html/astro"],
 	ignoreFiles: ["node_modules", "src/styles/_colors.scss"],

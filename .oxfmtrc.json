@@ -4,6 +4,7 @@
 
 	"useTabs": true,
 	"tabWidth": 2,
+	"jsdoc": true,
 	"sortImports": true,
 	"proseWrap": "always",
 

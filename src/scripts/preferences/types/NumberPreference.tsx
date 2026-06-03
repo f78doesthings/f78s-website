@@ -7,31 +7,35 @@
  */
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
-import { SITE_LANGUAGE } from "../../../consts.ts";
+import { SITE_LANGUAGE } from "../../../consts.tsx";
 import { clampStepped } from "../../utils";
 import { Preference, type PreferenceConfig } from "./Preference.ts";
 
 interface NumberPreferenceConfig extends PreferenceConfig<number> {
 	/**
 	 * The lowest allowed value.
+	 *
 	 * @default 0
 	 */
 	min?: number;
 
 	/**
 	 * The highest allowed value.
+	 *
 	 * @default Number.MAX_VALUE
 	 */
 	max?: number;
 
 	/**
 	 * The increment between values.
+	 *
 	 * @default 1
 	 */
 	step?: number;
 
 	/**
 	 * If true, uses a slider if a minimum and maximum value are given.
+	 *
 	 * @default true
 	 */
 	useSlider?: boolean;

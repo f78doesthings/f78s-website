@@ -58,6 +58,7 @@ program
 		 * The command to run for each output file type.
 		 *
 		 * Supports the following placeholders (see `placeholders` below):
+		 *
 		 * - `%f`: The path to the `ffmpeg` executable, followed by `-hide_banner -y`
 		 * - `%i`: `-i`, followed by the path to the input file
 		 * - `%o`: The path to the output file

@@ -8,7 +8,7 @@
 
 // Client-side functions for preferences (such as loading and saving)
 
-import { type PreferenceID, preferences } from "./index.ts";
+import { type PreferenceID, preferences } from "./index.tsx";
 import { PresetPreference } from "./types/PresetPreference.ts";
 
 const PREFERENCES_KEY = "preferences";

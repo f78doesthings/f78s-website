@@ -16,6 +16,7 @@ import type { UnresolvedImageTransform } from "astro";
 
 import type { MediaSource } from "./types.ts";
 
+/** @deprecated Use getFileName from scripts/utils/index.ts instead, which works on the client */
 export function getFileName(src?: string) {
 	if (!src) {
 		return "";

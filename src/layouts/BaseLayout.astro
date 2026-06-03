@@ -10,11 +10,11 @@
 import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
 import "../styles/general.scss";
-import { BLOG_TITLE, LICENSES, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.ts";
+import { BLOG_TITLE, LICENSES, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.tsx";
 import Header from "../components/nav/Header.astro";
 import { ClientRouter } from "astro:transitions";
 import FormattedDate from "../components/FormattedDate.astro";
-import Link from "../components/nav/Link.astro";
+import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
 import FluentCalendarClock20Regular from "~icons/fluent/calendar-clock-20-regular";
 import NotoConstruction from "~icons/noto/construction";
@@ -58,6 +58,9 @@ let lastModifiedDate = lastModified;
 if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
 	lastModifiedDate = new Date(frontmatter.lastModified);
 }
+
+const contentLicense = LICENSES["CC-BY-SA-4.0"];
+const LicenseIcons = contentLicense.icons ?? (() => undefined);
 ---
 
 <!doctype html>
@@ -115,10 +118,9 @@ if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
 		<Banner id="under-construction">
 			<NotoConstruction />
 			<span>
-				This newly revamped version of the website is still being worked on. Report any bugs
-				you find on <Link
-					href="https://github.com/f78doesthings/f78s-website/issues"
-					external>GitHub</Link
+				This newly revamped version of the website is still being worked on. Report any bugs you
+				find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external
+					>GitHub</Link
 				>.
 			</span>
 		</Banner>
@@ -140,12 +142,10 @@ if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
 			<p>
 				<small>
 					The content of this site is available under the
-					<Link
-						href={LICENSES["CC-BY-SA-4.0"].url}
-						external
-						icons={LICENSES["CC-BY-SA-4.0"].icons}
-						>{LICENSES["CC-BY-SA-4.0"].title}</Link
-					>
+					<Link href={LICENSES["CC-BY-SA-4.0"].url} external>
+						<LicenseIcons />
+						{contentLicense.title}
+					</Link>
 					licence.
 				</small>
 			</p>
@@ -154,6 +154,7 @@ if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
 
 		<canvas class="immersive-background" transition:persist></canvas>
 		<div class="debug-display" transition:persist></div>
+		<div id="media-viewer-root"></div>
 	</body>
 </html>
 

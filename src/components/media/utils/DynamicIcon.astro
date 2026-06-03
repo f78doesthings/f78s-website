@@ -8,10 +8,11 @@
  */
 
 // Uses @iconify/utils to dynamically fetch an icon, with (kind of crude) caching.
-// I initially added this as a replacement for astro-icon, which was causing major lag on server startup.
+// I initially added this as a replacement for astro-icon, which was causing major lag on
+// server startup.
 //
-// This should only be used if the icon is defined outside Astro components, as it can still have a performance impact.
-// unplugin-icons should be used wherever possible.
+// This should only be used if the icon is defined outside Astro components, as it can still have a
+// performance impact. unplugin-icons should be used wherever possible.
 
 import type { HTMLAttributes } from "astro/types";
 import {
@@ -34,7 +35,6 @@ interface Props extends HTMLAttributes<"svg"> {
 	size?: number | string;
 }
 
-// noinspection JSUnusedGlobalSymbols
 const { name: iconName, size = "1em", ...props } = Astro.props;
 
 const icon = stringToIcon(iconName);

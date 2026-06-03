@@ -11,7 +11,10 @@
 
 import PreferenceControl from "./PreferenceControl.astro";
 import { getDependencyString } from "../../scripts/preferences/utils.ts";
-import { getPreferencesByCategory, type PreferencesByCategory } from "../../scripts/preferences";
+import {
+	getPreferencesByCategory,
+	type PreferencesByCategory,
+} from "../../scripts/preferences/index.tsx";
 
 interface Props {
 	depth?: number;

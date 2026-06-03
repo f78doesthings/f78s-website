@@ -10,11 +10,11 @@
 // Displays various links to social media accounts and such specified in the "links" collection.
 
 import type { CollectionEntry } from "astro:content";
-import Badge from "../Badge.astro";
+import Badge from "../Badge";
 import type { LinkData } from "../../types";
-import Link from "./Link.astro";
+import Link from "./Link";
 import { isLinkInactive } from "../../scripts/utils";
-import DynamicIcon from "../media/DynamicIcon.astro";
+import DynamicIcon from "../media/utils/DynamicIcon.astro";
 
 interface Props {
 	collection?: CollectionEntry<"links">[];

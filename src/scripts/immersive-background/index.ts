@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { preferences } from "../preferences";
+import { preferences } from "../preferences/index.tsx";
 import { truncate } from "../utils";
 import { DebugCategory, DebugDisplay } from "../utils/debug-displays.ts";
 import bgFrag from "./shaders/bg.frag?raw";

@@ -17,10 +17,6 @@
 		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
 
-	// Copyright
-	"copyrightInserter.license": "mpl2",
-	"copyrightInserter.holder": "f78",
-
 	// Spellcheck (optional, for Code Spell Checker w/ British English dictionary)
 	"cSpell.language": "en-GB"
 }

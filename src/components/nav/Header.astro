@@ -15,7 +15,7 @@ import FluentHome20Regular from "~icons/fluent/home-20-regular";
 import FluentRss20Regular from "~icons/fluent/rss-20-regular";
 import FluentSettings20Regular from "~icons/fluent/settings-20-regular";
 import FluentDismiss20Regular from "~icons/fluent/dismiss-20-regular";
-import Badge from "../Badge.astro";
+import Badge from "../Badge";
 import PreferenceControl from "../preferences/PreferenceControl.astro";
 import SiteLogo from "./SiteLogo.astro";
 import SidebarLink from "./SidebarLink.astro";
@@ -67,11 +67,7 @@ const { headings } = Astro.props;
 		{
 			headings?.map(({ depth, slug, text }) => {
 				return (
-					<SidebarLink
-						href={`#${slug}`}
-						class={`hide-sidebar depth-${depth}`}
-						data-slug={slug}
-					>
+					<SidebarLink href={`#${slug}`} class={`hide-sidebar depth-${depth}`} data-slug={slug}>
 						{text}
 					</SidebarLink>
 				);
@@ -149,9 +145,7 @@ const { headings } = Astro.props;
 
 	function updateHeadings() {
 		// Find the last link that hasn't gone off the top of the screen
-		const scrollPadding = parseFloat(
-			getComputedStyle(document.documentElement).scrollPaddingTop,
-		);
+		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
 		const activeIndex =
 			headings.findIndex(
 				([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
@@ -161,17 +155,11 @@ const { headings } = Astro.props;
 		// Update the sidebar links
 		for (const [link, heading] of headings) {
 			const rect = heading.getBoundingClientRect();
-			const isOnScreen =
-				rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
+			const isOnScreen = rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
 			link.classList.toggle("active", link === activeLink || isOnScreen);
 
 			// If the browser didn't feel like scrolling the heading into view, then do so manually
-			if (
-				justNavigated &&
-				currentHeading &&
-				heading.id === currentHeading &&
-				window.scrollY < 1
-			) {
+			if (justNavigated && currentHeading && heading.id === currentHeading && window.scrollY < 1) {
 				console.info(`Forcefully scrolling heading "${link.hash}" into view`);
 				heading.scrollIntoView();
 			}
@@ -224,6 +212,10 @@ const { headings } = Astro.props;
 		width: 100%;
 		z-index: 1000;
 		background-color: var(--color-component);
+
+		@media print {
+			display: none;
+		}
 
 		@media (min-width: $breakpoint-desktop) {
 			display: none;
@@ -395,6 +387,10 @@ const { headings } = Astro.props;
 			@include btn-transparent(true);
 		}
 
+		@media print {
+			display: none;
+		}
+
 		@media (prefers-contrast: more) {
 			border-right: 1px solid var(--color-border);
 		}
@@ -414,7 +410,7 @@ const { headings } = Astro.props;
 			}
 
 			@include preferences("fx") {
-				backdrop-filter: blur(size(1.5));
+				backdrop-filter: blur(size(2));
 			}
 		}
 

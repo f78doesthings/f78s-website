@@ -35,13 +35,15 @@
 $page-width: size(1024);
 $page-margin: size(22);
 $badge-height: size(26);
-$breakpoint-desktop: size(960);
 $radius-full: calc(infinity * 1px);
+
+$breakpoint-desktop: size(960);
 
 $glass-shadow: 0 0 size(20) hsl(0deg 0% 0% / 9%);
 
 $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 $anim-ease: 170ms ease;
+$anim-fade: 275ms ease;
 $anim-back: 250ms $ease-out-back;
 
 @function heading-weight($level) {
@@ -64,6 +66,7 @@ $anim-back: 250ms $ease-out-back;
 	$is-root: map.get($keywords, "is-root");
 	$selector: ":root";
 	$theme: null;
+	$screen: null;
 
 	@if $is-root {
 		$selector: "&";
@@ -73,12 +76,16 @@ $anim-back: 250ms $ease-out-back;
 		@if $preference == "dark" or $preference == "light" {
 			$theme: $preference;
 		} @else if $preference == "bg" {
+			$screen: true;
 			$selector: $selector + ".bg-supported#{-preference("bgEnabled")}";
 		} @else if $preference == "no-bg" {
+			$screen: false;
 			$selector: $selector + ":not(.bg-supported#{-preference("bgEnabled")})";
 		} @else if $preference == "fx" {
+			$screen: true;
 			$selector: $selector + -preference("immersiveFX");
 		} @else if $preference == "no-fx" {
+			$screen: false;
 			$selector: $selector + ":not(#{-preference("immersiveFX")})";
 		} @else if $preference == "loaded" {
 			$selector: $selector + ".loaded";
@@ -95,9 +102,16 @@ $anim-back: 250ms $ease-out-back;
 		}
 
 		#{$auto-selector} {
-			@media (prefers-color-scheme: #{$theme}) {
+			@media screen and (prefers-color-scheme: #{$theme}) {
 				@content;
 			}
+		}
+
+		// Force light mode when printing
+		@if $theme == "light" {
+			$screen: false;
+		} @else {
+			$screen: true;
 		}
 
 		$selector: $selector + "[data-theme='#{$theme}']";
@@ -107,8 +121,22 @@ $anim-back: 250ms $ease-out-back;
 		$selector: $selector + " &";
 	}
 
-	#{$selector} {
-		@content;
+	@if $screen == true {
+		@media screen {
+			#{$selector} {
+				@content;
+			}
+		}
+	} @else {
+		@if $screen == false {
+			@media print {
+				@content;
+			}
+		}
+
+		#{$selector} {
+			@content;
+		}
 	}
 }
 

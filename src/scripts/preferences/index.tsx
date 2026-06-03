@@ -6,8 +6,34 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { SITE_LANGUAGE } from "../../consts.ts";
-import type { ImageRotation } from "../../types";
+import FluentArrowCounterclockwise20Regular from "~icons/fluent/arrow-counterclockwise-20-regular";
+import FluentBug20Regular from "~icons/fluent/bug-20-regular";
+import FluentCheckmark20Regular from "~icons/fluent/checkmark-20-regular";
+import FluentChevronDoubleDown20Regular from "~icons/fluent/chevron-double-down-20-regular";
+import FluentChevronDoubleUp20Regular from "~icons/fluent/chevron-double-up-20-regular";
+import FluentChevronDown20Regular from "~icons/fluent/chevron-down-20-regular";
+import FluentChevronUp20Regular from "~icons/fluent/chevron-up-20-regular";
+import FluentDarkTheme20Regular from "~icons/fluent/dark-theme-20-regular";
+import FluentDismiss20Regular from "~icons/fluent/dismiss-20-regular";
+import FluentDualScreenVerticalScroll20Regular from "~icons/fluent/dual-screen-vertical-scroll-20-regular";
+import FluentImageArrowCounterclockwise20Regular from "~icons/fluent/image-arrow-counterclockwise-20-regular";
+import FluentImageCircle20Regular from "~icons/fluent/image-circle-20-regular";
+import FluentImageSparkle20Regular from "~icons/fluent/image-sparkle-20-regular";
+import FluentImageSplit20Regular from "~icons/fluent/image-split-20-regular";
+import FluentMagicWand20Regular from "~icons/fluent/magic-wand-20-regular";
+import FluentMoreHorizontal20Regular from "~icons/fluent/more-horizontal-20-regular";
+import FluentPhoneDesktop20Regular from "~icons/fluent/phone-desktop-20-regular";
+import FluentResize20Regular from "~icons/fluent/resize-20-regular";
+import FluentSkipForwardTab20Regular from "~icons/fluent/skip-forward-tab-20-regular";
+import FluentStarEmphasis20Regular from "~icons/fluent/star-emphasis-20-regular";
+import FluentTablet20Regular from "~icons/fluent/tablet-20-regular";
+import FluentWeatherMoon20Regular from "~icons/fluent/weather-moon-20-regular";
+import FluentWeatherSunny20Regular from "~icons/fluent/weather-sunny-20-regular";
+import FluentWrench20Regular from "~icons/fluent/wrench-20-regular";
+import PhTildeLight from "~icons/ph/tilde-light";
+
+import { SITE_LANGUAGE } from "../../consts.tsx";
+import type { ImageRotation } from "../../types.ts";
 import { EnumPreference } from "./types/EnumPreference.tsx";
 import { NumberPreference } from "./types/NumberPreference.tsx";
 import { Preference, type PreferenceCategory } from "./types/Preference.ts";
@@ -22,7 +48,7 @@ const formatPercent = (value: number) =>
 	`${Math.round(value * 100).toLocaleString(SITE_LANGUAGE)}%`;
 
 const showAdvanced = new TogglePreference("showAdvanced", {
-	icon: "fluent:wrench-20-regular",
+	icon: FluentWrench20Regular,
 	title: "Show Advanced Options",
 	description:
 		"Shows even more preferences for advanced users to perfectly dial in their experience.",
@@ -34,7 +60,7 @@ export const preferences = createPreferences(
 			title: "General",
 		},
 		new EnumPreference("theme", {
-			icon: "fluent:dark-theme-20-regular",
+			icon: FluentDarkTheme20Regular,
 			title: "Theme",
 			description:
 				"Sets the theme. Note that some parts of the website (like the immersive background) " +
@@ -45,15 +71,15 @@ export const preferences = createPreferences(
 				// This isn't autocompleted unless <T> is made `const`, which causes an error (see below)
 				auto: {
 					displayName: "System",
-					icon: "fluent:tablet-20-regular",
+					icon: FluentTablet20Regular,
 				},
 				light: {
 					displayName: "Light",
-					icon: "fluent:weather-sunny-20-regular",
+					icon: FluentWeatherSunny20Regular,
 				},
 				dark: {
 					displayName: "Dark",
-					icon: "fluent:weather-moon-20-regular",
+					icon: FluentWeatherMoon20Regular,
 				},
 			},
 		}),
@@ -65,7 +91,7 @@ export const preferences = createPreferences(
 			title: "Immersive Mode",
 		},
 		...new TogglePreference("immersiveMode", {
-			icon: "fluent:star-emphasis-20-regular",
+			icon: FluentStarEmphasis20Regular,
 			title: "Enable Immersive Mode",
 			description:
 				"Enables the website's experimental immersive features. " +
@@ -76,7 +102,7 @@ export const preferences = createPreferences(
 			[true],
 
 			...new TogglePreference("immersiveFX", {
-				icon: "fluent:magic-wand-20-regular",
+				icon: FluentMagicWand20Regular,
 				title: "Immersive Effects",
 				description:
 					"Enables some fancy effects which can harm performance a bit, especially on low-end devices.",
@@ -85,7 +111,7 @@ export const preferences = createPreferences(
 			}).withDependents(
 				[true],
 				new EnumPreference("imageRotation", {
-					icon: "fluent:image-arrow-counterclockwise-20-regular",
+					icon: FluentImageArrowCounterclockwise20Regular,
 					title: "Image Rotation",
 					description:
 						"Controls when to enable the parallax rotation effect for images. " +
@@ -95,15 +121,15 @@ export const preferences = createPreferences(
 					defaultValue: (): keyof typeof ImageRotation => "preferNo",
 					options: {
 						never: {
-							icon: "fluent:dismiss-20-regular",
+							icon: FluentDismiss20Regular,
 							displayName: "Never",
 						},
 						preferNo: {
-							icon: "fluent:arrow-counterclockwise-20-regular",
+							icon: FluentArrowCounterclockwise20Regular,
 							displayName: "Auto",
 						},
 						preferYes: {
-							icon: "fluent:checkmark-20-regular",
+							icon: FluentCheckmark20Regular,
 							displayName: "Always",
 						},
 					},
@@ -114,7 +140,7 @@ export const preferences = createPreferences(
 					title: "Background",
 				},
 				...new TogglePreference("bgEnabled", {
-					icon: "fluent:image-circle-20-regular",
+					icon: FluentImageCircle20Regular,
 					title: "Immersive Background",
 					description: "Enables the animated starry background. This requires WebGL support.",
 
@@ -125,7 +151,7 @@ export const preferences = createPreferences(
 					...PresetPreference.create(
 						"bgQuality",
 						{
-							icon: "fluent:image-sparkle-20-regular",
+							icon: FluentImageSparkle20Regular,
 							title: "Background Quality",
 							description:
 								"Controls the quality of the animated background. " +
@@ -138,11 +164,11 @@ export const preferences = createPreferences(
 							options: {
 								custom: {
 									displayName: "Custom",
-									icon: "fluent:more-20-regular",
+									icon: FluentMoreHorizontal20Regular,
 								},
 								veryLow: {
 									displayName: "Very Low",
-									icon: "fluent:chevron-double-down-20-regular",
+									icon: FluentChevronDoubleDown20Regular,
 									settings: {
 										bgRenderScale: 0.4,
 										bgDPIFactor: 0.25,
@@ -152,7 +178,7 @@ export const preferences = createPreferences(
 								},
 								low: {
 									displayName: "Low",
-									icon: "fluent:chevron-down-20-regular",
+									icon: FluentChevronDown20Regular,
 									settings: {
 										bgRenderScale: 0.6,
 										bgDPIFactor: 0.35,
@@ -162,7 +188,7 @@ export const preferences = createPreferences(
 								},
 								medium: {
 									displayName: "Medium",
-									icon: "ph:tilde-light",
+									icon: PhTildeLight,
 									settings: {
 										bgRenderScale: 0.8,
 										bgDPIFactor: 0.5,
@@ -172,7 +198,7 @@ export const preferences = createPreferences(
 								},
 								high: {
 									displayName: "High",
-									icon: "fluent:chevron-up-20-regular",
+									icon: FluentChevronUp20Regular,
 									settings: {
 										bgRenderScale: 1,
 										bgDPIFactor: 0.65,
@@ -182,7 +208,7 @@ export const preferences = createPreferences(
 								},
 								veryHigh: {
 									displayName: "Ultra",
-									icon: "fluent:chevron-double-up-20-regular",
+									icon: FluentChevronDoubleUp20Regular,
 									settings: {
 										bgRenderScale: 1,
 										bgDPIFactor: 1,
@@ -198,7 +224,7 @@ export const preferences = createPreferences(
 								dependencies: [showAdvanced.asDependency(true)],
 							},
 							new NumberPreference("bgRenderScale", {
-								icon: "fluent:resize-20-regular",
+								icon: FluentResize20Regular,
 								title: "Resolution Scale",
 								description:
 									"The percentage of the resolution to render at. The higher this value, the more detail.",
@@ -209,7 +235,7 @@ export const preferences = createPreferences(
 								format: formatPercent,
 							}),
 							new NumberPreference("bgDPIFactor", {
-								icon: "fluent:phone-desktop-20-regular",
+								icon: FluentPhoneDesktop20Regular,
 								title: "Pixel Density Scaling",
 								description:
 									"Scales the rendering resolution based on this percentage of your screen's pixel density.",
@@ -219,7 +245,7 @@ export const preferences = createPreferences(
 								format: formatPercent,
 							}),
 							new NumberPreference("bgFrameSkip", {
-								icon: "fluent:skip-forward-tab-20-regular",
+								icon: FluentSkipForwardTab20Regular,
 								title: "Frame Skip",
 								description:
 									"The number of frames to skip when the page isn't moving. " +
@@ -228,7 +254,7 @@ export const preferences = createPreferences(
 								max: 9,
 							}),
 							new NumberPreference("bgActiveFrameSkip", {
-								icon: "fluent:dual-screen-vertical-scroll-20-regular",
+								icon: FluentDualScreenVerticalScroll20Regular,
 								title: "Active Frame Skip",
 								description:
 									"The maximum number of frames to skip while you're actively scrolling or resizing the page.",
@@ -239,7 +265,7 @@ export const preferences = createPreferences(
 					),
 
 					new TogglePreference("bgPause", {
-						icon: "fluent:image-split-20-regular",
+						icon: FluentImageSplit20Regular,
 						title: "Pause Background When Unfocused",
 						description:
 							"Pauses the animated background if the window is not focused. " +
@@ -249,7 +275,7 @@ export const preferences = createPreferences(
 						defaultValue: () => !isMobile(),
 					}),
 					new EnumPreference("bgDebug", {
-						icon: "fluent:bug-20-regular",
+						icon: FluentBug20Regular,
 						title: "Background Debug Display",
 						description:
 							"Choose to display debug information about the immersive background, like the FPS and resolution.",

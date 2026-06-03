@@ -15,8 +15,8 @@ export type TriState<I extends boolean = true> = I extends true ? boolean | null
 
 interface TogglePreferenceConfig<I extends boolean = false> extends PreferenceConfig<TriState<I>> {
 	/**
-	 * Allows the user to choose a third indeterminate state for this preference,
-	 * presented by the value `null`.
+	 * Allows the user to choose a third indeterminate state for this preference, presented by the
+	 * value `null`.
 	 */
 	triState?: I;
 }
@@ -44,14 +44,14 @@ export class TogglePreference<K extends string = string, I extends boolean = fal
 		return this.triState && value === null ? (null as TriState<I>) : !!value;
 	}
 
-	override toComponent({ onInput, cid }: PreferenceControlState<TriState<I>>) {
+	override toComponent({ onInput, value, cid }: PreferenceControlState<TriState<I>>) {
 		const ref = useRef<HTMLInputElement>(null);
 		useEffect(() => {
 			if (ref.current) {
-				ref.current.checked = this.get() === true;
-				ref.current.indeterminate = this.get() === null;
+				ref.current.checked = value === true;
+				ref.current.indeterminate = value === null;
 			}
-		}, []);
+		});
 
 		return (
 			<input
@@ -61,8 +61,8 @@ export class TogglePreference<K extends string = string, I extends boolean = fal
 				{...cid}
 				onChange={(e) => {
 					if (this.triState) {
-						e.currentTarget.checked = this.get() === false;
-						e.currentTarget.indeterminate = this.get() === true;
+						e.currentTarget.checked = value === false;
+						e.currentTarget.indeterminate = value === true;
 					}
 					onInput(e.currentTarget.indeterminate && this.triState ? null : e.currentTarget.checked);
 				}}

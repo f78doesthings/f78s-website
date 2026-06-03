@@ -24,7 +24,7 @@ const { id } = Astro.props;
 </div>
 
 <script>
-	import { getStorageItem } from "../scripts/utils/storage-utils.ts";
+	import { getStorageItem } from "../scripts/utils/storage-utils";
 
 	function setupBanners() {
 		const banners = document.querySelectorAll<HTMLElement>("[data-banner]");
@@ -41,8 +41,7 @@ const { id } = Astro.props;
 				continue;
 			}
 
-			const dismissedBanners =
-				getStorageItem<string[]>("dismissedBanners", Array.isArray) ?? [];
+			const dismissedBanners = getStorageItem<string[]>("dismissedBanners", Array.isArray) ?? [];
 
 			if (!dismissedBanners.includes(id)) {
 				banner.classList.add("visible");
@@ -90,11 +89,13 @@ const { id } = Astro.props;
 			color.change($red-925, $alpha: $banner-alpha)
 		);
 
-		&.visible {
-			display: flex;
+		@media screen {
+			&.visible {
+				display: flex;
 
-			:global(header):has(+ &) {
-				box-shadow: none;
+				:global(header):has(+ &) {
+					box-shadow: none;
+				}
 			}
 		}
 

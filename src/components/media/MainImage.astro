@@ -10,12 +10,9 @@
 // A component for images that are part of the main page. Includes an image viewer and some effects.
 
 import BaseImage, { type Props as BaseProps } from "./BaseImage.astro";
-import Badge from "../Badge.astro";
 import { type CopyrightInfo, ImageRotation } from "../../types";
-import { getFileName, getImageMetadata } from "../../server-utils";
-import LicenseNotice from "./LicenseNotice.astro";
-import FluentArrowDownload24Regular from "~icons/fluent/arrow-download-24-regular";
-import FluentDismiss24Regular from "~icons/fluent/dismiss-24-regular";
+import { getImageMetadata } from "../../server-utils";
+import { ImageViewer } from "./viewers/ImageViewer";
 
 type Props = BaseProps &
 	CopyrightInfo & {
@@ -41,16 +38,11 @@ const meta = await getImageMetadata(src);
 if (!props.width && !props.height && !props.widths) {
 	const maxWidth = meta ? Math.min(meta.width, 768) : 768;
 	props.width = maxWidth;
-	props.widths = [256, 384, 512, 640, maxWidth].filter(
-		(width): width is number => width !== undefined && width <= maxWidth,
-	);
+	props.widths = [256, 384, 512, 640, maxWidth].filter((width) => width <= maxWidth);
 }
-
-const baseName = getFileName(meta?.src);
-const [fileName, extName] = baseName.split(".");
 ---
 
-<figure class:list={["main-image", { "has-preview": meta !== undefined }]} data-src={meta?.src}>
+<figure class="main-image" data-src={meta?.src}>
 	<BaseImage
 		lqip={lqip}
 		src={src}
@@ -61,54 +53,18 @@ const [fileName, extName] = baseName.split(".");
 	<figcaption>
 		<slot />
 	</figcaption>
-
-	{
-		/* Image viewer - TODO: make this global to reduce document size */
-		meta && (
-			<article class="main-image-preview backdrop">
-				<div class="top-row">
-					<Badge type="beta" />
-
-					<div class="buttons">
-						<a
-							href={meta.src}
-							download={baseName}
-							title="Download"
-							aria-label="Download"
-						>
-							<FluentArrowDownload24Regular />
-						</a>
-						<button class="close-preview" title="Close" aria-label="Close">
-							<FluentDismiss24Regular />
-						</button>
-					</div>
-				</div>
-				{/*
-					Here we want to use the raw image, but because it's a lot bigger we don't want it to load immediately,
-					so it gets stored in an attribute to be loaded by JavaScript later.
-					This does thankfully work in the final build.
-				*/}
-				<img alt={alt} width={meta.width} height={meta.height} />
-				<footer>
-					{/* It's trying to add whitespaces here... */}
-					{/* prettier-ignore */}
-					<h2 class="title">
-						{fileName}<span class="file-type">.{extName}</span>
-						<span class="image-dimensions">
-							({meta.width} &times; {meta.height})
-						</span>
-					</h2>
-					<p>
-						<slot />
-					</p>
-					<LicenseNotice license={license} {...props} />
-				</footer>
-			</article>
-		)
-	}
 </figure>
 
+{
+	/* Prettier adds whitespace here, which causes styling issues with the media */
+	/* prettier-ignore */
+	meta && (
+		<ImageViewer client:idle alt={alt ?? ""} license={license} {...props} {...meta}><slot /></ImageViewer>
+	)
+}
+
 <script>
+	import { showMediaViewer } from "./viewers/MediaViewer";
 	import { preferences } from "../../scripts/preferences";
 	import { ImageRotation } from "../../types";
 	import { clamp } from "../../scripts/utils";
@@ -124,8 +80,8 @@ const [fileName, extName] = baseName.split(".");
 	function loadImages() {
 		root = document.querySelector("main") ?? document.body;
 		topbar = document.querySelector("header");
-
 		rotatingImages = [];
+
 		const images = document.querySelectorAll<HTMLElement>("figure.main-image");
 		for (const figure of images) {
 			const picture = figure.querySelector("picture");
@@ -133,35 +89,14 @@ const [fileName, extName] = baseName.split(".");
 				continue;
 			}
 
-			const preview = figure.querySelector<HTMLElement>(".main-image-preview");
-			if (preview) {
-				const image = preview.querySelector("img");
-
-				// Parent to the body to avoid issues with `position: fixed`
-				document.body.append(preview);
-
-				// Load the image when the viewer is opened
-				picture.addEventListener("click", () => {
-					if (image && !image.src && figure.dataset.src) {
-						image.src = figure.dataset.src;
-					}
-					preview.classList.add("open");
-				});
-
-				preview.addEventListener("click", (ev) => {
-					if (ev.target === preview) {
-						preview.classList.remove("open");
-					}
-				});
-
-				const closeButton = preview.querySelector(".close-preview");
-				closeButton?.addEventListener("click", () => {
-					preview.classList.remove("open");
-				});
+			const mediaSrc = figure.dataset.src;
+			if (mediaSrc) {
+				picture.addEventListener("click", () => showMediaViewer(mediaSrc));
 			}
 
 			rotatingImages.push(picture);
 		}
+
 		updateImages();
 	}
 
@@ -173,6 +108,9 @@ const [fileName, extName] = baseName.split(".");
 
 		let i = 0;
 		let shouldLog = false;
+		const rootBounds = root.getBoundingClientRect();
+		const topbarInset = topbar?.offsetHeight ?? 0;
+
 		if (ENABLE_LOGGING) {
 			const now = Date.now();
 			shouldLog = now - lastLogTime > 400;
@@ -181,16 +119,16 @@ const [fileName, extName] = baseName.split(".");
 			}
 		}
 
-		const rootBounds = root.getBoundingClientRect();
-		const topbarInset = topbar?.offsetHeight ?? 0;
-
 		for (const image of rotatingImages) {
 			const userRotate = ImageRotation[preferences.imageRotation.get()];
 			const imgRotate = ImageRotation[image.dataset.rotates as keyof typeof ImageRotation];
+
+			// Could this be simplified?
 			const rotates =
 				userRotate !== ImageRotation.never &&
 				imgRotate !== ImageRotation.never &&
 				imgRotate > userRotate;
+
 			image.classList.toggle("rotates", rotates);
 
 			// Determine where the image lies on the screen
@@ -283,7 +221,7 @@ const [fileName, extName] = baseName.split(".");
 			}
 		}
 
-		&.has-preview > picture {
+		&[data-src] > picture {
 			cursor: pointer;
 
 			@include preferences("fx") {
@@ -305,143 +243,6 @@ const [fileName, extName] = baseName.split(".");
 					));
 				}
 			}
-		}
-	}
-
-	// Image viewer
-	.main-image-preview {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		z-index: 2100;
-
-		.top-row {
-			display: flex;
-
-			width: 100%;
-			padding: $page-margin;
-			gap: size(10);
-
-			pointer-events: none;
-		}
-
-		@include preferences("fx") {
-			> img {
-				transition: transform 350ms $ease-out-back;
-				transform: scale(95%);
-			}
-
-			&.open > img {
-				transform: scale(100%);
-			}
-		}
-
-		&.open .buttons {
-			pointer-events: auto;
-		}
-
-		.buttons {
-			display: flex;
-			height: size(48);
-			overflow: hidden;
-			flex-shrink: 0;
-			margin-left: auto;
-
-			border: 1px solid var(--color-border);
-			border-radius: $radius-full;
-
-			a,
-			button {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-
-				width: size(48);
-				height: 100%;
-				padding: 0;
-
-				background-color: transparent;
-				border: none;
-				color: var(--color-text);
-
-				@include btn-transparent;
-				@include bounce-anim;
-			}
-
-			> * {
-				&:first-child {
-					padding-left: size(2);
-				}
-
-				&:last-child {
-					padding-right: size(2);
-				}
-
-				&:not(:last-child) {
-					border-right: 1px solid var(--color-border);
-				}
-			}
-
-			[data-icon] {
-				font-size: size(24);
-			}
-
-			.close-preview {
-				color: $red-450;
-
-				@include bounce-anim(1);
-			}
-		}
-
-		img {
-			max-width: calc(100% - $page-margin * 2);
-			object-fit: contain;
-			min-height: 0;
-			height: auto;
-		}
-
-		footer {
-			display: flex;
-			flex-direction: column;
-			gap: size(6);
-
-			width: 100%;
-			padding: $page-margin;
-			margin-top: $page-margin;
-			border-top: 1px solid var(--color-border);
-
-			> :global(*) {
-				margin: 0;
-			}
-
-			// Don't leave a gap if there's an empty element
-			> :global(:empty) {
-				display: none;
-			}
-
-			.title {
-				margin-bottom: size(2);
-				font-size: size(22);
-				font-weight: 650;
-			}
-
-			.file-type {
-				color: var(--color-dim);
-				font-size: size(18);
-				font-weight: 500;
-			}
-
-			.image-dimensions {
-				color: var(--color-dimmer);
-				font-size: size(16);
-				font-weight: 400;
-			}
-		}
-
-		.buttons,
-		footer {
-			background-color: var(--color-component);
 		}
 	}
 </style>

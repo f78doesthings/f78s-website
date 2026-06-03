@@ -11,13 +11,13 @@
 // TODO: pagination?
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { BLOG_TITLE } from "../../consts.ts";
-import Link from "../../components/nav/Link.astro";
-import Badge from "../../components/Badge.astro";
+import { BLOG_TITLE } from "../../consts.tsx";
+import Link from "../../components/nav/Link.tsx";
+import Badge from "../../components/Badge.tsx";
 import { type CollectionEntry, getCollection } from "astro:content";
 import BaseImage from "../../components/media/BaseImage.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
-import fallbackImage from "../../assets/blog-fallback.jpg";
+import fallbackImage from "../../assets/images/blog-fallback.jpg";
 import type { Props as PictureProps } from "astro/components/Picture.astro";
 import FluentEdit20Regular from "~icons/fluent/edit-20-regular";
 import FluentRss20Regular from "~icons/fluent/rss-20-regular";
@@ -52,8 +52,7 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		timestamp -= DAY_TIME * i;
 		posts.push({
 			title: `Placeholder ${i}`,
-			description:
-				"This is merely here to test out this page, and is not visible in production.",
+			description: "This is merely here to test out this page, and is not visible in production.",
 			pubDate: new Date(timestamp),
 			draft: true,
 			heroImage: fallbackImage,

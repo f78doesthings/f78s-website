@@ -9,14 +9,13 @@
 import type { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
-import { type PreferenceID, preferences } from "../../scripts/preferences";
 import { savePreferences } from "../../scripts/preferences/client.ts";
+import { type PreferenceID, preferences } from "../../scripts/preferences/index.tsx";
 import type { Preference } from "../../scripts/preferences/types/Preference.ts";
 import type { NotUndefined } from "../../types.ts";
 
 interface Props {
 	preference: PreferenceID;
-	children: ComponentChildren;
 
 	[cid: string]: unknown;
 }
@@ -25,12 +24,11 @@ export interface PreferenceControlState<T extends NotUndefined = NotUndefined> {
 	onInput: (value: unknown) => void;
 	value: T;
 	hidden: boolean;
-	children: ComponentChildren;
 	cid: Record<string, unknown>;
 }
 
 /** A helper component containing the actual control part of the PreferenceControl component. */
-export function InnerPreferenceControl({ preference: id, children: icons, ...cid }: Props) {
+export function InnerPreferenceControl({ preference: id, ...cid }: Props) {
 	const preference: Preference = preferences[id];
 	const [value, setValue] = useState(preference.fallbackValue);
 	const [hidden, setHidden] = useState(true);
@@ -45,7 +43,7 @@ export function InnerPreferenceControl({ preference: id, children: icons, ...cid
 	const update = () => {
 		setValue(preference.get());
 		setHidden(preference.isAvailable());
-		//console.debug(preference.id, value, hidden);
+		console.debug(preference.id, value, hidden);
 	};
 	useEffect(() => {
 		document.addEventListener("custom:preferences-updated", update);
@@ -57,7 +55,6 @@ export function InnerPreferenceControl({ preference: id, children: icons, ...cid
 		onInput,
 		value,
 		hidden,
-		children: icons,
 		cid,
 	};
 	return preference.toComponent(state);

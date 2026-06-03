@@ -1,0 +1,36 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+@use "../../../styles/colors" as *;
+
+.image {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+.error {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: size(8);
+
+	p {
+		margin: 0;
+	}
+
+	[data-icon] {
+		font-size: size(48);
+		color: $red-450;
+
+		@include preferences("fx") {
+			mask: linear-gradient(black, rgb(0 0 0 / 80%));
+		}
+	}
+}

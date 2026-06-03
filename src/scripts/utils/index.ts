@@ -9,7 +9,22 @@
 import type { CollectionEntry } from "astro:content";
 
 // A bunch of miscellaneous utilities.
-import { BADGES, SITE_LANGUAGE } from "../../consts.ts";
+import { BADGES, SITE_LANGUAGE } from "../../consts.tsx";
+
+export function getFileName(src?: string) {
+	if (!src) {
+		return "";
+	}
+
+	const lastSlashIndex = src.lastIndexOf("/");
+	const baseName = src.substring(lastSlashIndex + 1).replace(/\?.*$/, "");
+	const firstDotIndex = baseName.indexOf(".");
+	const lastDotIndex = baseName.lastIndexOf(".");
+	const fileName = baseName.substring(0, firstDotIndex);
+	const extName = baseName.substring(lastDotIndex);
+
+	return fileName + extName;
+}
 
 export function asDate(value: unknown) {
 	if (value instanceof Date || typeof value === "string" || typeof value === "number") {

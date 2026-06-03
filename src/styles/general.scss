@@ -11,41 +11,59 @@
 @use "sass:color";
 
 :root {
-	// Colours
-	--color-page: #{$zinc-950};
-	--color-component: #{$zinc-900};
-	--color-border: #{$zinc-675};
-	--color-heading: #{$taupe-50};
-	--color-text: #{$taupe-100};
-	--color-dim: #{$stone-325};
-	--color-dimmer: #{$neutral-450};
+	// Dark colours
+	--color-page-dark: #{$zinc-950};
+	--color-component-dark: #{$zinc-900};
+	--color-border-dark: #{$zinc-675};
+	--color-heading-dark: #{$taupe-50};
+	--color-text-dark: #{$taupe-100};
+	--color-dim-dark: #{$stone-325};
+	--color-dimmer-dark: #{$neutral-450};
+
+	// Light colours
+	--color-page-light: white;
+	--color-component-light: #{$taupe-100};
+	--color-border-light: #{$taupe-300};
+	--color-heading-light: #{$zinc-950};
+	--color-text-light: #{$zinc-900};
+	--color-dim-light: #{$zinc-625};
+	--color-dimmer-light: #{$neutral-500};
+
+	// Current colours
+	--color-page: var(--color-page-dark);
+	--color-component: var(--color-component-dark);
+	--color-border: var(--color-border-dark);
+	--color-heading: var(--color-heading-dark);
+	--color-text: var(--color-text-dark);
+	--color-dim: var(--color-dim-dark);
+	--color-dimmer: var(--color-dimmer-dark);
 
 	color-scheme: only dark;
 	accent-color: $red-575;
 
 	@media (prefers-contrast: more) {
-		--color-border: #{$neutral-500};
-		--color-dim: #{$stone-250};
-		--color-dimmer: #{$neutral-350};
+		// Dark
+		--color-border-dark: #{$neutral-500};
+		--color-dim-dark: #{$stone-250};
+		--color-dimmer-dark: #{$neutral-350};
+
+		// Light
+		--color-border-light: #{$neutral-500};
+		--color-dim-light: #{$zinc-775};
+		--color-dimmer-light: #{$neutral-650};
 	}
 
 	@include preferences("light", $is-root: true) {
-		--color-page: white;
-		--color-component: #{$taupe-100};
-		--color-border: #{$taupe-300};
-		--color-heading: #{$zinc-950};
-		--color-text: #{$zinc-900};
-		--color-dim: #{$zinc-625};
-		--color-dimmer: #{$neutral-500};
+		--color-page: var(--color-page-light);
+		--color-component: var(--color-component-light);
+		--color-border: var(--color-border-light);
+		--color-heading: var(--color-heading-light);
+		--color-text: var(--color-text-light);
+		--color-dim: var(--color-dim-light);
+		--color-dimmer: var(--color-dimmer-light);
 
 		color-scheme: only light;
 		accent-color: $red-625;
-
-		@media (prefers-contrast: more) {
-			--color-border: #{$neutral-500};
-			--color-dim: #{$zinc-775};
-			--color-dimmer: #{$neutral-650};
-		}
 	}
 
 	// Make sure the target we're scrolling to is in view (does not account for banners yet)
@@ -56,7 +74,7 @@
 	}
 
 	// Prevent scrolling when a pop-up is open
-	&:has(> body > .open) {
+	&:has(> body > .open, > body > #media-viewer-root > .open) {
 		overflow: hidden;
 	}
 
@@ -70,9 +88,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	// Forcefully disable all animations. A bit excessive perhaps, but I guess it works.
 	*,
-	*::before,
-	*::after {
+	::before,
+	::after {
 		transition: none !important;
 		animation: none !important;
 	}
@@ -114,7 +133,7 @@ body {
 		}
 	}
 
-	@media (min-width: $breakpoint-desktop) {
+	@media screen and (min-width: $breakpoint-desktop) {
 		display: grid;
 		place-items: start center;
 		grid-template:
@@ -196,6 +215,7 @@ body {
 		margin: 0;
 	}
 
+	&:empty,
 	&[hidden],
 	[hidden] {
 		display: none;
@@ -204,6 +224,7 @@ body {
 	@include glass;
 
 	@media (min-width: $breakpoint-desktop) {
+		// TODO: having an exact pixel count here is not ideal...
 		left: size(302);
 	}
 }
@@ -292,6 +313,11 @@ small a,
 
 		vertical-align: middle;
 		font-size: size(16);
+
+		// No need to show the external icon when printing
+		@media print {
+			display: none;
+		}
 	}
 
 	@include hover {
@@ -369,12 +395,16 @@ main {
 	padding: 0 $page-margin;
 	line-height: 1.25;
 
+	@media print {
+		padding: 0;
+	}
+
 	@include preferences("bg") {
 		background-color: color-mix(in srgb, var(--color-page), transparent 35%);
 	}
 
 	@include preferences("fx", "bg") {
-		backdrop-filter: blur(size(1.5));
+		backdrop-filter: blur(size(2));
 	}
 
 	@media (min-width: $breakpoint-desktop) {
@@ -618,7 +648,12 @@ body > footer {
 	}
 
 	@include preferences("bg", "fx") {
-		backdrop-filter: blur(size(1.5));
+		backdrop-filter: blur(size(2));
+	}
+
+	@media print {
+		box-shadow: none;
+		padding-inline: 0;
 	}
 
 	> * {
@@ -644,7 +679,7 @@ body > footer {
 
 	pointer-events: none;
 	visibility: collapse;
-	transition: all 275ms ease allow-discrete;
+	transition: all $anim-fade allow-discrete;
 
 	:not(.backdrop).open + &,
 	&.open {

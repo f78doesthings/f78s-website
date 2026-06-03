@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { preferences } from "./preferences";
 import { loadPreferences } from "./preferences/client.ts";
+import { preferences } from "./preferences/index.tsx";
 import { EnumPreference } from "./preferences/types/EnumPreference.tsx";
 import { TogglePreference } from "./preferences/types/TogglePreference.tsx";
 import { isOnPage } from "./utils";

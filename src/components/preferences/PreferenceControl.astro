@@ -11,11 +11,10 @@
 
 import { EnumPreference } from "../../scripts/preferences/types/EnumPreference.tsx";
 import { InnerPreferenceControl } from "./InnerPreferenceControl.tsx";
-import { type PreferenceID, preferences } from "../../scripts/preferences";
+import { type PreferenceID, preferences } from "../../scripts/preferences/index.tsx";
 import { NumberPreference } from "../../scripts/preferences/types/NumberPreference.tsx";
 import { getDependencyString } from "../../scripts/preferences/utils.ts";
 import { TogglePreference } from "../../scripts/preferences/types/TogglePreference.tsx";
-import DynamicIcon from "../media/DynamicIcon.astro";
 
 interface Props {
 	/** The preference to create a control for. */
@@ -116,6 +115,7 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 }
 
 const dependencyVars = getDependencyString(preference.dependencies);
+const PreferenceIcon = preference.icon ?? (() => undefined);
 ---
 
 <label
@@ -133,7 +133,7 @@ const dependencyVars = getDependencyString(preference.dependencies);
 		"mobile-margin": !noMobile,
 	}}
 >
-	{hasIcon && <DynamicIcon name={preference.icon} size={30} {...cid} />}
+	{hasIcon && <PreferenceIcon {...cid} />}
 	{
 		hasTitle && (
 			<span class="title" {...cid}>
@@ -149,17 +149,11 @@ const dependencyVars = getDependencyString(preference.dependencies);
 		)
 	}
 
-	<InnerPreferenceControl client:load preference={id} {...cid}>
-		{
-			icons.map(([icon, option]) => (
-				<DynamicIcon name={icon} data-option-icon={option} class="before-input" size={20} />
-			))
-		}
-	</InnerPreferenceControl>
+	<InnerPreferenceControl client:load preference={id} {...cid} />
 </label>
 
 <script>
-	import { preferences, type PreferenceID } from "../../scripts/preferences";
+	import { preferences, type PreferenceID } from "../../scripts/preferences/index.tsx";
 	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils.ts";
 	import type { NotUndefined } from "../../types";
 
@@ -171,8 +165,7 @@ const dependencyVars = getDependencyString(preference.dependencies);
 				continue;
 			}
 
-			const dependencies: MapEntries<PreferenceID, NotUndefined[]> =
-				JSON.parse(jsonDependencies);
+			const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
 			const resolved = dependencies.map(
 				([id, expectedValues]) => [preferences[id], expectedValues] as const,
 			);
@@ -211,8 +204,9 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			display: none;
 		}
 
-		[data-icon] {
+		> [data-icon] {
 			grid-area: icon;
+			font-size: size(30);
 		}
 
 		.title {
@@ -236,7 +230,7 @@ const dependencyVars = getDependencyString(preference.dependencies);
 			grid-area: before-input;
 			margin-right: -0.75rem;
 
-			&.hidden {
+			&[hidden] {
 				display: none;
 			}
 		}

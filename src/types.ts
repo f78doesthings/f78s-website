@@ -7,15 +7,16 @@
  */
 
 import type { CollectionEntry } from "astro:content";
+import type { JSX, SVGAttributes } from "preact";
 
-import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.ts";
+import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 
 //#region Badges & tags
 
 export type BadgeType = (typeof BADGE_TYPES)[number];
 
 export interface Badge {
-	icon: string;
+	icon: IconComponent;
 	title: string;
 	description: string;
 	inactive?: boolean;
@@ -31,7 +32,7 @@ export type LicenseType = "publicDomain" | "open";
 
 /** Information about a licence. */
 export interface License {
-	icons: string[];
+	icons?: IconComponent;
 	title: string;
 	url: string;
 	type: LicenseType;
@@ -40,7 +41,9 @@ export interface License {
 /** Information about the copyright and/or licence of a work. */
 export interface CopyrightInfo {
 	/**
-	 * The licence this work is under. If `null`, the work is considered to be copyrighted (i.e. all rights reserved).
+	 * The licence this work is under. If `null`, the work is considered to be copyrighted (i.e. all
+	 * rights reserved).
+	 *
 	 * @default CC-BY-SA-4.0
 	 */
 	license?: KnownLicense | null;
@@ -50,6 +53,7 @@ export interface CopyrightInfo {
 
 	/**
 	 * The creator of this work.
+	 *
 	 * @default SITE_AUTHOR (f78)
 	 */
 	createdBy?: string;
@@ -68,8 +72,8 @@ export interface MediaInfo extends CopyrightInfo {
 	/**
 	 * The media file to embed.
 	 *
-	 * You can pass `import(path)` to this like you would for images.
-	 * This is the recommended approach for local media files.
+	 * You can pass `import(path)` to this like you would for images. This is the recommended approach
+	 * for local media files.
 	 */
 	src?: MediaSource;
 }
@@ -77,6 +81,8 @@ export interface MediaInfo extends CopyrightInfo {
 //#endregion
 
 //#region Miscellaneous
+
+export type IconComponent = (props: SVGAttributes<SVGSVGElement>) => JSX.Element;
 
 export type Replace<T, U> = Omit<T, keyof U> & U;
 
