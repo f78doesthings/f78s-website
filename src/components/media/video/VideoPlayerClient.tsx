@@ -85,6 +85,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 			containerRef={root}
 			containerClass={`${styles["video-player-container"]} ${className}`}
 			contentClass={styles["video-player-content"]}
+			focusable
 			forceOverlays={isPaused.value}
 			lockBottom={!isFullscreen.value}
 			top={
