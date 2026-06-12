@@ -9,33 +9,27 @@
 
 // A (currently simple) audio player.
 
-import type { MediaInfo, Replace } from "../../types.ts";
+import type { MediaInfo, Replace } from "../../../types.ts";
 import type { HTMLAttributes } from "astro/types";
-import { getFileName, resolveMedia } from "../../server-utils";
-import LicenseNotice from "./utils/LicenseNotice.tsx";
+import { resolveMedia } from "../../../server-utils";
+import { AudioPlayerClient } from "./AudioPlayerClient.tsx";
 
 type Props = Replace<HTMLAttributes<"audio">, MediaInfo>;
 
 const { src, license = "CC-BY-SA-4.0", ...props } = Astro.props;
 const resolvedSrc = await resolveMedia(src);
-const baseName = getFileName(resolvedSrc);
+if (!resolvedSrc) {
+	throw new Error(`Could not resolve media source: ${src}`);
+}
+
+// `as any` added to hide error messages from Astro/Preact attribute incompatibility (not ideal)
 ---
 
 <figure>
-	<audio src={resolvedSrc} controls preload="metadata" {...props}>
-		{
-			resolvedSrc && (
-				<p>
-					Can't play this back?
-					<a href={resolvedSrc} download={baseName}>
-						Download the audio file here.
-					</a>
-				</p>
-			)
-		}
-	</audio>
+	<AudioPlayerClient client:visible src={resolvedSrc} license={license} {...props as any}
+		><slot /></AudioPlayerClient
+	>
 	<figcaption>
 		<slot />
-		<LicenseNotice license={license} {...props} />
 	</figcaption>
 </figure>

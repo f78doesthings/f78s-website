@@ -1,0 +1,56 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+@use "../../../styles/colors" as *;
+
+.media-controls {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	user-select: none;
+}
+
+.inner-controls {
+	display: flex;
+	align-items: center;
+	gap: size(10);
+
+	.mute-button {
+		padding-right: size(2);
+	}
+
+	.volume-slider {
+		min-width: 0;
+		margin-right: size(0);
+		transition: all $anim-fade;
+	}
+
+	@media (hover: hover) {
+		.mute-button:hover + .volume-slider,
+		.volume-slider:hover,
+		.volume-slider:global(.dragging) {
+			min-width: size(100);
+			margin-right: size(16);
+		}
+	}
+
+	.time-code {
+		flex-grow: 1;
+		font-family: var(--font-mono), monospace;
+		font-size: size(14);
+
+		.separator {
+			color: color-mix(in srgb, currentcolor, transparent 40%);
+		}
+
+		.total-time {
+			color: color-mix(in srgb, currentcolor, transparent 20%);
+		}
+	}
+}

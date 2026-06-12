@@ -45,13 +45,17 @@
 }
 
 .badge-inactive {
-	@include badge-color($taupe-200, $taupe-300, $taupe-600, $taupe-700);
+	@include badge-color($slate-225, $slate-325, $slate-600, $slate-700);
 }
 
 .badge-archived {
-	@include badge-color($orange-200, $orange-300, $yellow-700, $yellow-900);
+	@include badge-color($taupe-225, $taupe-325, $taupe-600, $taupe-700);
 }
 
 .badge-beta {
 	@include badge-color($purple-200, $indigo-300, $purple-700, $indigo-800);
+}
+
+.badge-alpha {
+	@include badge-color($amber-200, $orange-300, $yellow-625, $amber-800);
 }

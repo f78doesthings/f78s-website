@@ -1,0 +1,39 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+@use "../../../styles/colors" as *;
+
+.video-player-container {
+	&:not(:fullscreen) {
+		.video {
+			border-radius: size(16);
+		}
+
+		.visualizer {
+			display: none;
+		}
+	}
+}
+
+.video-player-content {
+	display: flex;
+	flex-direction: column;
+
+	.video {
+		width: 100%;
+		height: auto;
+	}
+
+	.visualizer {
+		width: 100%;
+		flex-grow: 1;
+		min-height: 0;
+		max-height: calc(50svh - 10svw);
+	}
+}

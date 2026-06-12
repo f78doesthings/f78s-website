@@ -9,12 +9,12 @@
 
 // Displays a single preference.
 
-import { EnumPreference } from "../../scripts/preferences/types/EnumPreference.tsx";
-import { InnerPreferenceControl } from "./InnerPreferenceControl.tsx";
-import { type PreferenceID, preferences } from "../../scripts/preferences/index.tsx";
-import { NumberPreference } from "../../scripts/preferences/types/NumberPreference.tsx";
-import { getDependencyString } from "../../scripts/preferences/utils.ts";
-import { TogglePreference } from "../../scripts/preferences/types/TogglePreference.tsx";
+import { EnumPreference } from "../../scripts/preferences/types/EnumPreference";
+import { InnerPreferenceControl } from "./InnerPreferenceControl";
+import { type PreferenceID, preferences } from "../../scripts/preferences/index";
+import { NumberPreference } from "../../scripts/preferences/types/NumberPreference";
+import { getDependencyString } from "../../scripts/preferences/utils";
+import { TogglePreference } from "../../scripts/preferences/types/TogglePreference";
 
 interface Props {
 	/** The preference to create a control for. */
@@ -153,8 +153,8 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 </label>
 
 <script>
-	import { preferences, type PreferenceID } from "../../scripts/preferences/index.tsx";
-	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils.ts";
+	import { preferences, type PreferenceID } from "../../scripts/preferences/index";
+	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils";
 	import type { NotUndefined } from "../../types";
 
 	document.addEventListener("custom:preferences-updated", () => {
@@ -250,7 +250,8 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 
 		input,
 		select,
-		textarea {
+		textarea,
+		.slider {
 			grid-area: input;
 		}
 

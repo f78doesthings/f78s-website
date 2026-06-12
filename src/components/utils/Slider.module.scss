@@ -1,0 +1,96 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../styles/utils" as *;
+@use "../../styles/colors" as *;
+
+@mixin thumb-visible {
+	@include hover {
+		@content;
+	}
+
+	@include active {
+		@content;
+	}
+
+	&.show-thumb {
+		@content;
+	}
+}
+
+.slider {
+	display: flex;
+	align-items: center;
+
+	padding-block: size(12);
+	cursor: pointer;
+
+	// Prevent drags from getting cancelled
+	touch-action: none;
+	user-select: none;
+
+	// Default width
+	min-width: size(100);
+
+	.track {
+		position: relative;
+		background: linear-gradient(hsl(0deg 0% 55% / 30%), hsl(0deg 0% 50% / 30%));
+		width: 100%;
+		height: size(4);
+		border-radius: $radius-full;
+
+		.primary-fill,
+		.secondary-fill {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: calc(var(--fill-percent) * 100%);
+			height: 100%;
+			border-radius: inherit;
+		}
+
+		.primary-fill {
+			background: linear-gradient($red-500, $red-600);
+
+			@include neon;
+		}
+
+		.secondary-fill {
+			background: linear-gradient(hsl(0deg 0% 55% / 25%), hsl(0deg 0% 50% / 25%));
+		}
+	}
+
+	.thumb {
+		--translation: calc(var(--fill-percent) * -100% + (var(--fill-percent) * 2 - 1) * 2px);
+
+		position: absolute;
+		top: 50%;
+		left: 100%;
+		width: size(14);
+		height: size(14);
+		z-index: 1;
+		offset-anchor: var(--fill-percent) 50%;
+
+		background: inherit;
+		border: size(2) solid var(--color-page);
+		border-radius: inherit;
+
+		transform-origin: calc(var(--translation) * -1) 50%;
+		translate: var(--translation) -50%;
+		scale: 0%;
+		transition: scale $anim-ease;
+
+		@include neon;
+	}
+
+	@include thumb-visible {
+		.thumb {
+			scale: 100%;
+		}
+	}
+}

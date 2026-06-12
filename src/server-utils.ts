@@ -10,26 +10,10 @@
 
 import * as child_process from "node:child_process";
 import * as fs from "node:fs";
-import * as path from "node:path";
 
 import type { UnresolvedImageTransform } from "astro";
 
 import type { MediaSource } from "./types.ts";
-
-/** @deprecated Use getFileName from scripts/utils/index.ts instead, which works on the client */
-export function getFileName(src?: string) {
-	if (!src) {
-		return "";
-	}
-
-	const baseName = path.basename(src).replace(/\?.*$/, "");
-	const firstDotIndex = baseName.indexOf(".");
-	const lastDotIndex = baseName.lastIndexOf(".");
-	const fileName = baseName.substring(0, firstDotIndex);
-	const extName = baseName.substring(lastDotIndex);
-
-	return fileName + extName;
-}
 
 export function getModifiedTime(filePath: string) {
 	try {

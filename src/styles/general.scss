@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../styles/utils" as *;
-@use "../styles/colors" as *;
+@use "./utils" as *;
+@use "./colors" as *;
 @use "sass:color";
 
 :root {
@@ -73,12 +73,13 @@
 		scroll-padding-top: $page-margin;
 	}
 
-	// Prevent scrolling when a pop-up is open
+	// Prevent scrolling when a pop-up is open (for browsers that support :has)
 	&:has(> body > .open, > body > #media-viewer-root > .open) {
 		overflow: hidden;
 	}
 
-	// TODO: this leaves a rather ugly gap on the right, is there a better solution for this?
+	// TODO: this leaves a rather ugly gap on the right (including in fullscreen mode),
+	//       is there a better solution for this?
 	scrollbar-gutter: stable;
 
 	// For older Safari versions
@@ -88,7 +89,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	// Forcefully disable all animations. A bit excessive perhaps, but I guess it works.
+	// Forcefully disable all animations. Perhaps a bit excessive, but I guess it works.
 	*,
 	::before,
 	::after {
@@ -338,6 +339,123 @@ small a,
 		@include active {
 			color: $red-912;
 		}
+	}
+}
+
+// Media elements (note: pretty scuffed)
+$media-button-size: size(44);
+
+.btn-media,
+.btn-media-group {
+	background-color: var(--color-component);
+	color: var(--color-text);
+
+	border: 1px solid var(--color-border);
+	border-radius: $radius-full;
+
+	// BUG: this annoyingly creates a backdrop root, preventing popup menus
+	// from having any background blur
+	@include glass;
+
+	@media not (prefers-contrast: more) {
+		@include preferences("fx") {
+			background-color: color-mix(in srgb, var(--color-component), transparent 35%);
+		}
+	}
+}
+
+.btn-media,
+.btn-media-group {
+	display: flex;
+	flex-shrink: 0;
+	height: $media-button-size;
+
+	main & {
+		box-shadow: none;
+	}
+
+	[data-icon] {
+		font-size: size(24);
+	}
+}
+
+.btn-media {
+	align-items: center;
+	justify-content: center;
+	width: $media-button-size;
+
+	@include btn-transparent;
+}
+
+.btn-media-group {
+	a,
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		width: $media-button-size;
+		height: 100%;
+		padding: 0;
+
+		background-color: transparent;
+		border: none;
+		color: inherit;
+		text-decoration: none;
+
+		@include btn-transparent;
+	}
+
+	.btn-media-close {
+		color: $red-450;
+
+		@include preferences("light") {
+			color: $red-500;
+		}
+	}
+
+	> :not(.slider) {
+		&:not(.popup-container):first-child,
+		&.popup-container:first-child > button {
+			width: size(43);
+			padding-left: size(2);
+			border-top-left-radius: $radius-full;
+			border-bottom-left-radius: $radius-full;
+
+			@include bounce-anim($selector: "> [data-icon]");
+		}
+
+		&:nth-last-child(n + 3) {
+			@include bounce-anim($selector: "> [data-icon]");
+		}
+
+		&:nth-last-child(2) {
+			@include bounce-anim(0, "> [data-icon]");
+		}
+
+		&:not(.popup-container):last-child,
+		&.popup-container:last-child > button {
+			width: size(43);
+			padding-right: size(2);
+			border-top-right-radius: $radius-full;
+			border-bottom-right-radius: $radius-full;
+
+			@include bounce-anim(1, "> [data-icon]");
+		}
+
+		&:not(.popup-container):first-child:last-child,
+		&.popup-container:first-child:last-child > button {
+			width: size(42);
+		}
+
+		&:not(:first-child) {
+			border-left: inherit;
+		}
+	}
+
+	> .slider {
+		height: 100%;
+		margin-right: size(14);
 	}
 }
 

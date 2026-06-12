@@ -7,8 +7,9 @@
  */
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
+import { Slider } from "../../../components/utils/Slider.tsx";
 import { SITE_LANGUAGE } from "../../../consts.tsx";
-import { clampStepped } from "../../utils";
+import { clamp } from "../../utils";
 import { Preference, type PreferenceConfig } from "./Preference.ts";
 
 interface NumberPreferenceConfig extends PreferenceConfig<number> {
@@ -61,12 +62,12 @@ export class NumberPreference<K extends string>
 		this.min = min;
 		this.max = max;
 		this.step = step;
-		this.useSlider = useSlider && min >= -Number.MAX_VALUE && max <= Number.MAX_VALUE;
+		this.useSlider = useSlider && min > -Number.MAX_VALUE && max < Number.MAX_VALUE;
 		this.format = config.format ?? ((value) => value.toLocaleString(SITE_LANGUAGE));
 	}
 
 	override validate(value: unknown) {
-		const number = clampStepped(Number(value), this.min, this.max, this.step);
+		const number = clamp(Number(value), this.min, this.max, this.step);
 		return isFinite(number) ? number : undefined;
 	}
 
@@ -76,24 +77,32 @@ export class NumberPreference<K extends string>
 
 	override toComponent({ onInput, value, cid }: PreferenceControlState<number>) {
 		//console.debug("initial:", this.id, value);
-		return (
+		return this.useSlider ? (
 			<>
-				{this.useSlider && (
-					<span class="before-input number-display" {...cid}>
-						{this.format(value)}
-					</span>
-				)}
-				<input
-					name={this.id}
-					type={this.useSlider ? "range" : "number"}
+				<span class="before-input number-display" {...cid}>
+					{this.format(value)}
+				</span>
+				<Slider
 					{...cid}
 					min={this.min}
 					max={this.max}
 					step={this.step}
 					value={value}
-					onInput={(e) => onInput(e.currentTarget.valueAsNumber)}
+					alwaysShowThumb
+					onDrag={({ newValue }) => onInput(newValue)}
 				/>
 			</>
+		) : (
+			<input
+				name={this.id}
+				type={this.useSlider ? "range" : "number"}
+				min={this.min}
+				max={this.max}
+				step={this.step}
+				value={value}
+				onInput={(e) => onInput(e.currentTarget.valueAsNumber)}
+				{...cid}
+			/>
 		);
 	}
 }

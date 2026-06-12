@@ -18,5 +18,42 @@
 	},
 
 	// Spellcheck (optional, for Code Spell Checker w/ British English dictionary)
-	"cSpell.language": "en-GB"
+	"cSpell.language": "en-GB",
+
+	// Copyright (WIP)
+	"psi-header.config": {
+		"forceToTop": true,
+		"blankLinesAfter": 1,
+		"author": "f78",
+		"license": "MPL-2.0"
+	},
+	"psi-header.changes-tracking": {
+		"isActive": true,
+		"enforceHeader": true,
+		"excludeGlob": ["**/settings.json", "**/.gitignore", "**/.gitattributes", "**/.gitmodules"],
+		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx"]
+	},
+	"psi-header.templates": [
+		{
+			"language": "*",
+			"template": [
+				"Copyright (c) <<year>> <<author>>.",
+				"",
+				"This Source Code Form is subject to the terms of the Mozilla Public",
+				"License, v. 2.0. If a copy of the MPL was not distributed with this",
+				"file, You can obtain one at https://mozilla.org/MPL/2.0/."
+			]
+		}
+	],
+	"psi-header.lang-config": [
+		{
+			// BUG: this likes to insert a bogus --- after the header
+			"language": "astro",
+			"beforeHeader": ["---"]
+		},
+		{
+			"language": "scss",
+			"begin": "/*!"
+		}
+	]
 }

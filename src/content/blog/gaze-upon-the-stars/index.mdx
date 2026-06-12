@@ -11,8 +11,8 @@ heroCreatedIn: "2026"
 import Alert from "../../../components/Alert.astro";
 import Link from "../../../components/nav/Link.tsx";
 import MainImage from "../../../components/media/MainImage.astro";
-import AudioPlayer from "../../../components/media/AudioPlayer.astro";
-import VideoPlayer from "../../../components/media/VideoPlayer.astro";
+import AudioPlayer from "../../../components/media/audio/AudioPlayer.astro";
+import VideoPlayer from "../../../components/media/video/VideoPlayer.astro";
 
 import "./styles.scss";
 
@@ -534,6 +534,11 @@ Those were a lot of interesting sounds. Again, perhaps not the best in isolation
 together to form a quite good song, if I do say so myself. And of course, this wouldn't be possible
 without [the original Stargazer](https://www.youtube.com/watch?v=DxwxWrndCxk), so big thank you to
 everyone at Minimin!
+
+In case you need a reminder of what the final song sounds like, or you just want to look at it
+through the fancy new visualizers I added to the website, here you go:
+
+<AudioPlayer src={import("./assets/audio/gaze-upon-the-stars.m4a")} createdIn="2026" loop />
 
 I initially wanted this blog post to cover both the song and its music video, however because it has
 been spiralling out of control I decided to split it up into 2 parts. The next part, which will be

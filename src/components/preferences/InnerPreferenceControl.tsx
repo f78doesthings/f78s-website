@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
 import { savePreferences } from "../../scripts/preferences/client.ts";
@@ -43,7 +42,7 @@ export function InnerPreferenceControl({ preference: id, ...cid }: Props) {
 	const update = () => {
 		setValue(preference.get());
 		setHidden(preference.isAvailable());
-		console.debug(preference.id, value, hidden);
+		//console.debug(preference.id, value, hidden);
 	};
 	useEffect(() => {
 		document.addEventListener("custom:preferences-updated", update);

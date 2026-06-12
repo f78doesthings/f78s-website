@@ -78,10 +78,13 @@ export class DebugDisplay implements DebugDisplayConfig {
 	readonly category;
 	readonly dependencies;
 	readonly format;
+
 	isVisible = false;
-	#value?: unknown;
+
 	readonly #nameElement;
 	readonly #valueElement;
+
+	#value?: unknown;
 
 	constructor(config: DebugDisplayConfig, initialValue?: unknown) {
 		this.name = config.name;

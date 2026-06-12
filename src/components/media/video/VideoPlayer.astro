@@ -10,9 +10,9 @@
 // A (currently simple) video player.
 
 import type { HTMLAttributes } from "astro/types";
-import type { MediaInfo, Replace } from "../../types.ts";
-import { getFileName, resolveMedia } from "../../server-utils";
-import LicenseNotice from "./utils/LicenseNotice.tsx";
+import type { MediaInfo, Replace } from "../../../types.ts";
+import { resolveMedia } from "../../../server-utils";
+import { VideoPlayerClient } from "./VideoPlayerClient";
 
 type Props = Replace<
 	HTMLAttributes<"video">,
@@ -27,31 +27,14 @@ type Props = Replace<
 
 const { src, license = "CC-BY-SA-4.0", ...props } = Astro.props;
 const resolvedSrc = await resolveMedia(src);
-const baseName = getFileName(resolvedSrc);
+if (!resolvedSrc) {
+	throw new Error(`Could not resolve media source: ${src}`);
+}
 ---
 
 <figure>
-	<video src={resolvedSrc} controls preload="metadata" {...props}>
-		{
-			resolvedSrc && (
-				<p>
-					Can't play this back?{" "}
-					<a href={resolvedSrc} download={baseName}>
-						Download the video file here.
-					</a>
-				</p>
-			)
-		}
-	</video>
+	<VideoPlayerClient client:visible src={resolvedSrc} license={license} {...props as any} />
 	<figcaption>
 		<slot />
-		<LicenseNotice license={license} {...props} />
 	</figcaption>
 </figure>
-
-<style lang="scss">
-	video {
-		max-width: 100%;
-		height: auto;
-	}
-</style>

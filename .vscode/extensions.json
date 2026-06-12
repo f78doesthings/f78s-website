@@ -1,9 +1,4 @@
 {
-	"recommendations": [
-		"astro-build.astro-vscode",
-		"oxc.oxc-vscode",
-		"stylelint.vscode-stylelint",
-		"raczzalan.webgl-glsl-editor"
-	],
+	"recommendations": ["astro-build.astro-vscode", "oxc.oxc-vscode", "stylelint.vscode-stylelint"],
 	"unwantedRecommendations": []
 }

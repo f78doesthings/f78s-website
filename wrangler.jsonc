@@ -1,6 +1,6 @@
 {
 	"name": "f78s-website",
-	"compatibility_date": "2026-06-03",
+	"compatibility_date": "2026-06-12",
 	"send_metrics": false,
 	"dev": {
 		"ip": "0.0.0.0",

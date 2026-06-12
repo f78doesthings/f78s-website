@@ -56,21 +56,6 @@ const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
 			opacity: 0.5;
 		}
 
-		&::after {
-			position: absolute;
-			inset: 0;
-
-			background: inherit;
-			filter: blur(size(3));
-			opacity: 0.65;
-
-			@include preferences("fx") {
-				content: "";
-			}
-
-			@include preferences("light") {
-				opacity: 0.35;
-			}
-		}
+		@include neon;
 	}
 </style>

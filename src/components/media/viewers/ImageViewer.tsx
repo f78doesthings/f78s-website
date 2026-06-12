@@ -39,5 +39,5 @@ function InnerImageViewer(props: Props) {
 }
 
 export function ImageViewer(props: Props) {
-	registerMedia(props, InnerImageViewer);
+	return registerMedia(props, InnerImageViewer);
 }

@@ -12,6 +12,7 @@ import CibCreativeCommonsSa from "~icons/cib/creative-commons-sa";
 import CibCreativeCommonsZero from "~icons/cib/creative-commons-zero";
 import FluentArchive20Regular from "~icons/fluent/archive-20-regular";
 import FluentBeaker20Regular from "~icons/fluent/beaker-20-regular";
+import FluentBug20Regular from "~icons/fluent/bug-20-regular";
 import FluentNew20Regular from "~icons/fluent/new-20-regular";
 import FluentPauseCircle20Regular from "~icons/fluent/pause-circle-20-regular";
 
@@ -23,7 +24,7 @@ export const SITE_LANGUAGE = "en-GB-oxendict";
 export const SITE_AUTHOR = "f78";
 export const BLOG_TITLE = "f78's Blog of Things";
 
-export const BADGE_TYPES = ["new", "inactive", "archived", "beta"] as const;
+export const BADGE_TYPES = ["new", "inactive", "archived", "beta", "alpha"] as const;
 export const BADGES: Record<BadgeType, Badge> = {
 	new: {
 		title: "New!",
@@ -35,6 +36,12 @@ export const BADGES: Record<BadgeType, Badge> = {
 		description:
 			"This part of the website is still being worked on. Report any issues you find on GitHub.",
 		icon: FluentBeaker20Regular,
+	},
+	alpha: {
+		title: "Alpha",
+		description:
+			"This part of the website is especially experimental and unstable. Here be dragons.",
+		icon: FluentBug20Regular,
 	},
 	inactive: {
 		title: "Inactive",

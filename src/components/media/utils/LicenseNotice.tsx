@@ -28,7 +28,7 @@ export default function LicenseNotice({
 	const copyrightString =
 		type === "publicDomain"
 			? `By ${createdBy}${createdIn ? `, ${createdIn}` : ""}.`
-			: `${type === "open" ? "🄯" : "©"} ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`;
+			: `© ${createdIn ? ` ${createdIn}` : ""} ${createdBy}.`;
 
 	const message = type ? MESSAGES[type] : " All rights reserved.";
 

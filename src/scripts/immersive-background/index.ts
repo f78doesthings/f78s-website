@@ -6,14 +6,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// Immersive background
+
 import { preferences } from "../preferences/index.tsx";
 import { truncate } from "../utils";
+import { autoResizeCanvas } from "../utils/canvas.ts";
 import { DebugCategory, DebugDisplay } from "../utils/debug-displays.ts";
 import bgFrag from "./shaders/bg.frag?raw";
 import bgVert from "./shaders/bg.vert?raw";
 import { initBuffers } from "./webgl/buffers.ts";
 import { drawScene } from "./webgl/draw-scene.ts";
-// Immersive background
 import { initShaderProgram } from "./webgl/shader-program.ts";
 import type { ProgramInfo } from "./webgl/types";
 
@@ -54,7 +56,7 @@ const debugDPI = new DebugDisplay({
 	dependencies: [preferences.bgDebug.asDependency("full")],
 });
 
-// TODO: better immersive background toggle / refactoring
+// TODO: consider refactoring this
 let immersiveModeSupported = false;
 let canvas: HTMLCanvasElement | null;
 
@@ -72,17 +74,6 @@ function resizeCanvas() {
 	const bounds = canvas.getBoundingClientRect();
 	const displayWidth = Math.round(bounds.width * renderScale);
 	const displayHeight = Math.round(bounds.height * renderScale);
-
-	debugResolution.set(`${displayWidth} x ${displayHeight}`);
-	debugScreen.set(
-		`Perceived: ${Math.round(bounds.width)} x ${Math.round(bounds.height)}\n` +
-			`Native: ${Math.round(bounds.width * devicePixelRatio)} x ${Math.round(bounds.height * devicePixelRatio)}`,
-	);
-	debugDPI.set(
-		`Native: ${truncate(devicePixelRatio, 3)}x\n` +
-			`Scaled: ${truncate(dpr, 3)}x\n` +
-			`Final: ${truncate(renderScale, 3)}x`,
-	);
 
 	if (
 		(canvas.width !== displayWidth || canvas.height !== displayHeight) &&
@@ -105,7 +96,6 @@ function main() {
 		return console.error("WebGL is unavailable. The immersive background will be disabled.");
 	}
 
-	resizeCanvas();
 	const shaderProgram = initShaderProgram(gl, bgVert, bgFrag);
 	if (!shaderProgram) {
 		return;
@@ -133,7 +123,12 @@ function main() {
 	const onPassiveFrame = (now: number) => {
 		if (++framesSinceRender > preferences.bgFrameSkip.get()) {
 			framesSinceRender = 0;
-			if (preferences.bgEnabled.isEnabled() && document.hasFocus()) {
+
+			// document.hasFocus was causing issues on mobile, so it has been commented out for now
+			if (
+				preferences.bgEnabled.isEnabled() /* && document.hasFocus() */ &&
+				!document.fullscreenElement
+			) {
 				time += (now - then) / 1000;
 				render();
 			}
@@ -177,7 +172,22 @@ function main() {
 	immersiveModeSupported = true;
 	updateImmersiveBackgroundState();
 
-	resizeCanvas();
+	autoResizeCanvas(canvas, {
+		renderScale: () => preferences.bgRenderScale.get(),
+		dpiFactor: () => preferences.bgDPIFactor.get(),
+		onResize: (data) => {
+			debugResolution.set(`${data.renderWidth} x ${data.renderHeight}`);
+			debugScreen.set(
+				`Perceived: ${Math.round(data.elementWidth)} x ${Math.round(data.elementHeight)}\n` +
+					`Native: ${Math.round(data.elementWidth * window.devicePixelRatio)} x ${Math.round(data.elementHeight * window.devicePixelRatio)}`,
+			);
+			debugDPI.set(
+				`Native: ${truncate(window.devicePixelRatio, 3)}x\n` +
+					`Scaled: ${truncate(data.scaledPixelRatio, 3)}x\n` +
+					`Final: ${truncate(data.renderScale, 3)}x`,
+			);
+		},
+	});
 	requestAnimationFrame(onPassiveFrame);
 	if (preferences.bgEnabled.isEnabled()) {
 		render();

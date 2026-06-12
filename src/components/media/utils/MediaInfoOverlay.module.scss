@@ -1,0 +1,62 @@
+/*!
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+@use "../../../styles/colors" as *;
+
+.media-info {
+	display: flex;
+	flex-direction: column;
+	gap: size(6);
+
+	.title {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: size(8);
+
+		color: currentcolor;
+		font-size: size(22);
+		font-weight: 650;
+
+		.badge {
+			text-shadow: none;
+			color: var(--color-text);
+		}
+	}
+
+	.file-type {
+		color: color-mix(in srgb, currentcolor, transparent 40%);
+		font-size: size(18);
+		font-weight: 400;
+	}
+
+	.caption {
+		color: color-mix(in srgb, currentcolor, transparent 20%);
+
+		&:empty {
+			display: none;
+		}
+
+		:first-child {
+			margin-top: 0;
+		}
+
+		:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	> * {
+		margin: 0;
+	}
+
+	small {
+		color: color-mix(in srgb, currentcolor, transparent 40%);
+	}
+}

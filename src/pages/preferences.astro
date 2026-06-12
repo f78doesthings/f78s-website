@@ -11,16 +11,19 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Badge from "../components/Badge";
 import PreferencesDisplay from "../components/preferences/PreferencesDisplay.astro";
 import { PreferencesButtons } from "../components/preferences/PreferencesButtons";
+
+// TODO: this should really be a pop-up
 ---
 
-<BaseLayout>
+<BaseLayout title="Preferences">
 	<h1>
 		Preferences
 		<Badge type="beta" />
 	</h1>
 	<p>
 		Lots of settings for you to tweak this website to your liking. These are very much a
-		work-in-progress, so expect issues to arise.
+		work-in-progress, so expect issues to arise.<br />
+		Click <strong>Apply</strong> to go back to the page you were on.
 	</p>
 	<PreferencesButtons client:load />
 	<PreferencesDisplay />
