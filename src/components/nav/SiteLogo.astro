@@ -10,6 +10,7 @@
 // Logo for the site navigation
 
 import avatar from "../../assets/images/avatar.avif";
+import { IS_DEV } from "../../consts";
 import BaseImage from "../media/BaseImage.astro";
 
 const { ...cid } = Astro.props;
@@ -21,6 +22,7 @@ const { ...cid } = Astro.props;
 		<span class="title">
 			<span>f</span><span>7</span><span>8</span><span>!</span>
 		</span>
+		{IS_DEV && <span class="dev-badge">DEV</span>}
 	</a>
 </h1>
 
@@ -59,13 +61,14 @@ const { ...cid } = Astro.props;
 		font-weight: 900;
 
 		picture {
+			margin-right: size(6);
 			border-radius: 100%;
 			overflow: hidden;
 			box-shadow: $glass-shadow;
 		}
 
 		a {
-			gap: size(12);
+			gap: size(6);
 			align-items: center;
 		}
 
@@ -93,5 +96,17 @@ const { ...cid } = Astro.props;
 		@include letter(2, 1deg);
 		@include letter(3, -1deg);
 		@include letter(4, 6deg, 2px, $red-500, $red-625, $red-600, $red-725);
+	}
+
+	.dev-badge {
+		align-self: flex-start;
+		line-height: normal;
+		font-weight: 400;
+		font-size: size(16);
+		color: $yellow-500;
+
+		@include preferences("light") {
+			color: $yellow-600;
+		}
 	}
 </style>

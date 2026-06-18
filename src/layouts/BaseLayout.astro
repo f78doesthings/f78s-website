@@ -63,8 +63,10 @@ const {
 } = Astro.props;
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
+const url = new URL(Astro.url);
 if (IS_DEV) {
 	siteTitle += " [DEV BUILD]";
+	url.hostname = "dev.f78.be";
 }
 
 let lastModifiedDate = lastModified;
@@ -103,17 +105,17 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 		<meta name="theme-color" content="#f11325" />
 
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url} />
+		<meta property="og:url" content={url} />
 		<meta property="og:site_name" content={siteTitle} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		{image && <meta property="og:image" content={new URL(image.src, Astro.url)} />}
+		{image && <meta property="og:image" content={new URL(image.src, url)} />}
 
 		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
+		<meta property="twitter:url" content={url} />
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
-		{image && <meta property="twitter:image" content={new URL(image.src, Astro.url)} />}
+		{image && <meta property="twitter:image" content={new URL(image.src, url)} />}
 
 		{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
 		<Font cssVariable="--font-body" preload />
