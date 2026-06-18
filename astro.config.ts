@@ -10,7 +10,7 @@ import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
-import { defineConfig, fontProviders, sharpImageService } from "astro/config";
+import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
 import { fromHtml } from "hast-util-from-html";
 import rehypeExternalLinks, {
 	type Options as RehypeExternalLinksOptions,
@@ -22,6 +22,7 @@ import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
 
 /** Converts the string to a hast {@linkcode Element}. */
 function html(...params: Parameters<typeof String.raw>) {
+	// Might be a bit crude
 	const text = String.raw(...params).trim();
 	const tree = fromHtml(text, { fragment: true });
 	return tree.children.find((child) => child.type === "element");
@@ -37,6 +38,11 @@ export default defineConfig({
 		contentIntellisense: true,
 	},
 	integrations: [mdx(), sitemap(), preact()],
+	env: {
+		schema: {
+			SITE_BRANCH: envField.string({ context: "client", access: "public", default: "main" }),
+		},
+	},
 	image: {
 		service: sharpImageService({
 			kernel: "mks2021",

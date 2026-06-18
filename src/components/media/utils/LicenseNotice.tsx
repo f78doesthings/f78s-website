@@ -8,14 +8,14 @@
 
 // Displays a notice of a work's licence.
 
-import { LICENSES, SITE_TITLE } from "../../../consts.tsx";
+import { LICENSES, SITE_AUTHOR } from "../../../consts.tsx";
 import type { CopyrightInfo, LicenseType } from "../../../types.ts";
 import Link from "../../nav/Link.tsx";
 
 export default function LicenseNotice({
-	license,
+	license = "CC-BY-4.0",
 	createdIn,
-	createdBy = SITE_TITLE,
+	createdBy = SITE_AUTHOR,
 	source,
 }: CopyrightInfo) {
 	const { icons: Icons = () => undefined, title, type, url } = license ? LICENSES[license] : {};

@@ -26,7 +26,7 @@ export function MediaInfoOverlay({ src, class: className = "", children, ...prop
 	return (
 		<div class={`${styles["media-info"]} ${className}`}>
 			<h2 class={styles.title}>
-				<span>
+				<span class={styles["file-name"]}>
 					{fileName}
 					<span class={styles["file-type"]}>.{extName}</span>
 				</span>

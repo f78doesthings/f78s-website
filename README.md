@@ -1,12 +1,11 @@
 # [f78's website](https://www.f78.be)
 
-The third version of my website. It isn't quite finished yet, and may therefore contain some issues.
-This time around I'm using [Astro](https://astro.build), with the final site being deployed to
-Cloudflare Workers _(although that's subject to change because it breaks a few parts of the
-website)_.
-
-This website is loosely based on the
+The third version of my website, this time made using [Astro](https://astro.build) +
+[Preact](https://preactjs.com). It is loosely based on the
 [official Astro blog template](https://github.com/withastro/astro/tree/main/examples/blog).
+
+The final site is currently deployed to Cloudflare Workers, although that's subject to change
+because it breaks a few parts of the website.
 
 _Third time's the charm, right?_
 
@@ -74,14 +73,24 @@ There are 2 things you need to keep in mind.
 To run a local dev server, you can use `npm run dev` as you normally would with Astro. `npm start`
 has also been added as an alias. These scripts have been modified to suit my use case better.
 
+### Branches
+
+- [`main`](../main) contains the production website that's available at
+  [f78.be](https://www.f78.be).
+- [`dev`](../dev) holds some unfinished changes that are not quite ready for production. While it'll
+  usually be available at [dev.f78.be](https://dev.f78.be), do note that it may have some issues.
+- Other branches are for development purposes and aren't meant to be published. They should be
+  merged with one of the above branches when ready.
+
 ## Licence
 
 The content of the website (i.e. the written text and most media I made) is available under the
 [Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/)
 unless stated otherwise - see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
 
-Some less significant media is instead dedicated to the public domain. The licence of media files is
-always clearly labelled, either directly below the media or in its corresponding full-screen viewer.
+Some less significant media is instead dedicated to the public domain. The copyright information for
+each media file should be clearly labelled in its corresponding fullscreen viewer; please create an
+issue if this isn't the case.
 
 The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead fall under
 the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best due to

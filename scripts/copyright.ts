@@ -40,4 +40,6 @@ for (const file of files) {
 	}
 }
 
-console.log(`${noHeader} / ${count}`);
+console.log(
+	`${pc.yellowBright(noHeader)} / ${pc.white(count)} script(s) are missing copyright headers.`,
+);

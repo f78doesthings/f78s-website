@@ -270,9 +270,19 @@ small small,
 	color: var(--color-dimmer);
 }
 
-code {
+code,
+kbd {
 	font-family: var(--font-mono), monospace;
 	font-size: size(14, true);
+
+	p &,
+	main li > & {
+		background-color: var(--color-component);
+		border: 1px solid var(--color-border);
+		border-radius: size(16);
+		padding: size(3) size(8);
+		font-weight: 400;
+	}
 }
 
 .astro-code {
@@ -546,6 +556,17 @@ main {
 			box-shadow: $glass-shadow;
 		}
 
+		.side-by-side {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			align-items: center;
+			gap: $page-margin;
+
+			figure {
+				margin: 0;
+			}
+		}
+
 		.section-with-image {
 			display: flex;
 			gap: $page-margin;
@@ -663,14 +684,6 @@ main {
 	}
 
 	// Text styles
-	p code {
-		background-color: var(--color-component);
-		border: 1px solid var(--color-border);
-		border-radius: size(16);
-		padding: size(3) size(8);
-		font-weight: 400;
-	}
-
 	figcaption {
 		font-style: italic;
 		margin-top: size(6);

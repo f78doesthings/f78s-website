@@ -10,7 +10,6 @@
 // Logo for the site navigation
 
 import avatar from "../../assets/images/avatar.avif";
-import { SITE_TITLE } from "../../consts.tsx";
 import BaseImage from "../media/BaseImage.astro";
 
 const { ...cid } = Astro.props;
@@ -20,7 +19,7 @@ const { ...cid } = Astro.props;
 	<a href="/" {...cid}>
 		<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} priority {...cid} />
 		<span class="title">
-			{SITE_TITLE.split("").map((v) => <span>{v}</span>)}<span>!</span>
+			<span>f</span><span>7</span><span>8</span><span>!</span>
 		</span>
 	</a>
 </h1>

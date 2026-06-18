@@ -10,15 +10,24 @@
 import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
 import "../styles/general.scss";
-import { BLOG_TITLE, LICENSES, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.tsx";
+import {
+	BLOG_TITLE,
+	IS_DEV,
+	LICENSES,
+	SITE_AUTHOR,
+	SITE_LANGUAGE,
+	SITE_TITLE,
+} from "../consts.tsx";
 import Header from "../components/nav/Header.astro";
 import { ClientRouter } from "astro:transitions";
 import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
-import FluentCalendarClock20Regular from "~icons/fluent/calendar-clock-20-regular";
-import NotoConstruction from "~icons/noto/construction";
+import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
+import ConstructionEmoji from "~icons/noto/construction";
+import DragonEmoji from "~icons/noto/dragon";
 import Banner from "../components/Banner.astro";
+import { SITE_BRANCH } from "astro:env/client";
 
 interface Props extends Partial<
 	Omit<MarkdownLayoutProps<Record<string, unknown>>, "rawContent" | "compiledContent">
@@ -53,7 +62,11 @@ const {
 	frontmatter,
 } = Astro.props;
 
-const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
+let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
+if (IS_DEV) {
+	siteTitle += " [DEV BUILD]";
+}
+
 let lastModifiedDate = lastModified;
 if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
 	lastModifiedDate = new Date(frontmatter.lastModified);
@@ -91,6 +104,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content={Astro.url} />
+		<meta property="og:site_name" content={siteTitle} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		{image && <meta property="og:image" content={new URL(image.src, Astro.url)} />}
@@ -115,15 +129,29 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 
 		<Header headings={headings} />
 
-		<Banner id="under-construction">
-			<NotoConstruction />
-			<span>
-				This newly revamped version of the website is still being worked on. Report any bugs you
-				find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external
-					>GitHub</Link
-				>.
-			</span>
-		</Banner>
+		{
+			/* prettier-ignore */
+			IS_DEV ? (
+				<Banner id="dev">
+					<DragonEmoji />
+					<span>
+						This is a
+						<Link href={`https://github.com/f78doesthings/f78s-website/tree/${SITE_BRANCH}`} external>development build</Link>
+						of the website. Issues are to be expected, and should be reported on
+						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+					</span>
+				</Banner>
+			) : (
+				<Banner id="under-construction">
+					<ConstructionEmoji />
+					<span>
+						This newly revamped version of the website is still being worked on. Report any bugs you
+						find on
+						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+					</span>
+				</Banner>
+			)
+		}
 
 		<main>
 			<slot />
@@ -133,7 +161,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 			{
 				lastModifiedDate && (
 					<FormattedDate date={lastModifiedDate}>
-						<FluentCalendarClock20Regular slot="icon" />
+						<LastUpdatedIcon slot="icon" />
 						<Fragment slot="before">Last updated:</Fragment>
 					</FormattedDate>
 				)

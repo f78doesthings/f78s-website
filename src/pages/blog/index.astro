@@ -11,7 +11,7 @@
 // TODO: pagination?
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { BLOG_TITLE } from "../../consts.tsx";
+import { BLOG_TITLE, IS_DEV } from "../../consts.tsx";
 import Link from "../../components/nav/Link.tsx";
 import Badge from "../../components/Badge.tsx";
 import { type CollectionEntry, getCollection } from "astro:content";
@@ -31,7 +31,7 @@ type PostData = CollectionEntry<"blog">["data"] & {
 
 const DAY_TIME = 1000 * 60 * 60 * 24;
 
-const collection = await getCollection("blog", (post) => import.meta.env.DEV || !post.data.draft);
+const collection = await getCollection("blog", (post) => IS_DEV || !post.data.draft);
 const posts: PostData[] = collection.map((post) => ({
 	id: post.id,
 	...post.data,
@@ -44,7 +44,7 @@ posts.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 const lastPublishIndex = posts.findIndex((post) => !post.draft);
 posts.unshift(posts.splice(lastPublishIndex, 1)[0]);
 
-// Add placeholders
+// Add placeholders on local dev server
 const placeholdersToAdd = 6 - posts.length;
 if (import.meta.env.DEV && placeholdersToAdd > 0) {
 	let timestamp = Date.now();
@@ -52,7 +52,8 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		timestamp -= DAY_TIME * i;
 		posts.push({
 			title: `Placeholder ${i}`,
-			description: "This is merely here to test out this page, and is not visible in production.",
+			description:
+				"This is merely here to test out this page's styling, and is not visible in builds.",
 			pubDate: new Date(timestamp),
 			draft: true,
 			heroImage: fallbackImage,
@@ -74,10 +75,9 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		honest. Right now there's not that much here yet.
 	</p>
 	<p>
-		<Link href="/rss.xml" external>
-			<FluentRss20Regular />
-			Subscribe with your RSS reader of choice
-		</Link>
+		<Link href="/rss.xml" external
+			><FluentRss20Regular /> Subscribe with your RSS reader of choice</Link
+		>
 	</p>
 
 	{

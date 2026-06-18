@@ -25,20 +25,15 @@ type Props = BaseProps &
 		rotates?: keyof typeof ImageRotation;
 	};
 
-const {
-	lqip = true,
-	rotates = "preferNo",
-	src,
-	alt,
-	license = "CC-BY-SA-4.0",
-	...props
-} = Astro.props;
+const { lqip = true, rotates = "preferNo", src, alt, ...props } = Astro.props;
 
 const meta = await getImageMetadata(src);
 if (!props.width && !props.height && !props.widths) {
-	const maxWidth = meta ? Math.min(meta.width, 768) : 768;
-	props.width = maxWidth;
-	props.widths = [256, 384, 512, 640, maxWidth].filter((width) => width <= maxWidth);
+	const aspectRatio = meta ? Math.min(meta.width / meta.height, 1) : 1;
+	const maxWidth = 720 * aspectRatio;
+	const imageWidth = meta ? Math.min(meta.width, maxWidth) : maxWidth;
+	props.width = imageWidth;
+	props.widths = [imageWidth * 0.5, imageWidth * 0.75, imageWidth].map(Math.ceil);
 }
 ---
 
@@ -59,7 +54,7 @@ if (!props.width && !props.height && !props.widths) {
 	/* Prettier adds whitespace here, which causes styling issues with the media */
 	/* prettier-ignore */
 	meta && (
-		<ImageViewer client:idle alt={alt ?? ""} license={license} {...props} {...meta}><slot /></ImageViewer>
+		<ImageViewer client:idle alt={alt ?? ""} {...props} {...meta}><slot /></ImageViewer>
 	)
 }
 
@@ -199,7 +194,7 @@ if (!props.width && !props.height && !props.widths) {
 				}
 			}
 
-			max-width: min(size(768), 100svh);
+			max-width: min(size(720), 75svh);
 			transition:
 				transform $anim-back,
 				box-shadow $anim-ease;

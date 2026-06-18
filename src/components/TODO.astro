@@ -9,6 +9,8 @@
 
 // A component to remind me that I still have something to do for a page.
 
+import { IS_DEV } from "../consts";
+
 interface Props {
 	text: string;
 }
@@ -19,7 +21,7 @@ Astro.logger?.warn(`TODO: ${text}`);
 ---
 
 {
-	import.meta.env.DEV && (
+	IS_DEV && (
 		<small class="todo" aria-hidden={true}>
 			<em>
 				(<strong>TODO: </strong>

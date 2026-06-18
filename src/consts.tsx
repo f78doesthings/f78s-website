@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { SITE_BRANCH } from "astro:env/client";
 import CibCreativeCommons from "~icons/cib/creative-commons";
 import CibCreativeCommonsBy from "~icons/cib/creative-commons-by";
 import CibCreativeCommonsSa from "~icons/cib/creative-commons-sa";
@@ -18,7 +19,10 @@ import FluentPauseCircle20Regular from "~icons/fluent/pause-circle-20-regular";
 
 import type { Badge, BadgeType, KnownLicense, License } from "./types";
 
-export const SITE_TITLE = "f78";
+/** Whether this is an in-development build of the website. */
+export const IS_DEV = import.meta.env.DEV || SITE_BRANCH !== "main";
+
+export const SITE_TITLE = "f78's website";
 export const SITE_DESCRIPTION = "Hi! I'm f78, a 22-year-old guy from Belgium who does things.";
 export const SITE_LANGUAGE = "en-GB-oxendict";
 export const SITE_AUTHOR = "f78";
