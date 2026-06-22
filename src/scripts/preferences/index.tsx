@@ -264,7 +264,7 @@ export const preferences = createPreferences(
 						),
 					),
 
-					new TogglePreference("bgPause", {
+					new TogglePreference("bgRequireFocus", {
 						icon: FluentImageSplit20Regular,
 						title: "Pause Background When Unfocused",
 						description:

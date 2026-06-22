@@ -10,7 +10,7 @@ import { useSignalEffect, type Signal } from "@preact/signals";
 import { useEffect, useRef } from "preact/compat";
 
 import type { MediaContext } from "../../../../scripts/utils/audio";
-import { autoResizeCanvas } from "../../../../scripts/utils/canvas";
+import { autoResizeCanvas } from "../../../../scripts/utils/canvas/auto-resize";
 
 export interface VisualizerProps {
 	class?: string;
@@ -63,7 +63,7 @@ export function AudioVisualizer<T = undefined>({
 					ref.current.dataset.renderScale = renderScale.toString();
 				}
 			},
-		});
+		}).destroy;
 	});
 
 	useSignalEffect(() => {

@@ -77,10 +77,10 @@ $anim-back: 275ms $ease-out-back;
 			$theme: $preference;
 		} @else if $preference == "bg" {
 			$screen: true;
-			$selector: $selector + ".bg-supported#{-preference("bgEnabled")}";
+			$selector: $selector + "[data-bg-supported='true']#{-preference("bgEnabled")}";
 		} @else if $preference == "no-bg" {
 			$screen: false;
-			$selector: $selector + ":not(.bg-supported#{-preference("bgEnabled")})";
+			$selector: $selector + ":not([data-bg-supported='true']#{-preference("bgEnabled")})";
 		} @else if $preference == "fx" {
 			$screen: true;
 			$selector: $selector + -preference("immersiveFX");
@@ -88,7 +88,7 @@ $anim-back: 275ms $ease-out-back;
 			$screen: false;
 			$selector: $selector + ":not(#{-preference("immersiveFX")})";
 		} @else if $preference == "loaded" {
-			$selector: $selector + ".loaded";
+			$selector: $selector + "[data-bg-supported]";
 		} @else {
 			$selector: $selector + -preference($preference);
 		}

@@ -2,6 +2,7 @@
 	// Linting
 	"astro.content-intellisense": true,
 	"markdown.validate.enabled": true,
+	"markdown.validate.ignoredLinks": ["../main", "../dev"],
 	"stylelint.validate": ["css", "postcss", "scss", "astro"],
 	"css.validate": false,
 	"scss.validate": false,
@@ -13,6 +14,7 @@
 	"[astro]": {
 		"editor.defaultFormatter": "astro-build.astro-vscode"
 	},
+	// TODO: Oxfmt seems to have some troubles with MDX files, is there maybe a better alternative?
 	"[mdx]": {
 		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
@@ -34,7 +36,13 @@
 	"psi-header.changes-tracking": {
 		"isActive": true,
 		"enforceHeader": true,
-		"excludeGlob": ["**/settings.json", "**/.gitignore", "**/.gitattributes", "**/.gitmodules"],
+		"excludeGlob": [
+			"**/settings.json",
+			"**/.gitignore",
+			"**/.gitattributes",
+			"**/.gitmodules",
+			"**/*.config.*"
+		],
 		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx"]
 	},
 	"psi-header.templates": [
@@ -56,9 +64,9 @@
 			"beforeHeader": ["---"]
 		},
 		{
+			// Mimic WebStorm's behaviour
 			"language": "scss",
 			"begin": "/*!"
 		}
-	],
-	"markdown.validate.ignoredLinks": ["../main", "../dev"]
+	]
 }

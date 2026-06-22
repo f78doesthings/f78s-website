@@ -230,23 +230,6 @@ body {
 	}
 }
 
-.immersive-background {
-	display: none;
-	position: fixed;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	z-index: -999;
-
-	@include preferences("light") {
-		filter: invert(1) brightness(110%);
-	}
-
-	@include preferences("bg") {
-		display: block;
-	}
-}
-
 // Common styles
 h1,
 h2,

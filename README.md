@@ -16,7 +16,7 @@ Firefox or Safari**. A decently modern device is also recommended, particularly 
 
 I only test up-to-date versions of Vivaldi (based on **Chromium**) on both **Linux** and
 **Android**, and occasionally Safari on macOS, as well as Firefox. (I do not yet have a way of
-testing on iOS due to the official simulator taking up too much space.)
+testing on iOS due to the official simulator taking up too much disk space.)
 
 That could mean there is a chance an issue might pop up on an older browser, however I also mostly
 stick to features that are
@@ -63,9 +63,12 @@ There are 2 things you need to keep in mind.
 
 - First, this repository uses
   [Git LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage)
-  to store media files. Make sure to install it properly to get those media files. _(and maybe
-  configure it as well? not sure)_
-- Second, **submodules** are also used for things like the serif font (Edwin).
+  to store media files. If not installed properly, these files will be cloned as Git LFS pointers
+  instead of actual files, which is bound to cause issues.
+  - If you forgot to install it before cloning, or the media files are still Git LFS pointers for
+    some reason, use `git lfs pull`.
+- Second, **submodules** are also used for things like the serif font (Edwin). If you don't clone
+  them, Astro will crash with a file system error.
   - Haven't cloned yet? Then make sure to use `git clone --recurse-submodules`.
   - If you already cloned it and forgot about the submodules, run
     `git submodule update --init --recursive` inside the repository.
@@ -78,7 +81,8 @@ has also been added as an alias. These scripts have been modified to suit my use
 - [`main`](../main) contains the production website that's available at
   [f78.be](https://www.f78.be).
 - [`dev`](../dev) holds some unfinished changes that are not quite ready for production. While it'll
-  usually be available at [dev.f78.be](https://dev.f78.be), do note that it may have some issues.
+  usually be available at [dev.f78.be](https://dev.f78.be), keep in mind that it will likely have
+  some issues.
 - Other branches are for development purposes and aren't meant to be published. They should be
   merged with one of the above branches when ready.
 

@@ -21,6 +21,7 @@ export class DebugCategory {
 
 	readonly container;
 	readonly displays: DebugDisplay[] = [];
+	#destroyed = false;
 
 	constructor(public name: string) {
 		let container = root.querySelector<HTMLElement>(`[data-debug-category="${name}"]`);
@@ -49,6 +50,19 @@ export class DebugCategory {
 
 		root.hidden = !visible;
 		return visible;
+	}
+
+	destroy() {
+		if (this.#destroyed) {
+			return;
+		}
+		this.#destroyed = true;
+
+		const index = DebugCategory.#instances.indexOf(this);
+		if (index >= 0) {
+			DebugCategory.#instances.splice(index);
+			DebugCategory.updateVisibilities();
+		}
 	}
 
 	updateVisibility() {

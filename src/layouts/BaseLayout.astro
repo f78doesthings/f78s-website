@@ -28,6 +28,7 @@ import ConstructionEmoji from "~icons/noto/construction";
 import DragonEmoji from "~icons/noto/dragon";
 import Banner from "../components/Banner.astro";
 import { SITE_BRANCH } from "astro:env/client";
+import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
 
 interface Props extends Partial<
 	Omit<MarkdownLayoutProps<Record<string, unknown>>, "rawContent" | "compiledContent">
@@ -182,11 +183,10 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 			{/* TODO: can I add a link to the page's source code on GitHub here? */}
 		</footer>
 
-		<canvas class="immersive-background" transition:persist></canvas>
+		<ImmersiveBackground client:only="preact" transition:persist />
 		<div class="debug-display" transition:persist></div>
 		<div id="media-viewer-root"></div>
 	</body>
 </html>
 
 <script src="../scripts/client-init.ts"></script>
-<script src="../scripts/immersive-background/index.ts"></script>

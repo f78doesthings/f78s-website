@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { createGradient } from "../../../../scripts/utils/canvas";
+import { createGradient } from "../../../../scripts/utils/canvas/2d";
 import { AudioVisualizer, visualizerColors, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio waveform. */

@@ -11,6 +11,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Badge from "../components/Badge";
 import PreferencesDisplay from "../components/preferences/PreferencesDisplay.astro";
 import { PreferencesButtons } from "../components/preferences/PreferencesButtons";
+import { IS_DEV } from "../consts";
 
 // TODO: this should really be a pop-up
 ---
@@ -23,8 +24,17 @@ import { PreferencesButtons } from "../components/preferences/PreferencesButtons
 	<p>
 		Lots of settings for you to tweak this website to your liking. These are very much a
 		work-in-progress, so expect issues to arise.<br />
-		Click <strong>Apply</strong> to go back to the page you were on.
+		Click <strong>Apply</strong> to go back to the page you were on. Your preferences are always automatically
+		saved, so no need to worry.
 	</p>
+	{
+		IS_DEV && (
+			<p>
+				You are currently on a development build of the website. Keep in mind that your preferences
+				are not synced between the main website and this.
+			</p>
+		)
+	}
 	<PreferencesButtons client:load />
 	<PreferencesDisplay />
 	<PreferencesButtons client:load />

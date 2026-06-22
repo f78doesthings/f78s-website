@@ -7,7 +7,7 @@
  */
 
 import { clamp } from "../../../../scripts/utils";
-import { createGradient, drawLine } from "../../../../scripts/utils/canvas";
+import { createGradient, drawLine } from "../../../../scripts/utils/canvas/2d";
 import { AudioVisualizer, visualizerGradients, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio spectrum. */
