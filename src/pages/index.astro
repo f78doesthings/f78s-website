@@ -42,11 +42,12 @@ const blogLink: LinkData = {
 			<h1>Hi there!</h1>
 			<p>
 				I'm <strong class="my-name">f78</strong>
-				<small>(usually pronounced eff-seven-eight)</small>, a 22-year-old guy from
-				<CircleFlagsBe />
-				<strong>Belgium</strong> who's currently studying programming at college. In my spare time I like
-				to do stuff like playing PC games, listening to and creating music, as well as programming various
-				things <small><i>(including this website you're currently browsing)</i></small>.
+				<small> (usually pronounced eff-seven-eight)</small>, a 22-year-old guy from <strong
+					><CircleFlagsBe /> Belgium</strong
+				> who's currently studying programming at college. In my spare time I like to do stuff like playing
+				PC games, listening to and creating music, as well as programming various things <small
+					><i>(including this website you're currently browsing)</i></small
+				>.
 			</p>
 			<h2>Why that name?</h2>
 			<p>
@@ -82,16 +83,19 @@ const blogLink: LinkData = {
 		Below is a list of links to my social media accounts and such. Remember that I'm quite busy with
 		college, so I won't be producing much content for the time being. Right now I'm mainly putting
 		out
-		<b>covers of the Home Paige OST</b>, which you can listen to on
-		<Link href="https://soundcloud.com/f78music/sets/home-paige-covers" external>
+		<b>covers of the Home Paige OST</b>, which you can listen to on <Link
+			href="https://soundcloud.com/f78music/sets/home-paige-covers"
+			external
+		>
 			<SimpleIconsSoundcloud />
 			SoundCloud</Link
-		> and
-		<Link href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs" external>
+		> and <Link
+			href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs"
+			external
+		>
 			<SimpleIconsYoutube />
 			YouTube</Link
-		>*. You can also find downloads for them
-		<Link
+		>*. You can also find downloads for them <Link
 			href="https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX?dir=/Music/Home%20Paige%20covers"
 			external
 		>
@@ -131,82 +135,82 @@ const blogLink: LinkData = {
 			})
 		}
 	</dl>
-</BaseLayout>
 
-<style lang="scss">
-	@use "../styles/colors" as *;
-	@use "../styles/utils" as *;
-	@use "sass:color";
+	<style lang="scss">
+		@use "../styles/colors" as *;
+		@use "../styles/utils" as *;
+		@use "sass:color";
 
-	.badge-legend {
-		dd {
-			margin: 0.5rem 0 1rem 2rem;
-			color: var(--color-dim);
-		}
-	}
-
-	@media (min-width: $breakpoint-desktop) {
 		.badge-legend {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			align-items: center;
-			gap: 0.5rem 0.75rem;
-
 			dd {
-				margin: 0;
+				margin: 0.5rem 0 1rem 2rem;
+				color: var(--color-dim);
 			}
 		}
-	}
 
-	.my-name {
-		--start-color: #{$red-550};
-		--end-color: #{$red-450};
+		@media (min-width: $breakpoint-desktop) {
+			.badge-legend {
+				display: grid;
+				grid-template-columns: auto 1fr;
+				align-items: center;
+				gap: 0.5rem 0.75rem;
 
-		font-size: 1.0625rem;
-		font-family: var(--font-heading), sans-serif;
-		font-weight: 800;
-		color: color-mix(in oklch, var(--start-color), var(--end-color));
-
-		@include preferences("light") {
-			--start-color: #{$red-650};
-			--end-color: #{$red-550};
-		}
-
-		// Subtle gradient animation
-		@include preferences("fx") {
-			position: relative;
-			background-image: linear-gradient(
-				to right,
-				var(--start-color),
-				var(--end-color),
-				var(--start-color),
-				var(--end-color)
-			);
-			background-size: 300%;
-			background-clip: text;
-			color: transparent;
-			animation: name-animation 5s infinite linear;
-
-			&::after {
-				content: "f78";
-				position: absolute;
-				top: 0;
-				left: 0;
-
-				background: inherit;
-				filter: blur(0.1875rem);
-				opacity: 0.3;
-			}
-
-			@keyframes name-animation {
-				from {
-					background-position: 0;
-				}
-
-				to {
-					background-position: 100%;
+				dd {
+					margin: 0;
 				}
 			}
 		}
-	}
-</style>
+
+		.my-name {
+			--start-color: #{$red-550};
+			--end-color: #{$red-450};
+
+			font-size: 1.0625rem;
+			font-family: var(--font-heading), sans-serif;
+			font-weight: 800;
+			color: color-mix(in oklch, var(--start-color), var(--end-color));
+
+			@include preferences("light") {
+				--start-color: #{$red-650};
+				--end-color: #{$red-550};
+			}
+
+			// Subtle gradient animation
+			@include preferences("fx") {
+				position: relative;
+				background-image: linear-gradient(
+					to right,
+					var(--start-color),
+					var(--end-color),
+					var(--start-color),
+					var(--end-color)
+				);
+				background-size: 300%;
+				background-clip: text;
+				color: transparent;
+				animation: name-animation 5s infinite linear;
+
+				&::after {
+					content: "f78";
+					position: absolute;
+					top: 0;
+					left: 0;
+
+					background: inherit;
+					filter: blur(0.1875rem);
+					opacity: 0.3;
+				}
+
+				@keyframes name-animation {
+					from {
+						background-position: 0;
+					}
+
+					to {
+						background-position: 100%;
+					}
+				}
+			}
+		}
+	</style>
+</BaseLayout>

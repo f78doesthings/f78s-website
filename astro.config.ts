@@ -6,27 +6,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { unified } from "@astrojs/markdown-remark";
+import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
-import { fromHtml } from "hast-util-from-html";
-import rehypeExternalLinks, {
-	type Options as RehypeExternalLinksOptions,
-} from "rehype-external-links";
 import Icons from "unplugin-icons/vite";
 
-import { remarkLastModified } from "./plugins/remark-last-modified.ts";
-import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
-
-/** Converts the string to a hast {@linkcode Element}. */
-function html(...params: Parameters<typeof String.raw>) {
-	// Might be a bit crude
-	const text = String.raw(...params).trim();
-	const tree = fromHtml(text, { fragment: true });
-	return tree.children.find((child) => child.type === "element");
-}
+import { hastExternalLinks } from "./plugins/hast-external-links.ts";
 
 // https://astro.build/config
 export default defineConfig({
@@ -85,35 +72,16 @@ export default defineConfig({
 		],
 	},
 	markdown: {
-		processor: unified({
-			smartypants: {
-				dashes: "oldschool",
+		processor: satteri({
+			features: {
+				directive: true,
+				headingAttributes: true,
+				smartPunctuation: true,
+				superscript: true,
+				subscript: true,
 			},
-			remarkPlugins: [remarkReadingTime, remarkLastModified],
-			rehypePlugins: [
-				[
-					rehypeExternalLinks,
-					{
-						contentProperties: { class: "external-icon" },
-						rel: ["nofollow", "noopener", "noreferrer"],
-						content: html`
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 16 16"
-								data-icon="fluent:open-16-regular"
-							>
-								<rect width="16" height="16" fill="none" />
-								<path
-									fill="currentColor"
-									d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5"
-								/>
-							</svg>
-						`,
-					} satisfies RehypeExternalLinksOptions,
-				],
-			],
+			// TODO: port the 2 frontmatter recipes to Satteri if possible
+			hastPlugins: [hastExternalLinks()],
 		}),
 		shikiConfig: {
 			themes: {

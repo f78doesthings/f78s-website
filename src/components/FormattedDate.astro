@@ -27,7 +27,7 @@ const isValidDate = isFinite(date.valueOf());
 	<slot name="icon">
 		<FluentCalendarEmpty20Regular />
 	</slot>
-	<slot name="before" />
+	<slot name="before" />{" "}
 	<time datetime={isValidDate ? date.toISOString() : undefined}>
 		{date.toLocaleDateString(SITE_LANGUAGE, format)}
 	</time>

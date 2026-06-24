@@ -32,9 +32,7 @@ export default function Link({ external, noIcon, children, ...props }: Props) {
 	return (
 		<a {...props}>
 			{children}
-			{external && !noIcon && (
-				/* prettier-ignore */ <span class="external-icon"><FluentOpen16Regular /></span>
-			)}
+			{external && !noIcon && <FluentOpen16Regular class="external-icon" />}
 		</a>
 	);
 }

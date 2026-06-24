@@ -41,6 +41,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 		<AudioVisualizer
 			{...props}
 			init={({ analyser }) => {
+				// BUG: the spectrum analyser is framerate dependent
 				analyser.fftSize = 8192;
 				analyser.smoothingTimeConstant = 0.875;
 				return new Float32Array(analyser.frequencyBinCount);

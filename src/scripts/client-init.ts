@@ -32,7 +32,7 @@ document.addEventListener("astro:before-preparation", (ev) => {
 		}
 
 		// BUG: The loading bar disappears sometimes. Cloudflare also throws 503 Service Unavailable
-		//      errors when prefetching.
+		//      errors when prefetching (possible cache miss I need to configure?)
 		const loadingBar = document.querySelector<HTMLElement>(".loading-bar");
 		let loaded = false;
 		if (loadingBar && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

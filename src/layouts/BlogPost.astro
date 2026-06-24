@@ -78,8 +78,7 @@ const {
 				{
 					draft ? (
 						<p>
-							<FluentEdit20Regular />
-							Draft
+							<FluentEdit20Regular /> Draft
 						</p>
 					) : (
 						<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
@@ -88,14 +87,14 @@ const {
 					)
 				}
 				<span class="separator">&bullet;</span>
-				{
-					readingTime && (
-						<p>
-							<FluentClock20Regular />
-							{readingTime}
-						</p>
-					)
-				}
+				<p
+					title={readingTime
+						? undefined
+						: "The reading time may be temporarily unavailable while the website is being migrated to Astro v7."}
+				>
+					<FluentClock20Regular />{" "}
+					{readingTime ?? "Read time unavailable"}
+				</p>
 			</div>
 		</header>
 
@@ -116,7 +115,7 @@ const {
 		text-align: center;
 		color: var(--color-dim);
 
-		:global(> figure) {
+		> :global(.main-image) {
 			margin: 0;
 
 			> picture {
