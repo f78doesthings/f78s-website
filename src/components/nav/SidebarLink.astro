@@ -15,11 +15,11 @@ interface Props extends HTMLAttributes<"a"> {
 	aliases?: string[];
 }
 
-const { href, aliases = [], ...props } = Astro.props;
-const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
+const { href, aliases = [], class: className, ...props } = Astro.props;
+const isActive = isOnPage(Astro.url, href, ...aliases);
 ---
 
-<a href={href} tabindex="0" {...props} class:list={{ active: isActive }}>
+<a href={href} tabindex="0" {...props} class:list={[className, { active: isActive }]}>
 	<slot />
 	<div class="highlight"></div>
 </a>

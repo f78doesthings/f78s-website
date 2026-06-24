@@ -104,3 +104,7 @@ export function isOnPage(url: URL, ...aliases: (string | URL | null | undefined)
 
 	return false;
 }
+
+export function joinURL(base: string, ...paths: string[]) {
+	return new URL(`${base}${base.endsWith("/") ? "" : "/"}${paths.join("/")}`).href;
+}

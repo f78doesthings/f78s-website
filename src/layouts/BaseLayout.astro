@@ -27,7 +27,7 @@ import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
 import ConstructionEmoji from "~icons/noto/construction";
 import DragonEmoji from "~icons/noto/dragon";
 import Banner from "../components/Banner.astro";
-import { SITE_BRANCH } from "astro:env/client";
+import { GIT_BRANCH, GIT_COMMIT } from "astro:env/client";
 import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
 
 interface Props extends Partial<
@@ -135,11 +135,11 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 		{
 			/* prettier-ignore */
 			IS_DEV ? (
-				<Banner id="dev">
+				<Banner id={`dev-build+${GIT_COMMIT}`}>
 					<DragonEmoji />
 					<span>
 						This is a{" "}
-						<Link href={`https://github.com/f78doesthings/f78s-website/tree/${SITE_BRANCH}`} external>development build</Link>
+						<Link href={`https://github.com/f78doesthings/f78s-website/tree/${GIT_BRANCH}`} external>development build</Link>
 						{" "}of the website. Issues are to be expected, and should be reported on{" "}
 						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>
 						.

@@ -5,5 +5,5 @@
 	"icon": "simple-icons:googledrive",
 	"order": 100,
 	"tags": ["archived"],
-	"aliases": ["drive", "gdrive", "googledrive", "google-drive", "google_drive"]
+	"aliases": ["drive", "gdrive", "googledrive", "google_drive"]
 }

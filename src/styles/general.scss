@@ -259,7 +259,9 @@ kbd {
 	font-size: size(14, true);
 
 	p &,
-	main li > & {
+	.version-table &,
+	main li > &,
+	main li > a > & {
 		background-color: var(--color-component);
 		border: 1px solid var(--color-border);
 		border-radius: size(16);
@@ -291,7 +293,9 @@ p [data-icon] {
 
 p a,
 small a,
-[data-banner] a {
+[data-banner] a,
+main li > a,
+.version-table a {
 	color: $red-450;
 	font-weight: 500;
 	text-underline-offset: size(3, true);

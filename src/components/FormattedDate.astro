@@ -13,11 +13,31 @@ import { SITE_LANGUAGE } from "../consts.tsx";
 import FluentCalendarEmpty20Regular from "~icons/fluent/calendar-empty-20-regular";
 
 interface Props {
+	/** The date to display. */
 	date: Date;
+
+	/** Allows you to override specific format options. */
 	format?: Intl.DateTimeFormatOptions;
+
+	/** Hides the default calendar icon. */
+	noIcon?: boolean;
+
+	/** Shows the time. Seconds are hidden by default; use {@linkcode format.dateStyle} to change this. */
+	showTime?: boolean;
 }
 
-const { date, format = { dateStyle: "medium" }, ...cid } = Astro.props;
+const {
+	date,
+	showTime,
+	noIcon,
+	format = { timeStyle: showTime ? "short" : undefined },
+	...cid
+} = Astro.props;
+
+if (!("dateStyle" in format)) {
+	format.dateStyle = "medium";
+}
+
 const isValidDate = isFinite(date.valueOf());
 
 // TODO: add relative time on the client
@@ -25,11 +45,11 @@ const isValidDate = isFinite(date.valueOf());
 
 <p class="formatted-date" {...cid}>
 	<slot name="icon">
-		<FluentCalendarEmpty20Regular />
+		{!noIcon && <FluentCalendarEmpty20Regular />}
 	</slot>
 	<slot name="before" />{" "}
 	<time datetime={isValidDate ? date.toISOString() : undefined}>
-		{date.toLocaleDateString(SITE_LANGUAGE, format)}
+		{date.toLocaleString(SITE_LANGUAGE, format)}
 	</time>
 	<slot name="after" />
 </p>

@@ -6,14 +6,31 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import * as child_process from "node:child_process";
+
 import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
+import consola from "consola";
 import Icons from "unplugin-icons/vite";
 
+import packageJSON from "./package.json";
 import { hastExternalLinks } from "./plugins/hast-external-links.ts";
+
+function tryExec(command: string) {
+	try {
+		return child_process.execSync(command, { encoding: "utf-8" }).trim();
+	} catch (e) {
+		consola.warn(`Failed to execute "${command}":\n `, e);
+		return undefined;
+	}
+}
+
+const gitBranch = tryExec("git branch --show-current") ?? "main";
+const gitCommit = tryExec("git rev-parse --short HEAD");
+const gitDate = tryExec("git log -1 --format=%cI HEAD") ?? new Date().toISOString();
 
 // https://astro.build/config
 export default defineConfig({
@@ -27,7 +44,19 @@ export default defineConfig({
 	integrations: [mdx(), sitemap(), preact()],
 	env: {
 		schema: {
-			SITE_BRANCH: envField.string({ context: "client", access: "public", default: "main" }),
+			GIT_BRANCH: envField.string({ context: "client", access: "public", default: gitBranch }),
+			GIT_COMMIT: envField.string({ context: "client", access: "public", default: gitCommit }),
+			GIT_COMMIT_DATE: envField.string({ context: "client", access: "public", default: gitDate }),
+			SITE_REPOSITORY: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.repository,
+			}),
+			SITE_VERSION: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.version,
+			}),
 		},
 	},
 	image: {
