@@ -13,9 +13,13 @@ import { SpectrumVisualizer } from "./SpectrumVisualizer";
 import styles from "./CombinedVisualizer.module.scss";
 
 /** A visualizer that combines multiple visualizers themed around audio analysis. */
-export function CombinedVisualizer({ class: className = "", ...props }: VisualizerProps) {
+export function CombinedVisualizer({
+	class: className = "",
+	visualizerRef,
+	...props
+}: VisualizerProps) {
 	return (
-		<div class={`${styles["combined-visualizer"]} ${className}`}>
+		<div class={`${styles["combined-visualizer"]} ${className}`} ref={visualizerRef}>
 			<OscilloscopeVisualizer class={styles["oscilloscope"]} {...props} />
 			<SpectrumVisualizer class={styles["spectrum"]} {...props} />
 		</div>

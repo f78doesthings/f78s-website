@@ -20,7 +20,7 @@
 
 	display: flex;
 	flex-direction: column;
-	padding: size(4) 0;
+	padding: size(5) 0;
 	margin: size(12) 0;
 
 	// Opaque for now due to backdrop root shenanigans preventing this from having a background blur
@@ -49,23 +49,49 @@
 	}
 
 	a,
-	button {
+	button,
+	label {
 		display: flex;
 		align-items: center;
 		justify-content: start;
 		gap: size(14);
 		width: 100%;
-		padding: size(10) $page-margin size(10) size(16);
+		padding: size(10) size(20) size(10) size(16);
 
 		background: none;
 		border: none;
-		color: inherit;
+		color: inherit !important;
 		text-decoration: none;
+		text-shadow: none;
+		font-weight: 400;
+
+		input {
+			margin-left: auto;
+		}
 
 		[data-icon] {
 			font-size: size(24);
 		}
 
 		@include btn-transparent;
+		@include bounce-anim;
+	}
+
+	// Use subgrids on supported browsers
+	@supports (grid-template-columns: subgrid) {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+
+		li {
+			display: contents;
+		}
+
+		a,
+		button,
+		label {
+			display: grid;
+			grid-template-columns: subgrid;
+			grid-column: 1 / -1;
+		}
 	}
 }

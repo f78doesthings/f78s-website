@@ -1,0 +1,139 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "./utils" as *;
+@use "./colors" as *;
+
+// Styles for common media elements (note: pretty scuffed)
+$media-button-size: size(44);
+
+@mixin media-style {
+	background-color: var(--color-component);
+	color: var(--color-heading);
+
+	border: 1px solid var(--color-border);
+	border-radius: $radius-full;
+
+	// BUG: this annoyingly creates a backdrop root, preventing popup menus
+	// from having any background blur
+	@media not (prefers-contrast: more) {
+		@include glass;
+
+		@include preferences("fx") {
+			background-color: color-mix(in srgb, var(--color-component), transparent 38%);
+			backdrop-filter: blur(size(8)) contrast(110%) brightness(75%);
+		}
+
+		@include preferences("fx", "light") {
+			backdrop-filter: blur(size(8)) contrast(78%) brightness(160%);
+		}
+	}
+}
+
+.media-style {
+	@include media-style;
+}
+
+.btn-media,
+.btn-media-group {
+	display: flex;
+	flex-shrink: 0;
+	height: $media-button-size;
+
+	main & {
+		box-shadow: none;
+	}
+
+	[data-icon] {
+		font-size: size(24);
+	}
+
+	// BUG: this annoyingly creates a backdrop root, preventing popup menus
+	// from having any background blur
+	@include media-style;
+}
+
+.btn-media {
+	align-items: center;
+	justify-content: center;
+	width: $media-button-size;
+
+	@include btn-transparent;
+}
+
+.btn-media-group {
+	> a,
+	> button,
+	> .popup-container > button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		width: $media-button-size;
+		height: 100%;
+		padding: 0;
+
+		background-color: transparent;
+		border: none;
+		color: inherit;
+		text-decoration: none;
+
+		@include btn-transparent;
+	}
+
+	.btn-media-close {
+		color: $red-450;
+
+		@include preferences("light") {
+			color: $red-500;
+		}
+	}
+
+	> :not(.slider) {
+		&:not(.popup-container):first-child,
+		&.popup-container:first-child > button {
+			width: size(43);
+			padding-left: size(2);
+			border-top-left-radius: $radius-full;
+			border-bottom-left-radius: $radius-full;
+
+			@include bounce-anim($selector: "> [data-icon]");
+		}
+
+		&:nth-last-child(n + 3) {
+			@include bounce-anim($selector: "> [data-icon]");
+		}
+
+		&:nth-last-child(2) {
+			@include bounce-anim(0, "> [data-icon]");
+		}
+
+		&:not(.popup-container):last-child,
+		&.popup-container:last-child > button {
+			width: size(43);
+			padding-right: size(2);
+			border-top-right-radius: $radius-full;
+			border-bottom-right-radius: $radius-full;
+
+			@include bounce-anim(1, "> [data-icon]");
+		}
+
+		&:not(.popup-container):first-child:last-child,
+		&.popup-container:first-child:last-child > button {
+			width: size(42);
+		}
+
+		&:not(:first-child) {
+			border-left: inherit;
+		}
+	}
+
+	> .slider {
+		height: 100%;
+	}
+}

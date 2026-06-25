@@ -1,0 +1,43 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+@use "../../../styles/colors" as *;
+
+.media-key-response {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+
+	.overlay {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		padding: size(10) size(16);
+		margin-bottom: $page-margin;
+		font-family: var(--font-mono);
+	}
+
+	.animation {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		width: size(90);
+		height: size(90);
+		opacity: 0;
+
+		[data-icon] {
+			font-size: size(48);
+		}
+	}
+}

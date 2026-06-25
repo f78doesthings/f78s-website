@@ -17,6 +17,9 @@ interface Props {
 	/** A reference to the root container. */
 	containerRef?: Ref<HTMLDivElement>; // Cannot be named "ref" due to conflicts
 
+	/** A reference to the content container. */
+	contentRef?: Ref<HTMLDivElement>;
+
 	/** The extra classes to apply to the root container. */
 	containerClass?: string;
 
@@ -52,6 +55,7 @@ interface Props {
 /** Helper component for displaying overlays over an element when the user hovers over it. */
 export function OverlayContainer({
 	containerRef,
+	contentRef,
 	containerClass = "",
 	contentClass = "",
 	focusable,
@@ -94,7 +98,9 @@ export function OverlayContainer({
 			onPointerMove={(ev) => setHovering(ev.currentTarget)}
 		>
 			{top && <div class={`${styles.top} ${lockTop ? "" : styles.overlay}`}>{top}</div>}
-			<div class={`${styles.content} ${contentClass}`}>{children}</div>
+			<div class={`${styles.content} ${contentClass}`} ref={contentRef}>
+				{children}
+			</div>
 			{center && <div class={styles.center}>{center}</div>}
 			{bottom && <div class={`${styles.bottom} ${lockBottom ? "" : styles.overlay}`}>{bottom}</div>}
 		</div>

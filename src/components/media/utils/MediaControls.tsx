@@ -7,7 +7,9 @@
  */
 
 import { Signal, useComputed, useSignal, useSignalEffect } from "@preact/signals";
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
+import SeekForwardIcon from "~icons/fluent/arrow-clockwise-24-regular";
+import SeekBackwardIcon from "~icons/fluent/arrow-counterclockwise-24-regular";
 import DownloadIcon from "~icons/fluent/arrow-download-24-regular";
 import LoopOnIcon from "~icons/fluent/arrow-repeat-all-24-regular";
 import LoopOffIcon from "~icons/fluent/arrow-repeat-all-off-24-regular";
@@ -24,6 +26,7 @@ import type { MediaContext } from "../../../scripts/utils/audio";
 import { useEventTarget } from "../../../scripts/utils/preact";
 import { PopupMenu } from "../../utils/PopupMenu";
 import { Slider } from "../../utils/Slider";
+import type { MediaShortcutAnimation } from "./MediaShortcutResponse";
 
 import styles from "./MediaControls.module.scss";
 
@@ -39,14 +42,11 @@ interface Props {
 	/** The element that can be made full screen and needs to be focused in order to enable shortcuts. */
 	mediaRoot?: Signal<HTMLElement | null>;
 
-	/** @deprecated Will be replaced with {@linkcode mediaRoot} */
-	fullscreen?: {
-		/** A signal that indicates whether the media is in fullscreen. */
-		state: Signal<boolean>;
+	/** The element that the user must click/tap to trigger click events. */
+	clickTarget?: Signal<HTMLElement | null>;
 
-		/** Called when the fullscreen button is clicked. */
-		callback: () => Promise<void>;
-	};
+	/** Used to play animations in response to keyboard shortcuts. */
+	mediaAnimation?: Signal<MediaShortcutAnimation>;
 }
 
 /** Experimental universal controls for media elements. */
@@ -55,46 +55,58 @@ export function MediaControls({
 	media: mediaContext,
 	download,
 	mediaRoot,
+	clickTarget,
+	mediaAnimation,
 }: Props) {
 	const [playing, setPlaying] = useState(false);
 	const [looping, setLooping] = useState(false);
-	const [mutedVolume, setMutedVolume] = useState<number>();
 	const [volume, setVolume] = useState(0.5);
+	const [mutedVolume, setMutedVolume] = useState<number>();
 	const [buffered, setBuffered] = useState(0);
 	const [time, setTime] = useState(0);
 
+	const ref = useRef<HTMLDivElement>(null);
+	const prevScroll = useSignal(0);
 	const duration = useSignal(NaN);
 	const isFullscreen = useSignal(false);
 	const isFocused = useSignal(false);
 	const seekMode = useSignal<boolean>();
+	const media = useComputed(() => mediaContext.value?.source.mediaElement);
 
 	const playPauseText = playing ? "Pause (Space)" : "Play (Space)";
 	const fullscreenText = isFullscreen.value ? "Exit full screen (F)" : "Full screen (F)";
 	const muteText = mutedVolume !== undefined ? "Unmute (M)" : "Mute (M)";
 
-	const media = useComputed(() => mediaContext.value?.source.mediaElement);
-
 	//#region Utility functions
 
-	const playPause = () => {
+	const playPause = (ev?: Event) => {
 		if (!media.value) {
 			return;
 		}
 
-		if (media.value.paused || media.value.ended) {
+		const wasPaused = media.value.paused || media.value.ended;
+		if (wasPaused) {
 			void media.value.play();
 		} else {
 			media.value.pause();
 		}
+
+		if (!ev && mediaAnimation) {
+			mediaAnimation.value = {
+				icon: wasPaused ? <PlayIcon /> : <PauseIcon />,
+				direction: wasPaused ? "grow" : "shrink",
+			};
+		}
 	};
 
-	const toggleMute = () => {
+	const toggleMute = (ev?: Event) => {
 		if (!mediaContext.value) {
 			return;
 		}
 
 		const { amplifier } = mediaContext.value;
-		if (mutedVolume !== undefined) {
+		const wasMuted = mutedVolume !== undefined;
+		if (wasMuted) {
 			amplifier.gain.value = mutedVolume;
 			setVolume(mutedVolume);
 			setMutedVolume(undefined);
@@ -103,15 +115,28 @@ export function MediaControls({
 			setVolume(0);
 			amplifier.gain.value = 0;
 		}
+
+		if (!ev && mediaAnimation) {
+			mediaAnimation.value = {
+				icon: wasMuted ? <HighVolumeIcon /> : <MutedIcon />,
+				direction: wasMuted ? "grow" : "shrink",
+			};
+		}
 	};
 
 	const toggleFullscreen = () => {
-		if (isFullscreen.value) {
+		const wasFullscreen = isFullscreen.value;
+		if (wasFullscreen) {
 			document
 				.exitFullscreen()
-				.then(() => screen.orientation.unlock())
+				.then(() => {
+					// Correct the browser scrolling to the wrong point
+					window.scroll(0, prevScroll.value);
+					screen.orientation.unlock();
+				})
 				.catch(console.error);
 		} else if (mediaRoot?.value) {
+			prevScroll.value = window.scrollY;
 			mediaRoot.value
 				.requestFullscreen()
 				.catch(console.error)
@@ -124,6 +149,18 @@ export function MediaControls({
 		if (media.value) {
 			media.value.currentTime += seconds;
 		}
+
+		if (mediaAnimation) {
+			mediaAnimation.value = {
+				icon: (
+					<>
+						{seconds > 0 ? <SeekForwardIcon /> : <SeekBackwardIcon />}
+						<span class={styles["seek-amount"]}>{Math.abs(seconds)}</span>
+					</>
+				),
+				direction: seconds > 0 ? "right" : "left",
+			};
+		}
 	};
 
 	const adjustVolume = (amount: number) => {
@@ -131,9 +168,19 @@ export function MediaControls({
 			return;
 		}
 
-		const newVolume = clamp(volume + amount, 0, 1);
+		const unmutedVolume = mutedVolume !== undefined ? mutedVolume : volume;
+		const newVolume = clamp(unmutedVolume + amount, 0, 1);
 		mediaContext.value.amplifier.gain.value = newVolume;
 		setVolume(newVolume);
+		setMutedVolume(undefined);
+
+		if (mediaAnimation) {
+			mediaAnimation.value = {
+				icon: amount > 0 ? <HighVolumeIcon /> : <LowVolumeIcon />,
+				overlay: `${Math.round(newVolume * 100)}%`,
+				direction: amount > 0 ? "up" : "down",
+			};
+		}
 	};
 
 	//#endregion
@@ -197,51 +244,54 @@ export function MediaControls({
 		setLooping(media.value?.loop ?? false);
 	});
 
+	// Crude keyboard shortcut system
 	useEventTarget(
 		() => window,
 		(on) => {
 			on("keydown", (ev) => {
-				if (!isFocused.value && !isFullscreen.value) {
+				if ((!isFocused.value && !isFullscreen.value) || ev.metaKey || ev.ctrlKey || ev.altKey) {
 					return;
 				}
 
 				//console.debug("Key code:", ev.code, "| Key:", ev.key);
 				let handled = true;
-				switch (ev.code) {
-					case "Space":
-					case "KeyK":
-						playPause();
-						break;
+				if (!ev.shiftKey) {
+					switch (ev.code) {
+						case "Space":
+						case "KeyK":
+							playPause();
+							break;
 
-					case "KeyF":
-						toggleFullscreen();
-						break;
+						case "KeyF":
+							toggleFullscreen();
+							break;
 
-					// Volume
-					case "ArrowUp":
-						adjustVolume(0.05);
-						break;
-					case "ArrowDown":
-						adjustVolume(-0.05);
-						break;
+						// Volume
+						case "ArrowUp":
+							adjustVolume(0.05);
+							break;
+						case "ArrowDown":
+							adjustVolume(-0.05);
+							break;
 
-					// Seeking
-					case "ArrowLeft":
-						seek(-5);
-						break;
-					case "ArrowRight":
-						seek(5);
-						break;
-					case "KeyJ":
-						seek(-10);
-						break;
-					case "KeyL":
-						seek(10);
-						break;
+						// Seeking
+						case "ArrowLeft":
+							seek(-5);
+							break;
+						case "ArrowRight":
+							seek(5);
+							break;
+						case "KeyJ":
+							seek(-10);
+							break;
+						case "KeyL":
+							seek(10);
+							break;
 
-					default:
-						handled = false;
-						break;
+						default:
+							handled = false;
+							break;
+					}
 				}
 
 				if (handled) {
@@ -277,6 +327,47 @@ export function MediaControls({
 		});
 	});
 
+	// Crude click handlers
+	// TODO: This could probably be improved...
+	useEventTarget(
+		clickTarget?.value,
+		(on) => {
+			let lastClick = -1;
+			on("pointerup", (ev) => {
+				const now = performance.now();
+				const isDoubleClick = now - lastClick < 500;
+				lastClick = isDoubleClick ? -1 : now;
+
+				ev.preventDefault();
+				if (ev.pointerType !== "mouse" && clickTarget?.value) {
+					const bounds = clickTarget.value.getBoundingClientRect();
+					const xPercent = (ev.clientX - bounds.left) / bounds.width;
+					const yPercent = (ev.clientY - bounds.top) / bounds.height;
+
+					if (yPercent < 1 / 4) {
+						if (isDoubleClick) adjustVolume(0.1);
+						return;
+					} else if (yPercent > 3 / 4) {
+						if (isDoubleClick) adjustVolume(-0.1);
+						return;
+					} else if (xPercent < 1 / 3) {
+						if (isDoubleClick) seek(-5);
+						return;
+					} else if (xPercent > 2 / 3) {
+						if (isDoubleClick) seek(5);
+						return;
+					}
+				}
+
+				playPause();
+				if (isDoubleClick) {
+					toggleFullscreen();
+				}
+			});
+		},
+		[volume, mutedVolume],
+	);
+
 	useSignalEffect(() => {
 		const loopObserver = new MutationObserver(() => {
 			setLooping(media.value?.loop ?? false);
@@ -293,7 +384,7 @@ export function MediaControls({
 	//#endregion
 
 	return (
-		<div class={`${className} ${styles["media-controls"]}`}>
+		<div ref={ref} class={`${className} ${styles["media-controls"]}`}>
 			<Slider
 				value={time}
 				secondaryValue={buffered}
@@ -368,16 +459,19 @@ export function MediaControls({
 						</button>
 					)}
 					<PopupMenu title="More options">
-						<button
-							onClick={() => {
-								if (media.value) {
-									media.value.loop = !media.value.loop;
-								}
-							}}
-						>
+						<label>
 							{looping ? <LoopOnIcon /> : <LoopOffIcon />}
 							Loop
-						</button>
+							<input
+								type="checkbox"
+								checked={looping}
+								onChange={() => {
+									if (media.value) {
+										media.value.loop = !media.value.loop;
+									}
+								}}
+							/>
+						</label>
 						{download && (
 							<a href={download} download={getFileName(download)}>
 								<DownloadIcon /> Download

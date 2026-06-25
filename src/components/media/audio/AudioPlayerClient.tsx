@@ -17,8 +17,13 @@ import { createMediaContext, type MediaContext } from "../../../scripts/utils/au
 import type { CopyrightInfo, Replace } from "../../../types.js";
 import { MediaControls } from "../utils/MediaControls.jsx";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay.jsx";
+import {
+	MediaShortcutResponse,
+	type MediaShortcutAnimation,
+} from "../utils/MediaShortcutResponse.js";
 import { VisualizerSelector } from "./visualizers/VisualizerSelector.js";
 
+import "../../../styles/media.scss";
 import styles from "./AudioPlayerClient.module.scss";
 
 type Props = Replace<
@@ -33,9 +38,11 @@ type Props = Replace<
 export function AudioPlayerClient({ src, children, class: className = "", ...props }: Props) {
 	const audio = useRef<HTMLAudioElement>(null);
 	const root = useSignalRef<HTMLDivElement | null>(null);
+	const contentContainer = useSignalRef<HTMLDivElement | null>(null);
 	const mediaConnection = useSignal<MediaContext>();
 	const isFullscreen = useSignal(false);
 	const isPaused = useSignal(true);
+	const mediaAnimation = useSignal<MediaShortcutAnimation>({});
 
 	const updateFullscreen = () => {
 		isFullscreen.value = root.current !== null && document.fullscreenElement === root.current;
@@ -76,15 +83,20 @@ export function AudioPlayerClient({ src, children, class: className = "", ...pro
 
 	return (
 		<div ref={root} class={`${styles["audio-player"]} ${className}`} tabindex={0}>
-			<MediaInfoOverlay class={styles["info"]} src={src} {...props}>
+			<MediaInfoOverlay class={styles.info} src={src} {...props}>
 				{children}
 			</MediaInfoOverlay>
-			<VisualizerSelector media={mediaConnection} paused={isPaused} class={styles["visualizer"]} />
+			<div class={styles.content} ref={contentContainer}>
+				<VisualizerSelector media={mediaConnection} paused={isPaused} class={styles.visualizer} />
+				<MediaShortcutResponse animation={mediaAnimation.value} />
+			</div>
 			<MediaControls
-				class={styles["controls"]}
+				class={styles.controls}
 				media={mediaConnection}
 				download={props.license !== null ? src : undefined}
 				mediaRoot={root}
+				clickTarget={contentContainer}
+				mediaAnimation={mediaAnimation}
 			/>
 
 			<audio src={src} ref={audio} preload="metadata" {...props} />

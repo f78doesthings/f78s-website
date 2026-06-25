@@ -6,14 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Displays a notice of a work's licence.
-
 import { LICENSES, SITE_AUTHOR } from "../../../consts.tsx";
 import type { CopyrightInfo, LicenseType } from "../../../types.ts";
 import Link from "../../nav/Link.tsx";
 
+/** Displays a notice of a work's licence. */
 export default function LicenseNotice({
-	license = "CC-BY-4.0",
+	license = "CC-BY-SA-4.0",
 	createdIn,
 	createdBy = SITE_AUTHOR,
 	source,

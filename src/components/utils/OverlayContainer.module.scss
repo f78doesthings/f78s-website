@@ -15,6 +15,8 @@
 	&.overlay {
 		#{$direction}: 0;
 		padding-#{if(sass($direction == top): bottom; else: top)}: $margin;
+		text-shadow: 0 size(1) size(6) rgb(0 0 0 / 75%);
+		color: white;
 
 		&::before {
 			background: linear-gradient(
@@ -76,7 +78,6 @@
 .bottom {
 	width: 100%;
 	z-index: 1;
-	text-shadow: 0 size(1) size(6) rgb(0 0 0 / 75%);
 
 	&.overlay {
 		position: absolute;
@@ -118,4 +119,11 @@
 
 .bottom {
 	@include overlay(bottom);
+}
+
+.center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }

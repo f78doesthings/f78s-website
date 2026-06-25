@@ -7,12 +7,15 @@
  */
 
 import { useSignalEffect, type Signal } from "@preact/signals";
-import { useEffect, useRef } from "preact/compat";
+import type { Ref } from "preact";
+import { useEffect, useRef } from "preact/hooks";
 
 import type { MediaContext } from "../../../../scripts/utils/audio";
 import { autoResizeCanvas } from "../../../../scripts/utils/canvas/auto-resize";
+import { wrapRefs } from "../../../../scripts/utils/preact";
 
 export interface VisualizerProps {
+	visualizerRef?: Ref<any>;
 	class?: string;
 	media: Signal<MediaContext | undefined>;
 	paused?: Signal<boolean>;
@@ -27,6 +30,7 @@ interface BaseVisualizerContext {
 interface VisualizerContext<T = undefined> extends BaseVisualizerContext {
 	data: T;
 	time: number;
+	deltaTime: number;
 }
 
 interface Props<T = undefined> extends VisualizerProps {
@@ -44,30 +48,31 @@ export const visualizerGradients = {
 
 /** A helper component for creating audio visualizers. */
 export function AudioVisualizer<T = undefined>({
+	visualizerRef: canvasRef,
 	class: className,
 	media,
 	paused,
 	init,
 	draw,
 }: Props<T>) {
-	const ref = useRef<HTMLCanvasElement>(null);
+	const canvas = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
-		if (!ref.current) {
+		if (!canvas.current) {
 			return undefined;
 		}
 
-		return autoResizeCanvas(ref.current, {
+		return autoResizeCanvas(canvas.current, {
 			onResize: ({ renderScale }) => {
-				if (ref.current) {
-					ref.current.dataset.renderScale = renderScale.toString();
+				if (canvas.current) {
+					canvas.current.dataset.renderScale = renderScale.toString();
 				}
 			},
 		}).destroy;
 	});
 
 	useSignalEffect(() => {
-		const ctx = ref.current?.getContext("2d");
+		const ctx = canvas.current?.getContext("2d");
 		if (!ctx || !media.value) {
 			return undefined;
 		}
@@ -86,6 +91,7 @@ export function AudioVisualizer<T = undefined>({
 		let prevHeight = ctx.canvas.height;
 		let destroyed = false;
 		let forceFrame = true;
+		let prevTime = 0;
 		const nextFrame: FrameRequestCallback = (time) => {
 			if (destroyed) {
 				return;
@@ -104,8 +110,10 @@ export function AudioVisualizer<T = undefined>({
 					...visualizerContext,
 					data: data!,
 					time,
+					deltaTime: time - prevTime,
 				});
 				forceFrame = false;
+				prevTime = time;
 			}
 
 			requestAnimationFrame(nextFrame);
@@ -118,5 +126,5 @@ export function AudioVisualizer<T = undefined>({
 		};
 	});
 
-	return <canvas class={className} ref={ref} />;
+	return <canvas class={className} ref={wrapRefs(canvas, canvasRef)} />;
 }

@@ -17,7 +17,9 @@ import { OverlayContainer } from "../../utils/OverlayContainer";
 import { VisualizerSelector } from "../audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../utils/MediaControls";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay";
+import { MediaShortcutResponse, type MediaShortcutAnimation } from "../utils/MediaShortcutResponse";
 
+import "../../../styles/media.scss";
 import styles from "./VideoPlayerClient.module.scss";
 
 type Props = Replace<
@@ -34,10 +36,12 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 	// should probably be refactored at some point
 	const video = useRef<HTMLVideoElement>(null);
 	const root = useSignalRef<HTMLDivElement | null>(null);
+	const contentContainer = useSignalRef<HTMLDivElement | null>(null);
 	const mediaConnection = useSignal<MediaContext>();
 	const isFullscreen = useSignal(false);
 	const isPaused = useSignal(true);
 	const pauseVisualizer = useComputed(() => isPaused.value || !isFullscreen.value);
+	const mediaAnimation = useSignal<MediaShortcutAnimation>({});
 
 	//#region Event listeners
 
@@ -83,6 +87,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 	return (
 		<OverlayContainer
 			containerRef={root}
+			contentRef={contentContainer}
 			containerClass={`${styles["video-player-container"]} ${className}`}
 			contentClass={styles["video-player-content"]}
 			focusable
@@ -100,7 +105,9 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 					media={mediaConnection}
 					download={props.license !== null ? src : undefined}
 					mediaRoot={root}
-				></MediaControls>
+					clickTarget={contentContainer}
+					mediaAnimation={mediaAnimation}
+				/>
 			}
 		>
 			<video src={src} ref={video} preload="metadata" class={styles.video} {...props} />
@@ -109,6 +116,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 				paused={pauseVisualizer}
 				class={styles.visualizer}
 			/>
+			<MediaShortcutResponse animation={mediaAnimation.value} />
 		</OverlayContainer>
 	);
 }

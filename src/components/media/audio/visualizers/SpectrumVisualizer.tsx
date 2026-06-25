@@ -12,7 +12,14 @@ import { AudioVisualizer, visualizerGradients, type VisualizerProps } from "./Au
 
 /** A visualizer that displays the audio spectrum. */
 export function SpectrumVisualizer(props: VisualizerProps) {
-	//#region Spectrum settings
+	//#region Spectrum settings (to be moved to preferences)
+
+	/**
+	 * Window size in samples. Must be a power of 2 between 32 and 32768.
+	 *
+	 * Increasing this improves frequency details at the cost of performance and time information.
+	 */
+	const windowSize = 8192;
 
 	// Slope settings derived from the default in Voxengo SPAN
 	/** Slope amount per octave (dB) */
@@ -35,23 +42,28 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	/** Lowest displayed volume (dBFS) */
 	const minVol = -144;
 
+	/** How much the spectrum is lowered per second (dB) */
+	const reductionRate = 54;
+
 	//#endregion
 
 	return (
 		<AudioVisualizer
 			{...props}
 			init={({ analyser }) => {
-				// BUG: the spectrum analyser is framerate dependent
-				analyser.fftSize = 8192;
-				analyser.smoothingTimeConstant = 0.875;
-				return new Float32Array(analyser.frequencyBinCount);
+				analyser.fftSize = windowSize;
+				analyser.smoothingTimeConstant = 0;
+				return {
+					current: new Float32Array(analyser.frequencyBinCount),
+					previous: new Float32Array(analyser.frequencyBinCount).fill(-Infinity),
+				};
 			}}
-			draw={({ analyser, ctx, data }) => {
+			draw={({ analyser, ctx, data, deltaTime }) => {
 				const width = ctx.canvas.width;
 				const height = ctx.canvas.height;
 				const renderScale = Number(ctx.canvas.dataset.renderScale ?? 1) || 1;
-				const bufferLength = data.length;
-				analyser.getFloatFrequencyData(data);
+				const bufferLength = data.current.length;
+				analyser.getFloatFrequencyData(data.current);
 
 				const fontSize = Math.ceil(renderScale * 10 + height / 200);
 				const textPadding = Math.ceil(fontSize / 5);
@@ -147,11 +159,15 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				ctx.lineWidth = maxThickness;
 				ctx.beginPath();
 
+				const volumeReduction = reductionRate * (deltaTime / 1000);
 				const halfSampleRate = analyser.context.sampleRate / 2;
 				const floor = height - getX(0);
 				for (let i = 0; i < bufferLength; i++) {
 					const frequency = (i / bufferLength) * halfSampleRate;
-					const decibels = data[i] + slope * Math.log2(frequency / slopeCenter);
+					const currentDecibels = Math.max(data.current[i], data.previous[i] - volumeReduction);
+					const decibels = currentDecibels + slope * Math.log2(frequency / slopeCenter);
+					data.previous[i] = currentDecibels;
+
 					const x = getX(frequency);
 					const y = isFinite(decibels) ? getY(decibels) : floor;
 
@@ -201,6 +217,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				path.closePath();
 				ctx.fillStyle = fillGradient;
 				ctx.stroke();
+				// oxlint-disable-next-line unicorn/no-array-fill-with-reference-type - false positive
 				ctx.fill(path);
 			}}
 		></AudioVisualizer>
