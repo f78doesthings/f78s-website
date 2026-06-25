@@ -10,12 +10,7 @@ import type { NotUndefined } from "../../types.ts";
 import type { Preference } from "../preferences/types/Preference.ts";
 import { dependenciesMet, type MapLike } from "../preferences/utils.ts";
 
-// TODO: could this be handled better?
-const root = document.querySelector<HTMLElement>(".debug-display")!;
-if (!root) {
-	throw new Error("Could not find root element for the debug display");
-}
-
+const root = globalThis.document?.querySelector<HTMLElement>(".debug-display");
 export class DebugCategory {
 	static readonly #instances: DebugCategory[] = [];
 
@@ -24,7 +19,7 @@ export class DebugCategory {
 	#destroyed = false;
 
 	constructor(public name: string) {
-		let container = root.querySelector<HTMLElement>(`[data-debug-category="${name}"]`);
+		let container = root?.querySelector<HTMLElement>(`[data-debug-category="${name}"]`);
 		if (!container) {
 			container = document.createElement("section");
 			container.dataset.debugCategory = name;
@@ -33,7 +28,7 @@ export class DebugCategory {
 			heading.textContent = name;
 
 			container.appendChild(heading);
-			root.appendChild(container);
+			root?.appendChild(container);
 		}
 
 		this.container = container;
@@ -41,6 +36,10 @@ export class DebugCategory {
 	}
 
 	static updateVisibilities() {
+		if (!root) {
+			return false;
+		}
+
 		let visible = false;
 		for (const category of this.#instances) {
 			if (category.updateVisibility()) {
@@ -157,4 +156,6 @@ export class DebugDisplay implements DebugDisplayConfig {
 	}
 }
 
-document.addEventListener("custom:preferences-updated", () => DebugCategory.updateVisibilities());
+globalThis.document?.addEventListener("custom:preferences-updated", () =>
+	DebugCategory.updateVisibilities(),
+);

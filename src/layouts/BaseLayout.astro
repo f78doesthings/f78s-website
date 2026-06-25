@@ -184,7 +184,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 			{/* TODO: can I add a link to the page's source code on GitHub here? */}
 		</footer>
 
-		<ImmersiveBackground client:only="preact" transition:persist />
+		<ImmersiveBackground client:idle transition:persist />
 		<div class="debug-display" transition:persist></div>
 		<div id="media-viewer-root"></div>
 	</body>

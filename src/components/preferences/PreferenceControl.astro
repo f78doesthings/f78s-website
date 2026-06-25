@@ -116,6 +116,7 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 
 const dependencyVars = getDependencyString(preference.dependencies);
 const PreferenceIcon = preference.icon ?? (() => undefined);
+// TODO: this probably needs refactoring at some point
 ---
 
 <label
@@ -149,7 +150,7 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 		)
 	}
 
-	<InnerPreferenceControl client:load preference={id} {...cid} />
+	<InnerPreferenceControl client:idle preference={id} {...cid} />
 </label>
 
 <script>

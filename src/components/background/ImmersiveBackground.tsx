@@ -25,6 +25,10 @@ let immersiveModeSupported = signal<boolean>();
 effect(updateImmersiveBackgroundState);
 
 function updateImmersiveBackgroundState() {
+	if (!("document" in globalThis)) {
+		return;
+	}
+
 	document.documentElement.dataset.bgSupported =
 		immersiveModeSupported.value !== undefined
 			? immersiveModeSupported.value
@@ -39,18 +43,20 @@ export function ImmersiveBackground() {
 			class={styles["immersive-background"]}
 			ref={(canvas) => {
 				// Set up WebGL
-				immersiveModeSupported.value = false;
 				if (!canvas) {
-					return console.error("Could not find the canvas element for the immersive background.");
+					immersiveModeSupported.value = false;
+					return;
 				}
 
 				const gl = canvas.getContext("webgl");
 				if (!gl) {
+					immersiveModeSupported.value = false;
 					return console.error("WebGL is unavailable. The immersive background will be disabled.");
 				}
 
 				const shaderProgram = initShaderProgram(gl, fragSource);
 				if (!shaderProgram) {
+					immersiveModeSupported.value = false;
 					return;
 				}
 
