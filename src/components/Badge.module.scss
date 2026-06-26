@@ -10,7 +10,7 @@
 @use "../styles/colors" as *;
 @use "sass:color";
 
-h1:has(.badge) {
+:is(h1, h2, h3, h4, h5, h6):has(.badge) {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;

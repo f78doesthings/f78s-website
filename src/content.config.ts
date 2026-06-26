@@ -9,8 +9,11 @@
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
+import type { DefaultLogFields } from "simple-git";
 
 import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
+import { git } from "./server-utils.ts";
+import type { VersionInfo } from "./types.ts";
 
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -84,4 +87,76 @@ const links = defineCollection({
 		}),
 });
 
-export const collections = { blog, links };
+//#region Versions
+
+const semverRegex =
+	/^v?(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+const isPrerelease = (version: string) => {
+	const result = semverRegex.exec(version);
+	return result?.groups?.["prerelease"] !== undefined;
+};
+
+const jsonifyCommit = (commit: DefaultLogFields) => {
+	return { ...commit };
+};
+
+function removeTagPrefix(tag: string): string;
+function removeTagPrefix(tag?: string): string | undefined;
+function removeTagPrefix(tag?: string) {
+	return tag?.replace(/^v/, "");
+}
+
+// TODO: this collection can take a while to load (good thing it's only at build time)
+const versions = defineCollection({
+	loader: async () => {
+		const result: VersionInfo[] = [];
+		const firstCommit = await git.firstCommit();
+		const tags = (await git.tags()).all;
+		tags.sort();
+
+		for (let i = 0; i < tags.length; i++) {
+			const tag = tags[i];
+			const prerelease = isPrerelease(tag);
+			const prevStable = tags.findLast((version, index) => index < i && !isPrerelease(version));
+			const prevPrerelease = tags.findLast((version, index) => index < i && isPrerelease(version));
+			const nextStable = tags.find((version, index) => index > i && !isPrerelease(version));
+			const nextPrerelease = tags.find((version, index) => index > i && isPrerelease(version));
+
+			const commits = await git.log({
+				from: prevStable ?? firstCommit,
+				to: tag,
+				strictDate: true,
+				symmetric: false,
+				multiLine: true,
+			});
+			const devCommits = prerelease
+				? await git.log({
+						from: prevPrerelease ?? prevStable ?? firstCommit,
+						to: tag,
+						strictDate: true,
+						symmetric: false,
+						multiLine: true,
+					})
+				: undefined;
+
+			result.push({
+				id: removeTagPrefix(tag),
+				prerelease,
+				prevStable: removeTagPrefix(prevStable),
+				prevPrerelease: removeTagPrefix(prevPrerelease),
+				nextStable: removeTagPrefix(nextStable),
+				nextPrerelease: removeTagPrefix(nextPrerelease),
+				date: devCommits?.latest?.date ?? commits.latest?.date,
+				stableCommits: commits.all.map(jsonifyCommit),
+				prereleaseCommits: devCommits?.all.map(jsonifyCommit),
+			});
+		}
+
+		return result;
+	},
+});
+
+//#endregion
+
+export const collections = { blog, links, versions };

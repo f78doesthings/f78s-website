@@ -58,7 +58,6 @@ const { ...cid } = Astro.props;
 		margin: 0;
 		line-height: 0;
 		font-size: size(30);
-		font-weight: 900;
 
 		picture {
 			margin-right: size(6);
@@ -70,6 +69,7 @@ const { ...cid } = Astro.props;
 		a {
 			gap: size(6);
 			align-items: center;
+			font-weight: 900;
 		}
 
 		@include bounce-anim($selector: "picture");

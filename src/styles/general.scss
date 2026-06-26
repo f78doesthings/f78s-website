@@ -242,6 +242,11 @@ h6 {
 	line-height: 1;
 }
 
+abbr[title] {
+	text-decoration-color: color-mix(in srgb, currentcolor, transparent 30%);
+	text-underline-offset: size(3, true);
+}
+
 small,
 figcaption {
 	color: var(--color-dim);
@@ -258,10 +263,7 @@ kbd {
 	font-family: var(--font-mono), monospace;
 	font-size: size(14, true);
 
-	p &,
-	.version-table &,
-	main li > &,
-	main li > a > & {
+	:where(main > &, main :not(.astro-code) > &) {
 		background-color: var(--color-component);
 		border: 1px solid var(--color-border);
 		border-radius: size(16);
@@ -285,17 +287,17 @@ kbd {
 	}
 }
 
-p [data-icon] {
-	margin-top: size(-2, true);
-	vertical-align: middle;
-	font-size: 1.25em;
+[data-icon] {
+	font-size: size(20, true);
+
+	p &,
+	li & {
+		margin-top: size(-2, true);
+		vertical-align: middle;
+	}
 }
 
-p a,
-small a,
-[data-banner] a,
-main li > a,
-.version-table a {
+:where(a:any-link) {
 	color: $red-450;
 	font-weight: 500;
 	text-underline-offset: size(3, true);
@@ -382,6 +384,7 @@ option {
 	}
 
 	@include preferences("light") {
+		color: var(--color-heading);
 		background: linear-gradient($red-250, $red-350);
 	}
 }
@@ -429,11 +432,14 @@ main {
 		.side-by-side {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			align-items: center;
 			gap: $page-margin;
 
 			figure {
 				margin: 0;
+			}
+
+			> * > :is(h1, h2, h3, h4, h5, h6):first-child {
+				margin-top: size(4);
 			}
 		}
 
@@ -546,6 +552,32 @@ main {
 			> ol {
 				margin: size(8) 0 size(12);
 			}
+
+			&::marker {
+				color: var(--color-dimmer);
+			}
+		}
+	}
+
+	details {
+		--shadow-color: var(--color-page);
+
+		padding-inline: $page-margin;
+		border-radius: size(16);
+		margin-bottom: $page-margin;
+
+		background-color: color-mix(in srgb, var(--color-component), transparent 50%);
+		box-shadow: 0 0 size(16) var(--shadow-color) inset;
+		border: 1px solid var(--color-border);
+
+		@include preferences("light") {
+			--shadow-color: var(--color-component);
+		}
+
+		summary {
+			font-weight: 500;
+			padding: size(18) $page-margin;
+			margin-inline: -$page-margin;
 
 			&::marker {
 				color: var(--color-dimmer);

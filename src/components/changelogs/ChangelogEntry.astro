@@ -1,0 +1,154 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { DefaultLogFields } from "simple-git";
+import { SITE_REPOSITORY } from "astro:env/client";
+
+import Markdown from "../utils/Markdown.astro";
+import FormattedDate from "../FormattedDate.astro";
+import Link from "../nav/Link";
+
+import TimestampIcon from "~icons/octicon/clock-16";
+import CommitIcon from "~icons/octicon/git-commit-16";
+import TagIcon from "~icons/octicon/tag-16";
+import { joinURL } from "../../scripts/utils";
+
+interface Props {
+	commit: DefaultLogFields;
+}
+
+const { commit } = Astro.props;
+const tag = /tag: (.*)/.exec(commit.refs)?.[1];
+
+const match =
+	/^(?:(?<type>\w+)(?:\((?<scope>\w+)\))?: )?(?<description>.*)\n*(?<body>[\s\S]*)$/.exec(
+		commit.body,
+	);
+const type = match?.groups?.type ?? "";
+const scope = match?.groups?.scope ?? "";
+const description = match?.groups?.description ?? commit.body;
+const body = match?.groups?.body ?? "";
+
+const typeTexts: Record<string, string | undefined> = {
+	feat: "This type corresponds to new features for the website.",
+	fix: "This type corresponds to fixes for existing features.",
+	refactor:
+		"This type corresponds to code rewriting/restructuring, and typically has little impact on the UI.",
+	perf: "This is a special type of 'refactor' for performance improvements.",
+	test: "This type corresponds to adding or correcting test cases for the code, though I'm not doing any testing like this yet...",
+	docs: "This type corresponds to changes to the repository's documentation.",
+	build:
+		"This type corresponds to changes to the website's build process, which has little to no impact on the UI.",
+};
+
+const scopeTexts: Record<string, string | undefined> = {
+	media: "This scope corresponds to the website's image, video and audio features.",
+};
+---
+
+<article class="commit">
+	<header>
+		<Markdown
+			content={`### ${
+				type && `<abbr class="type" title="${typeTexts[type] ?? ""}">${type}</abbr>`
+			}${
+				scope && `(<abbr class="scope" title="${scopeTexts[scope] ?? ""}">${scope}</abbr>)`
+			}${type && ": "}${description}`}
+		/>
+
+		<ul class="details">
+			<li>
+				<FormattedDate date={commit.date} showTime tooltip="Commit timestamp">
+					<TimestampIcon slot="icon" />
+				</FormattedDate>
+			</li>
+			<li title="Commit hash">
+				<CommitIcon />{" "}
+				<Link href={joinURL(SITE_REPOSITORY, "commit", commit.hash)} external
+					><code>{commit.hash.substring(0, 7)}</code></Link
+				>
+			</li>
+			{
+				/* prettier-ignore */
+				tag && (
+					<li title="Assigned tag">
+						<TagIcon />{" "}
+						<Link href={joinURL(SITE_REPOSITORY, "tree", tag)} external><code>{tag}</code></Link>
+					</li>
+				)
+			}
+		</ul>
+	</header>
+	<Markdown content={body} />
+</article>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	.commit {
+		padding-bottom: $page-margin;
+		margin-bottom: $page-margin;
+		border-bottom: 1px solid var(--color-border);
+
+		&:last-of-type {
+			border-bottom: none;
+			padding-bottom: 0;
+			margin-bottom: size(18);
+		}
+	}
+
+	header {
+		&:last-child .details {
+			margin-bottom: 0;
+		}
+
+		.details {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			list-style: none;
+			gap: size(6) size(12);
+			padding: 0;
+			margin-block: size(12);
+
+			color: var(--color-dim);
+			font-size: size(14);
+
+			[data-icon] {
+				font-size: size(16);
+				margin-right: size(2);
+			}
+
+			> li,
+			> li > p {
+				margin: 0;
+			}
+		}
+
+		+ :global(*) {
+			margin: 0;
+		}
+
+		> :global(h3) {
+			margin: 0;
+			color: var(--color-text);
+			font-size: size(18);
+			font-weight: 400;
+
+			> :global(.type) {
+				font-weight: 600;
+			}
+
+			> :global(.scope) {
+				color: var(--color-dim);
+				font-style: normal;
+			}
+		}
+	}
+</style>

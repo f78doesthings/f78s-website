@@ -17,6 +17,7 @@ import type { CopyrightInfo } from "../../../types";
 import { OverlayContainer } from "../../utils/OverlayContainer";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay";
 
+import "../../../styles/media.scss";
 import styles from "./MediaViewer.module.scss";
 
 export interface MediaProps extends CopyrightInfo {

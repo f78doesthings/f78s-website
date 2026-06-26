@@ -113,9 +113,9 @@ const { id } = Astro.props;
 			}
 		}
 
-		:global([data-icon]),
-		button {
+		> :global([data-icon]) {
 			flex-shrink: 0;
+			font-size: size(20);
 		}
 
 		:global(a) {
@@ -147,6 +147,7 @@ const { id } = Astro.props;
 			--hover-text: #{$red-950};
 
 			padding: size(4) size(10);
+			flex-shrink: 0;
 
 			background-color: transparent;
 			border: 1px solid color-mix(in srgb, var(--color-heading), transparent 50%);

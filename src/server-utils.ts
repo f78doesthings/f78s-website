@@ -12,12 +12,34 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs";
 
 import type { UnresolvedImageTransform } from "astro";
+import { getCollection } from "astro:content";
+import simpleGit from "simple-git";
 
-import type { MediaSource } from "./types.ts";
+import type { MediaSource, VersionInfo } from "./types.ts";
+
+export const git = simpleGit();
+
+export async function getVersions() {
+	const collection = await getCollection("versions");
+	const versions: (VersionInfo & Record<string, never>)[] = collection.map((v) => v.data);
+
+	versions.sort((a, b) => {
+		// Handle undefined
+		if (!a.date && !b.date) return 0;
+		if (!a.date) return 1;
+		if (!b.date) return -1;
+
+		// Sort by date, newest first (this works because the ISO 8601 format is sortable)
+		return b.date.localeCompare(a.date);
+	});
+
+	return versions;
+}
 
 export function getModifiedTime(filePath: string) {
 	try {
-		// Use file system modification date in a development environment
+		// Use file system modification date in a development environment, as executing `git`
+		// inevitably takes some time
 		if (import.meta.env.DEV) {
 			const stats = fs.statSync(filePath);
 			return stats.mtime.toISOString();

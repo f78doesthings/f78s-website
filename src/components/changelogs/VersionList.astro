@@ -1,0 +1,79 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { VersionInfo } from "../../types";
+import FormattedDate from "../FormattedDate.astro";
+
+type Props = {
+	versions: VersionInfo[];
+	showLatest?: boolean;
+};
+
+const { versions, showLatest = true } = Astro.props;
+---
+
+<ol class="version-list">
+	{
+		versions.map((v, i) => (
+			<li>
+				<a href={`/version/${v.id}`} class="version">
+					{v.id}
+				</a>
+				{showLatest && i === 0 && <span class="latest">Latest</span>}
+				<div class="separator" />
+				<FormattedDate date={v.date} />
+			</li>
+		))
+	}
+</ol>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+	@use "../../styles/colors" as *;
+
+	.version-list {
+		padding: 0;
+
+		> li {
+			display: flex;
+			align-items: center;
+			list-style: none;
+			gap: size(8);
+			margin-block: 0 size(4);
+
+			.separator {
+				flex-grow: 1;
+			}
+
+			.latest {
+				padding: size(2) size(8);
+				background-color: color-mix(in srgb, $red-600, transparent 80%);
+				border: 1px solid $red-500;
+				border-radius: $radius-full;
+				color: $red-50;
+				font-size: size(14);
+
+				@include preferences("light") {
+					color: $red-950;
+					border-color: $red-600;
+					background-color: color-mix(in srgb, $red-400, transparent 80%);
+				}
+			}
+
+			&:not(:first-child) {
+				opacity: 0.75;
+				margin: 0;
+
+				@media (prefers-contrast: more) {
+					opacity: 0.9;
+				}
+			}
+		}
+	}
+</style>

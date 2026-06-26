@@ -8,6 +8,7 @@
 
 import type { CollectionEntry } from "astro:content";
 import type { JSX, SVGAttributes } from "preact";
+import type { DefaultLogFields } from "simple-git";
 
 import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 
@@ -76,6 +77,39 @@ export interface MediaInfo extends CopyrightInfo {
 	 * for local media files.
 	 */
 	src?: MediaSource;
+}
+
+//#endregion
+
+//#region Site versioning
+
+export interface VersionInfo {
+	/** The semantic version string. */
+	id: string; // Named `id` for use with content collections
+
+	/** Whether this is a pre-release version. */
+	prerelease: boolean;
+
+	/** The stable version that preceded this one. */
+	prevStable?: string;
+
+	/** The pre-release version that preceded this one. */
+	prevPrerelease?: string;
+
+	/** The stable version that follows this one. */
+	nextStable?: string;
+
+	/** The pre-release version that follows this one. */
+	nextPrerelease?: string;
+
+	/** The date of the version's most recent commit, in strict ISO format. */
+	date?: string;
+
+	/** The commits made since the last stable version. */
+	stableCommits: DefaultLogFields[];
+
+	/** The commits made since the last pre-release version. */
+	prereleaseCommits?: DefaultLogFields[];
 }
 
 //#endregion

@@ -14,10 +14,13 @@ import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
 import consola from "consola";
+import simpleGit from "simple-git";
 import Icons from "unplugin-icons/vite";
 
 import packageJSON from "./package.json";
 import { hastExternalLinks } from "./plugins/hast-external-links.ts";
+
+const git = simpleGit();
 
 function tryExec(command: string) {
 	try {
@@ -28,15 +31,20 @@ function tryExec(command: string) {
 	}
 }
 
-const gitBranch = tryExec("git branch --show-current") ?? "main";
-const gitCommit = tryExec("git rev-parse --short HEAD");
+const gitBranch = (await git.branch()).current;
+const gitCommit = await git.revparse(["--short", "HEAD"]);
 const gitDate = tryExec("git log -1 --format=%cI HEAD") ?? new Date().toISOString();
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://www.f78.be",
 	redirects: {
+		// Compatibility for the old Jekyll site
+		// (might need to handle this through Cloudflare instead...)
 		"/feed.xml": "/rss.xml",
+
+		// Add `latest` as an alias for the current version
+		"/version/latest": `/version/${packageJSON.version}`,
 	},
 	experimental: {
 		contentIntellisense: true,
@@ -47,6 +55,11 @@ export default defineConfig({
 			GIT_BRANCH: envField.string({ context: "client", access: "public", default: gitBranch }),
 			GIT_COMMIT: envField.string({ context: "client", access: "public", default: gitCommit }),
 			GIT_COMMIT_DATE: envField.string({ context: "client", access: "public", default: gitDate }),
+			SITE_LICENSE: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.license,
+			}),
 			SITE_REPOSITORY: envField.string({
 				context: "client",
 				access: "public",

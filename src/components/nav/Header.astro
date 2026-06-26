@@ -265,6 +265,10 @@ const { headings } = Astro.props;
 		cursor: pointer;
 
 		@include btn-transparent;
+
+		@include preferences("light") {
+			color: var(--color-heading);
+		}
 	}
 
 	// Sidebar
@@ -311,7 +315,7 @@ const { headings } = Astro.props;
 
 		display: flex;
 		flex-direction: column;
-		padding: size(8) 0;
+		padding: size(10) 0;
 		visibility: collapse;
 		z-index: 2100;
 
@@ -369,6 +373,7 @@ const { headings } = Astro.props;
 		.version {
 			font-size: size(14);
 			color: var(--color-dimmer);
+			padding-block: size(5);
 		}
 
 		> .hide-sidebar {

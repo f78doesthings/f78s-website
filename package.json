@@ -1,6 +1,7 @@
 {
 	"name": "f78s-website",
-	"version": "0.4.0-alpha.4",
+	"version": "0.4.0-alpha.5",
+	"homepage": "https://f78.be/",
 	"license": "MPL-2.0",
 	"repository": "https://github.com/f78doesthings/f78s-website/",
 	"type": "module",
@@ -28,15 +29,16 @@
 		"@astrojs/sitemap": "^3.7.3",
 		"@formatjs/intl-durationformat": "^0.10.15",
 		"@preact/signals": "^2.9.2",
-		"astro": "^7.0.2",
+		"astro": "^7.0.3",
 		"astro-lqip": "^1.8.4",
 		"hast-util-from-html": "^2.0.3",
 		"mdast-util-to-string": "^4.0.0",
 		"modern-normalize": "^3.0.1",
-		"preact": "^10.29.2",
+		"preact": "^10.29.3",
 		"reading-time": "^1.5.0",
 		"rehype-external-links": "^3.0.0",
-		"sass-embedded": "^1.100.0"
+		"sass-embedded": "^1.100.0",
+		"simple-git": "^3.36.0"
 	},
 	"devDependencies": {
 		"@commander-js/extra-typings": "^15.0.0",
@@ -53,7 +55,7 @@
 		"oxlint": "^1.71.0",
 		"oxlint-tsgolint": "^0.23.0",
 		"picocolors": "^1.1.1",
-		"stylelint": "^17.13.0",
+		"stylelint": "^17.14.0",
 		"stylelint-config-html": "^1.1.0",
 		"stylelint-config-standard-scss": "^17.0.0",
 		"ts-node": "^10.9.2",

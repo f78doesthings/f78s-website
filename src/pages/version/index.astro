@@ -1,0 +1,189 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Link from "../../components/nav/Link";
+import {
+	GIT_BRANCH,
+	GIT_COMMIT,
+	GIT_COMMIT_DATE,
+	SITE_VERSION,
+	SITE_REPOSITORY,
+} from "astro:env/client";
+import FormattedDate from "../../components/FormattedDate.astro";
+import Badge from "../../components/Badge";
+import { joinURL } from "../../scripts/utils";
+import { getVersions } from "../../server-utils";
+
+import VersionIcon from "~icons/octicon/package-24";
+import DateIcon from "~icons/octicon/calendar-24";
+import BranchIcon from "~icons/octicon/git-branch-24";
+import CommitIcon from "~icons/octicon/git-commit-24";
+import EnvironmentIcon from "~icons/octicon/codespaces-24";
+import GithubIcon from "~icons/octicon/mark-github-24";
+import IssuesIcon from "~icons/octicon/issue-opened-16";
+import VersionList from "../../components/changelogs/VersionList.astro";
+import { IS_DEV } from "../../consts";
+import { SITE_LICENSE } from "astro:env/client";
+
+const versions = await getVersions();
+const stableVersions = versions.filter((v) => !v.prerelease);
+const prereleaseVersions = versions.filter((v) => v.prerelease);
+---
+
+<BaseLayout title={"Version information"}>
+	<h1>Version</h1>
+	<p>Below is a table with some version information for this build of the website.</p>
+	<div class="version-table">
+		<div>
+			<VersionIcon />
+			<span class="title">Semantic version</span>
+			<span>
+				<a
+					href={versions.some((v) => v.id === SITE_VERSION)
+						? `/version/${SITE_VERSION}`
+						: undefined}
+				>
+					<code>{SITE_VERSION}</code>
+				</a>{" "}
+				<small>(take this with a grain of salt)</small>
+			</span>
+		</div>
+		<FormattedDate date={new Date(GIT_COMMIT_DATE)} showTime>
+			<DateIcon slot="icon" />
+			<span class="title" slot="before">Dated</span>
+		</FormattedDate>
+		<div>
+			<BranchIcon />
+			<span class="title">Branch</span>
+			{
+				/* prettier-ignore */
+				GIT_BRANCH ? (
+						<Link href={joinURL(SITE_REPOSITORY, "tree", GIT_BRANCH)} external><code>{GIT_BRANCH}</code></Link>
+					) : (
+						<strong>Unknown</strong>
+					)
+			}
+		</div>
+		<div>
+			<CommitIcon />
+			<span class="title">Commit</span>
+			<Link href={joinURL(SITE_REPOSITORY, "commit", GIT_COMMIT)} external
+				><code>{GIT_COMMIT}</code></Link
+			>
+		</div>
+		<div>
+			<EnvironmentIcon />
+			<span class="title">Environment</span>
+			<abbr
+				title={import.meta.env.DEV
+					? "This is a development server."
+					: "This is a production build."}
+			>
+				{import.meta.env.MODE}
+			</abbr>
+		</div>
+	</div>
+
+	<h2>Available versions</h2>
+	<p>
+		Aside from the main website, there's also a development build where you can test upcoming
+		changes that aren't quite ready for production yet.
+	</p>
+	<ul>
+		<li>
+			Main:{" "}
+			{
+				/* prettier-ignore */
+				GIT_BRANCH === "main" ? (
+					<strong>You're here!</strong>
+				) : (
+					<Link href={"https://f78.be"} external>f78.be</Link>
+				)
+			}
+		</li>
+		<li>
+			Development:{" "}
+			{
+				/* prettier-ignore */
+				GIT_BRANCH !== "main" ? (
+					<strong>You're here!</strong>
+				) : (
+					<Link href={"https://dev.f78.be"} external>dev.f78.be</Link>
+				)
+			}
+		</li>
+	</ul>
+
+	<h2>Source code</h2>
+	<p>
+		The source code for this website is available on <Link href={SITE_REPOSITORY} external
+			><GithubIcon /> GitHub</Link
+		> under the <strong>{SITE_LICENSE}</strong> licence. That's also the place to report any {" "}
+		<Link href={joinURL(SITE_REPOSITORY, "issues")} external
+			><IssuesIcon width={16} height={16} /> issues</Link
+		> you stumble upon.
+	</p>
+
+	<h2>Changelogs <Badge type="alpha" /></h2>
+	{/* TODO: add preference for showing pre-release versions */}
+	<p>
+		These have been automatically generated based on Git tags and commit history, and are still a
+		work-in-progress.
+	</p>
+	<div id="version-list" class="side-by-side">
+		<div>
+			<h3>Stable</h3>
+			<VersionList versions={stableVersions} showLatest={!IS_DEV} />
+		</div>
+		<div class="prerelease">
+			<h3>Pre-release</h3>
+			<VersionList versions={prereleaseVersions} showLatest={IS_DEV} />
+		</div>
+	</div>
+</BaseLayout>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	.version-table {
+		display: grid;
+		grid-template-columns: auto auto 1fr;
+		column-gap: size(10);
+		width: max-content;
+
+		[data-icon] {
+			font-size: size(24);
+			vertical-align: middle;
+			color: var(--color-dim);
+		}
+
+		.title {
+			color: var(--color-dim);
+			margin-right: size(10);
+		}
+
+		> * {
+			display: grid;
+			grid-template-columns: subgrid;
+			grid-column: 1 / -1;
+			place-items: center start;
+
+			box-sizing: content-box;
+			margin: 0;
+			padding: size(10) size(16);
+			height: size(24);
+
+			&:nth-child(odd) {
+				background-color: hsl(0deg 0% 50% / 12%);
+				border-block: 1px solid var(--color-border);
+			}
+		}
+	}
+</style>
