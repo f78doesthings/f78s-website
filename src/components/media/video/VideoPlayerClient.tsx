@@ -37,11 +37,15 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 	const video = useRef<HTMLVideoElement>(null);
 	const root = useSignalRef<HTMLDivElement | null>(null);
 	const contentContainer = useSignalRef<HTMLDivElement | null>(null);
-	const mediaConnection = useSignal<MediaContext>();
-	const isFullscreen = useSignal(false);
+
 	const isPaused = useSignal(true);
-	const pauseVisualizer = useComputed(() => isPaused.value || !isFullscreen.value);
+	const isFullscreen = useSignal(false);
+	const isOverlaying = useSignal(false);
+	const mediaConnection = useSignal<MediaContext>();
 	const mediaAnimation = useSignal<MediaShortcutAnimation>({});
+
+	const enableTaps = useComputed(() => isOverlaying.value || !isFullscreen.value);
+	const pauseVisualizer = useComputed(() => isPaused.value || !isFullscreen.value);
 
 	//#region Event listeners
 
@@ -93,6 +97,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 			focusable
 			forceOverlays={isPaused.value}
 			lockBottom={!isFullscreen.value}
+			onOverlayChange={(overlaying) => (isOverlaying.value = overlaying)}
 			top={
 				isFullscreen.value && (
 					<MediaInfoOverlay src={src} {...props}>
@@ -105,6 +110,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 					media={mediaConnection}
 					download={props.license !== null ? src : undefined}
 					mediaRoot={root}
+					enableTaps={enableTaps}
 					clickTarget={contentContainer}
 					mediaAnimation={mediaAnimation}
 				/>

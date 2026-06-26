@@ -81,6 +81,7 @@ export function AudioPlayerClient({ src, children, class: className = "", ...pro
 		};
 	}, []);
 
+	// BUG: the visualizer occasionally disappears when paused on mobile outside of fullscreen
 	return (
 		<div ref={root} class={`${styles["audio-player"]} ${className}`} tabindex={0}>
 			<MediaInfoOverlay class={styles.info} src={src} {...props}>

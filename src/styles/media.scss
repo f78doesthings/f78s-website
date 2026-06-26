@@ -19,8 +19,6 @@ $media-button-size: size(44);
 	border: 1px solid var(--color-border);
 	border-radius: $radius-full;
 
-	// BUG: this annoyingly creates a backdrop root, preventing popup menus
-	// from having any background blur
 	@media not (prefers-contrast: more) {
 		@include glass;
 

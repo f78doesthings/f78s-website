@@ -42,6 +42,9 @@ interface Props {
 	/** The element that can be made full screen and needs to be focused in order to enable shortcuts. */
 	mediaRoot?: Signal<HTMLElement | null>;
 
+	/** Whether the user can tap on the click target when using a touchscreen. */
+	enableTaps?: Signal<boolean>;
+
 	/** The element that the user must click/tap to trigger click events. */
 	clickTarget?: Signal<HTMLElement | null>;
 
@@ -55,6 +58,7 @@ export function MediaControls({
 	media: mediaContext,
 	download,
 	mediaRoot,
+	enableTaps,
 	clickTarget,
 	mediaAnimation,
 }: Props) {
@@ -66,7 +70,7 @@ export function MediaControls({
 	const [time, setTime] = useState(0);
 
 	const ref = useRef<HTMLDivElement>(null);
-	const prevScroll = useSignal(0);
+	const prevScroll = useSignal(-1);
 	const duration = useSignal(NaN);
 	const isFullscreen = useSignal(false);
 	const isFocused = useSignal(false);
@@ -127,21 +131,10 @@ export function MediaControls({
 	const toggleFullscreen = () => {
 		const wasFullscreen = isFullscreen.value;
 		if (wasFullscreen) {
-			document
-				.exitFullscreen()
-				.then(() => {
-					// Correct the browser scrolling to the wrong point
-					window.scroll(0, prevScroll.value);
-					screen.orientation.unlock();
-				})
-				.catch(console.error);
+			document.exitFullscreen().catch(console.error);
 		} else if (mediaRoot?.value) {
 			prevScroll.value = window.scrollY;
-			mediaRoot.value
-				.requestFullscreen()
-				.catch(console.error)
-				.then(() => screen.orientation.lock("landscape"))
-				.catch(() => {}); // ignore errors relating to screen.orientation.lock
+			mediaRoot.value.requestFullscreen().catch(console.error);
 		}
 	};
 
@@ -320,10 +313,25 @@ export function MediaControls({
 		on("focus", () => (isFocused.value = true), true);
 		on("blur", () => (isFocused.value = false), true);
 		on("fullscreenchange", () => {
-			isFullscreen.value =
+			const fullscreen =
 				mediaRoot !== undefined &&
 				mediaRoot.value !== null &&
 				document.fullscreenElement === mediaRoot.value;
+			isFullscreen.value = fullscreen;
+
+			// Attempt to fix the browser erroneously scrolling to a different point in the page
+			// BUG: this might not always work, is there a better way?
+			//      (also it scrolls down a bit on mobile, likely because of the navbar)
+			if (fullscreen) {
+				screen.orientation.lock("landscape").catch(console.error);
+			} else {
+				screen.orientation.unlock();
+				const scrollTo = prevScroll.value;
+				if (scrollTo >= 0) {
+					setTimeout(() => window.scroll(0, scrollTo), 100);
+					prevScroll.value = -1;
+				}
+			}
 		});
 	});
 
@@ -332,35 +340,64 @@ export function MediaControls({
 	useEventTarget(
 		clickTarget?.value,
 		(on) => {
-			let lastClick = -1;
-			on("pointerup", (ev) => {
-				const now = performance.now();
-				const isDoubleClick = now - lastClick < 500;
-				lastClick = isDoubleClick ? -1 : now;
+			let prevClickTime = -1;
+			let isHolding = false;
+			let isDoubleClick = false;
+			let tapsSinceBlock = -1;
 
+			on("pointerdown", (ev) => {
+				const now = performance.now();
+				isDoubleClick = now - prevClickTime < 500;
+				prevClickTime = isDoubleClick && tapsSinceBlock !== 0 && tapsSinceBlock !== 1 ? -1 : now;
+				isHolding = true;
+
+				if (ev.pointerType !== "mouse") {
+					if (enableTaps !== undefined && !enableTaps.value) {
+						tapsSinceBlock = 0;
+					} else if (!isDoubleClick) {
+						tapsSinceBlock = -1;
+					} else if (tapsSinceBlock >= 0) {
+						tapsSinceBlock++;
+					}
+				}
+			});
+
+			on("pointerup", (ev) => {
+				// Additional tap actions on mobile
+				if (!isHolding) {
+					return;
+				}
+
+				isHolding = false;
 				ev.preventDefault();
+
 				if (ev.pointerType !== "mouse" && clickTarget?.value) {
+					if (tapsSinceBlock === 0) {
+						return;
+					}
+
 					const bounds = clickTarget.value.getBoundingClientRect();
 					const xPercent = (ev.clientX - bounds.left) / bounds.width;
 					const yPercent = (ev.clientY - bounds.top) / bounds.height;
 
 					if (yPercent < 1 / 4) {
-						if (isDoubleClick) adjustVolume(0.1);
+						if (isDoubleClick && tapsSinceBlock !== 2) adjustVolume(0.1);
 						return;
 					} else if (yPercent > 3 / 4) {
-						if (isDoubleClick) adjustVolume(-0.1);
+						if (isDoubleClick && tapsSinceBlock !== 2) adjustVolume(-0.1);
 						return;
 					} else if (xPercent < 1 / 3) {
-						if (isDoubleClick) seek(-5);
+						if (isDoubleClick && tapsSinceBlock !== 2) seek(-5);
 						return;
 					} else if (xPercent > 2 / 3) {
-						if (isDoubleClick) seek(5);
+						if (isDoubleClick && tapsSinceBlock !== 2) seek(5);
 						return;
 					}
 				}
 
+				// Common actions
 				playPause();
-				if (isDoubleClick) {
+				if (isDoubleClick && (ev.pointerType === "mouse" || tapsSinceBlock !== 1)) {
 					toggleFullscreen();
 				}
 			});
