@@ -57,7 +57,7 @@ if (gitStatus) {
 // Look for missing copyright headers
 const gitignore = ignore();
 const gitignoreFile = await fs.readFile(".gitignore", "utf-8");
-gitignore.add(gitignoreFile.split("\n"));
+gitignore.add([...gitignoreFile.split("\n"), "*.config.*"]);
 
 const files = await fs.readdir(".", { withFileTypes: true, recursive: true });
 let count = 0;
