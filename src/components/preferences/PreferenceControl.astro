@@ -114,17 +114,18 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 	return template;
 }
 
-const dependencyVars = getDependencyString(preference.dependencies);
 const PreferenceIcon = preference.icon ?? (() => undefined);
 // TODO: this probably needs refactoring at some point
 ---
 
 <label
 	{...cid}
-	hidden={dependencyVars !== undefined}
+	hidden={preference.dependencies.size > 0}
 	aria-label={preference.title}
 	data-preference-control={id}
-	data-preference-dependencies={dependencyVars}
+	data-preference-dependencies={preference.dependencies.size > 0
+		? getDependencyString(preference.dependencies)
+		: undefined}
 	style={{
 		"--grid": gridTemplate(gridAreas, gridColumns),
 		"--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
@@ -158,7 +159,7 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils";
 	import type { NotUndefined } from "../../types";
 
-	document.addEventListener("custom:preferences-updated", () => {
+	function updateDependents() {
 		const dependents = document.querySelectorAll<HTMLElement>("[data-preference-dependencies]");
 		for (const dependent of dependents) {
 			const jsonDependencies = dependent.dataset.preferenceDependencies;
@@ -166,13 +167,29 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 				continue;
 			}
 
-			const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
-			const resolved = dependencies.map(
-				([id, expectedValues]) => [preferences[id], expectedValues] as const,
-			);
-			dependent.hidden = !dependenciesMet(resolved);
+			try {
+				const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
+				const resolved = dependencies.map(([id, expectedValues]) => {
+					if (!(id in preferences)) {
+						console.warn(
+							"Element",
+							dependent,
+							"depends on unknown preference",
+							`"${id}"`,
+							"and will be hidden.",
+						);
+					}
+					return [preferences[id], expectedValues] as const;
+				});
+				dependent.hidden = !dependenciesMet(resolved);
+			} catch (e) {
+				console.error("Error updating dependency status for", dependent, "\n", e);
+			}
 		}
-	});
+	}
+
+	document.addEventListener("custom:preferences-updated", updateDependents);
+	updateDependents();
 </script>
 
 <style lang="scss">

@@ -21,6 +21,9 @@ import FluentImageArrowCounterclockwise20Regular from "~icons/fluent/image-arrow
 import FluentImageCircle20Regular from "~icons/fluent/image-circle-20-regular";
 import FluentImageSparkle20Regular from "~icons/fluent/image-sparkle-20-regular";
 import FluentImageSplit20Regular from "~icons/fluent/image-split-20-regular";
+import FluentLineHorizontal320Regular from "~icons/fluent/line-horizontal-3-20-regular";
+import FluentLineHorizontal420Regular from "~icons/fluent/line-horizontal-4-20-regular";
+import FluentLineHorizontal520Regular from "~icons/fluent/line-horizontal-5-20-regular";
 import FluentMagicWand20Regular from "~icons/fluent/magic-wand-20-regular";
 import FluentMoreHorizontal20Regular from "~icons/fluent/more-horizontal-20-regular";
 import FluentPhoneDesktop20Regular from "~icons/fluent/phone-desktop-20-regular";
@@ -34,7 +37,7 @@ import FluentWrench20Regular from "~icons/fluent/wrench-20-regular";
 import PhTildeLight from "~icons/ph/tilde-light";
 
 import { IS_DEV, SITE_LANGUAGE } from "../../consts.tsx";
-import type { ImageRotation } from "../../types.ts";
+import { PreferenceLevel, type ImageRotation } from "../../types.ts";
 import { EnumPreference } from "./types/EnumPreference.tsx";
 import { NumberPreference } from "./types/NumberPreference.tsx";
 import { Preference, type PreferenceCategory } from "./types/Preference.ts";
@@ -42,18 +45,56 @@ import { PresetPreference } from "./types/PresetPreference.ts";
 import { TogglePreference } from "./types/TogglePreference.tsx";
 import { createPreferences, groupPreferences } from "./utils.ts";
 
+//#region Conditions
+
 const isMobile = () => /mobi/i.test(navigator.userAgent);
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+//#endregion
+
+//#region Formatters
 
 const formatPercent = (value: number) =>
 	`${Math.round(value * 100).toLocaleString(SITE_LANGUAGE)}%`;
 
-const showAdvanced = new TogglePreference("showAdvanced", {
+//#endregion
+
+//#region Dependency preferences
+
+const preferenceLevel = new EnumPreference("preferenceLevel", {
 	icon: FluentWrench20Regular,
-	title: "Show Advanced Options",
-	description:
-		"Shows even more preferences for advanced users to perfectly dial in their experience.",
+	title: "Preferences Mode",
+	description: "Allows you to expose even more preferences to perfectly dial in your experience.",
+
+	defaultValue: (): keyof typeof PreferenceLevel => (IS_DEV ? "expert" : "basic"),
+	options: {
+		basic: {
+			displayName: "Basic",
+			icon: FluentLineHorizontal320Regular,
+		},
+		advanced: {
+			displayName: "Advanced",
+			icon: FluentLineHorizontal420Regular,
+		},
+		expert: {
+			displayName: "Expert",
+			icon: FluentLineHorizontal520Regular,
+		},
+	},
 });
+
+function requireLevel(level: keyof typeof PreferenceLevel) {
+	const allowedValues: (keyof typeof PreferenceLevel)[] = [];
+	for (const [key, value] of Object.entries(PreferenceLevel)) {
+		if (typeof value === "number" && value >= PreferenceLevel[level]) {
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+			allowedValues.push(key as keyof typeof PreferenceLevel);
+		}
+	}
+	return preferenceLevel.asDependency(...allowedValues);
+}
+
+//#endregion
 
 export const preferences = createPreferences(
 	...groupPreferences(
@@ -84,13 +125,13 @@ export const preferences = createPreferences(
 				},
 			},
 		}),
-		showAdvanced,
+		preferenceLevel,
 		new TogglePreference("showPrerelease", {
 			icon: FluentBeakerSettings20Regular,
 			title: "Show Pre-release Versions",
 			description: "Shows development versions in the version picker and changelog navigation.",
 
-			dependencies: [showAdvanced.asDependency(true)],
+			dependencies: [requireLevel("advanced")],
 			defaultValue: () => IS_DEV,
 		}),
 	),
@@ -125,7 +166,7 @@ export const preferences = createPreferences(
 					description:
 						"Controls when to enable the parallax rotation effect for images. " +
 						'"Auto" will avoid important images to reduce blurring.',
-					dependencies: [showAdvanced.asDependency(true)],
+					dependencies: [requireLevel("advanced")],
 
 					defaultValue: (): keyof typeof ImageRotation => "preferNo",
 					options: {
@@ -230,7 +271,7 @@ export const preferences = createPreferences(
 						...groupPreferences(
 							{
 								title: "Advanced Quality Settings",
-								dependencies: [showAdvanced.asDependency(true)],
+								dependencies: [requireLevel("advanced")],
 							},
 							new NumberPreference("bgRenderScale", {
 								icon: FluentResize20Regular,
@@ -279,7 +320,7 @@ export const preferences = createPreferences(
 						description:
 							"Pauses the animated background if the window is not focused. " +
 							"It will always be paused if the tab is in the background.",
-						dependencies: [showAdvanced.asDependency(true)],
+						dependencies: [requireLevel("expert")],
 
 						defaultValue: () => !isMobile(),
 					}),
@@ -288,7 +329,7 @@ export const preferences = createPreferences(
 						title: "Background Debug Display",
 						description:
 							"Choose to display debug information about the immersive background, like the FPS and resolution.",
-						dependencies: [showAdvanced.asDependency(true)],
+						dependencies: [requireLevel("expert")],
 
 						defaultValue: () => "off",
 						options: {

@@ -11,6 +11,7 @@ import { preferences } from "./preferences/index.tsx";
 import { EnumPreference } from "./preferences/types/EnumPreference.tsx";
 import { TogglePreference } from "./preferences/types/TogglePreference.tsx";
 import { isOnPage } from "./utils";
+import { defineDevTool } from "./utils/dev-tools.ts";
 
 function updatePageData() {
 	const enabled = [];
@@ -79,3 +80,8 @@ document.addEventListener("astro:after-swap", () =>
 );
 document.addEventListener("custom:preferences-updated", updatePageData);
 loadPreferences();
+
+defineDevTool("resetPreferences", () => {
+	loadPreferences(true);
+	console.info("Successfully reset preferences.");
+});

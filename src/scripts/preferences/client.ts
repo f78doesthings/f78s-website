@@ -13,12 +13,21 @@ import { PresetPreference } from "./types/PresetPreference.ts";
 
 const PREFERENCES_KEY = "preferences";
 
-export function loadPreferences() {
+export function loadPreferences(resetToDefaults = false) {
 	try {
 		for (const preference of preferences) {
-			if (preference instanceof PresetPreference || preference.get() === undefined) {
+			if (
+				resetToDefaults ||
+				preference instanceof PresetPreference ||
+				preference.get() === undefined
+			) {
 				preference.set(preference.defaultValue());
 			}
+		}
+
+		if (resetToDefaults) {
+			localStorage.removeItem(PREFERENCES_KEY);
+			return;
 		}
 
 		const json = localStorage.getItem(PREFERENCES_KEY);

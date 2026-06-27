@@ -114,6 +114,22 @@ export interface VersionInfo {
 
 //#endregion
 
+//#region Preferences
+
+export enum ImageRotation {
+	never,
+	preferNo,
+	preferYes,
+}
+
+export enum PreferenceLevel {
+	basic,
+	advanced,
+	expert,
+}
+
+//#endregion
+
 //#region Miscellaneous
 
 export type IconComponent = (props: SVGAttributes<SVGSVGElement>) => JSX.Element;
@@ -122,12 +138,6 @@ export type Replace<T, U> = Omit<T, keyof U> & U;
 
 /** All values including `null` but not `undefined`. */
 export type NotUndefined = {} | null;
-
-export enum ImageRotation {
-	never,
-	preferNo,
-	preferYes,
-}
 
 export type LinkData = CollectionEntry<"links">["data"] & {
 	id: string;
