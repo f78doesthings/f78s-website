@@ -24,31 +24,36 @@ interface Props {
 }
 
 const { commit } = Astro.props;
-const tag = /tag: (.*)/.exec(commit.refs)?.[1];
+const tag = /tag: ([a-z\d.\-/]+)/.exec(commit.refs)?.[1];
 
 const match =
-	/^(?:(?<type>\w+)(?:\((?<scope>\w+)\))?: )?(?<description>.*)\n*(?<body>[\s\S]*)$/.exec(
+	/^(?:(?<type>[a-z]+)(?:\((?<scope>[a-z]+)(?:\/(?<subScope>[a-z]+))?\))?: )?(?<description>.*)\n?\n?(?<body>(?:.+\n?)*)(?:\n\n(?<footer>[\s\S]*))?$/.exec(
 		commit.body,
 	);
 const type = match?.groups?.type ?? "";
 const scope = match?.groups?.scope ?? "";
-const description = match?.groups?.description ?? commit.body;
-const body = match?.groups?.body ?? "";
+const subScope = match?.groups?.subScope ?? "";
+const description = match?.groups?.description ?? `Commit \`${commit.hash}\``;
+const body = match?.groups?.body ?? commit.body;
+const footer = match?.groups?.footer ?? "";
 
 const typeTexts: Record<string, string | undefined> = {
-	feat: "This type corresponds to new features for the website.",
-	fix: "This type corresponds to fixes for existing features.",
-	refactor:
-		"This type corresponds to code rewriting/restructuring, and typically has little impact on the UI.",
-	perf: "This is a special type of 'refactor' for performance improvements.",
-	test: "This type corresponds to adding or correcting test cases for the code, though I'm not doing any testing like this yet...",
-	docs: "This type corresponds to changes to the repository's documentation.",
-	build:
-		"This type corresponds to changes to the website's build process, which has little to no impact on the UI.",
+	feat: "New features or changes to website content",
+	fix: "Fixes to existing features or content",
+	refactor: "Code rewrites/restructures (little to no UI impact)",
+	perf: "Special type of 'refactor' for performance improvements",
+	docs: "Exclusively for changes to the repository's documentation",
+	build: "Affects the project's build process (minimal UI impact)",
 };
 
 const scopeTexts: Record<string, string | undefined> = {
-	media: "This scope corresponds to the website's image, video and audio features.",
+	pages: "New pages or edits to existing ones",
+	posts: "New blog posts or edits to existing ones",
+	nav: "Affects the site's navigation bars",
+	media: "Corresponds to image, video and audio features",
+	prefs: "The preferences feature",
+	blog: "Exclusively for the blog's functional features",
+	version: "Governs the version/changelog features (you're using this right now!)",
 };
 ---
 
@@ -58,7 +63,8 @@ const scopeTexts: Record<string, string | undefined> = {
 			content={`### ${
 				type && `<abbr class="type" title="${typeTexts[type] ?? ""}">${type}</abbr>`
 			}${
-				scope && `(<abbr class="scope" title="${scopeTexts[scope] ?? ""}">${scope}</abbr>)`
+				scope &&
+				`(<abbr class="scope" title="${scopeTexts[scope] ?? ""}">${scope}</abbr>${subScope && `<span class="sub-scope">/${subScope}</span>`})`
 			}${type && ": "}${description}`}
 		/>
 
@@ -85,7 +91,14 @@ const scopeTexts: Record<string, string | undefined> = {
 			}
 		</ul>
 	</header>
-	<Markdown content={body} />
+	{body && <Markdown content={body} />}
+	{
+		footer && (
+			<footer>
+				<Markdown content={footer} />
+			</footer>
+		)
+	}
 </article>
 
 <style lang="scss">
@@ -149,6 +162,15 @@ const scopeTexts: Record<string, string | undefined> = {
 				color: var(--color-dim);
 				font-style: normal;
 			}
+
+			> :global(.sub-scope) {
+				color: var(--color-dimmer);
+			}
 		}
+	}
+
+	footer {
+		color: var(--color-dim);
+		font-size: size(14);
 	}
 </style>

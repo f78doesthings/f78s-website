@@ -9,7 +9,7 @@
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
-import type { DefaultLogFields } from "simple-git";
+import type { DefaultLogFields, LogOptions } from "simple-git";
 
 import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 import { git } from "./server-utils.ts";
@@ -107,6 +107,12 @@ function removeTagPrefix(tag?: string) {
 	return tag?.replace(/^v/, "");
 }
 
+const baseLogOptions: LogOptions = {
+	strictDate: true,
+	symmetric: false,
+	multiLine: true,
+};
+
 // TODO: this collection can take a while to load (good thing it's only at build time)
 const versions = defineCollection({
 	loader: async () => {
@@ -120,23 +126,25 @@ const versions = defineCollection({
 			const prerelease = isPrerelease(tag);
 			const prevStable = tags.findLast((version, index) => index < i && !isPrerelease(version));
 			const prevPrerelease = tags.findLast((version, index) => index < i && isPrerelease(version));
-			const nextStable = tags.find((version, index) => index > i && !isPrerelease(version));
-			const nextPrerelease = tags.find((version, index) => index > i && isPrerelease(version));
+			const nextStableIndex = tags.findIndex(
+				(version, index) => index > i && !isPrerelease(version),
+			);
+			const nextStable = tags[nextStableIndex];
+			const nextPrerelease = tags.find(
+				(version, index) =>
+					index > i && (nextStableIndex < 0 || index < nextStableIndex) && isPrerelease(version),
+			);
 
 			const commits = await git.log({
+				...baseLogOptions,
 				from: prevStable ?? firstCommit,
 				to: tag,
-				strictDate: true,
-				symmetric: false,
-				multiLine: true,
 			});
 			const devCommits = prerelease
 				? await git.log({
+						...baseLogOptions,
 						from: prevPrerelease ?? prevStable ?? firstCommit,
 						to: tag,
-						strictDate: true,
-						symmetric: false,
-						multiLine: true,
 					})
 				: undefined;
 

@@ -29,12 +29,11 @@ import EnvironmentIcon from "~icons/octicon/codespaces-24";
 import GithubIcon from "~icons/octicon/mark-github-24";
 import IssuesIcon from "~icons/octicon/issue-opened-16";
 import VersionList from "../../components/changelogs/VersionList.astro";
-import { IS_DEV } from "../../consts";
 import { SITE_LICENSE } from "astro:env/client";
+import PreferenceControl from "../../components/preferences/PreferenceControl.astro";
 
 const versions = await getVersions();
-const stableVersions = versions.filter((v) => !v.prerelease);
-const prereleaseVersions = versions.filter((v) => v.prerelease);
+const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 ---
 
 <BaseLayout title={"Version information"}>
@@ -43,16 +42,14 @@ const prereleaseVersions = versions.filter((v) => v.prerelease);
 	<div class="version-table">
 		<div>
 			<VersionIcon />
-			<span class="title">Semantic version</span>
+			<span class="title">Version</span>
 			<span>
 				<a
-					href={versions.some((v) => v.id === SITE_VERSION)
-						? `/version/${SITE_VERSION}`
-						: undefined}
+					title={hasChangelogs ? "Go to changelogs" : ""}
+					href={hasChangelogs ? `/version/${SITE_VERSION}` : undefined}
 				>
-					<code>{SITE_VERSION}</code>
-				</a>{" "}
-				<small>(take this with a grain of salt)</small>
+					{SITE_VERSION}
+				</a>
 			</span>
 		</div>
 		<FormattedDate date={new Date(GIT_COMMIT_DATE)} showTime>
@@ -131,32 +128,41 @@ const prereleaseVersions = versions.filter((v) => v.prerelease);
 		> you stumble upon.
 	</p>
 
-	<h2>Changelogs <Badge type="alpha" /></h2>
-	{/* TODO: add preference for showing pre-release versions */}
-	<p>
-		These have been automatically generated based on Git tags and commit history, and are still a
-		work-in-progress.
-	</p>
-	<div id="version-list" class="side-by-side">
-		<div>
-			<h3>Stable</h3>
-			<VersionList versions={stableVersions} showLatest={!IS_DEV} />
-		</div>
-		<div class="prerelease">
-			<h3>Pre-release</h3>
-			<VersionList versions={prereleaseVersions} showLatest={IS_DEV} />
-		</div>
-	</div>
+	<section id="version-list">
+		<h2>Changelogs <Badge type="alpha" /></h2>
+		<p>
+			These have been automatically generated based on Git tags and commit history, and are still a
+			work-in-progress.
+		</p>
+		<PreferenceControl
+			preference="showPrerelease"
+			showTitle="Show pre-release versions:"
+			noMobile
+		/>
+		<VersionList versions={versions} />
+	</section>
 </BaseLayout>
 
 <style lang="scss">
 	@use "../../styles/utils" as *;
 
+	[data-preference-control] {
+		padding: 0;
+		max-width: max-content;
+
+		.title {
+			font-family: inherit;
+			font-size: inherit;
+			color: var(--color-dim);
+		}
+	}
+
 	.version-table {
 		display: grid;
 		grid-template-columns: auto auto 1fr;
 		column-gap: size(10);
-		width: max-content;
+		max-width: max-content;
+		overflow-x: scroll;
 
 		[data-icon] {
 			font-size: size(24);
@@ -178,7 +184,7 @@ const prereleaseVersions = versions.filter((v) => v.prerelease);
 			box-sizing: content-box;
 			margin: 0;
 			padding: size(10) size(16);
-			height: size(24);
+			min-height: size(24);
 
 			&:nth-child(odd) {
 				background-color: hsl(0deg 0% 50% / 12%);

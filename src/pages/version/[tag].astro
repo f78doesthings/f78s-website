@@ -16,10 +16,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 
-import PrereleaseIcon from "~icons/fluent/wrench-20-regular";
+import PrereleaseIcon from "~icons/fluent/beaker-20-regular";
 import BackIcon from "~icons/fluent/arrow-left-24-regular";
-import PreviousIcon from "~icons/fluent/chevron-left-24-regular";
-import NextIcon from "~icons/fluent/chevron-right-24-regular";
+import PrevStableIcon from "~icons/fluent/chevron-left-24-regular";
+import NextStableIcon from "~icons/fluent/chevron-right-24-regular";
+import PrevPrereleaseIcon from "~icons/fluent/chevron-circle-left-24-regular";
+import NextPrereleaseIcon from "~icons/fluent/chevron-circle-right-24-regular";
 
 export const getStaticPaths = (async () => {
 	const versions = await getVersions();
@@ -33,39 +35,31 @@ export const getStaticPaths = (async () => {
 
 type Props = VersionInfo;
 
-const version = Astro.props;
-const commits = version.prereleaseCommits ?? version.stableCommits;
+const { id: version, prerelease, date, prevStable, nextStable, prevPrerelease, nextPrerelease, stableCommits, prereleaseCommits } = Astro.props;
+const commits = prereleaseCommits ?? stableCommits;
 const olderCommits =
-	version.prereleaseCommits &&
-	version.stableCommits.slice(
-		version.stableCommits.findLastIndex((commit) =>
+	prereleaseCommits &&
+	stableCommits.slice(
+		stableCommits.findLastIndex((commit) =>
 			commits.some((other) => other.hash === commit.hash),
 		) + 1,
 	);
-
-const prevVersion = version.prerelease
-	? (version.prevPrerelease ?? version.prevStable)
-	: version.prevStable;
-
-const nextVersion = version.prerelease
-	? (version.nextPrerelease ?? version.nextStable)
-	: version.nextStable;
 ---
 
-<BaseLayout title={`Changelog for v${version.id}`}>
+<BaseLayout title={`Changelog for v${version}`}>
 	<nav>
 		<a href="/version#version-list"><BackIcon /> Back to version list</a>
 	</nav>
 
-	<h1>Version {version.id}</h1>
+	<h1>Version {version}</h1>
 	<ul class="details">
 		<li>
-			<FormattedDate date={version.date} showTime>
+			<FormattedDate date={date} showTime>
 				<Fragment slot="before">Dated</Fragment>
 			</FormattedDate>
 		</li>
 		{
-			version.prerelease && (
+			prerelease && (
 				<li class="separator">&bullet;</li>
 				<li class="prerelease">
 					<PrereleaseIcon /> Pre-release
@@ -81,7 +75,7 @@ const nextVersion = version.prerelease
 			olderCommits && olderCommits.length > 0 && (
 				<details>
 					<summary>
-						View older changes <span class="older-since">(since {version.prevStable})</span>
+						View older changes <span class="older-since">(since {prevStable})</span>
 					</summary>
 					{olderCommits.map((commit) => (
 						<ChangelogEntry commit={commit} />
@@ -91,19 +85,32 @@ const nextVersion = version.prerelease
 		}
 	</section>
 
-	{/* TODO: split this navbar into stable and pre-release */}
 	<nav>
 		{
-			prevVersion && (
-				<a href={prevVersion}>
-					<PreviousIcon /> Previous version ({prevVersion})
+			prevStable && (
+				<a href={`/version/${prevStable}`} class="prev-stable">
+					<PrevStableIcon /> {prevStable}
 				</a>
 			)
 		}
 		{
-			nextVersion && (
-				<a class="right" href={nextVersion}>
-					Next version ({nextVersion}) <NextIcon />
+			prevPrerelease && (
+				<a href={`/version/${prevPrerelease}`} data-preference-dependencies={'[["showPrerelease",[true]]]'} class="prev-prerelease">
+					<PrevPrereleaseIcon /> {prevPrerelease}
+				</a>
+			)
+		}
+		{
+			nextPrerelease && (
+				<a href={`/version/${nextPrerelease}`} data-preference-dependencies={'[["showPrerelease",[true]]]'} class="next-prerelease">
+					{nextPrerelease} <NextPrereleaseIcon />
+				</a>
+			)
+		}
+		{
+			nextStable && (
+				<a href={`/version/${nextStable}`} class="next-stable">
+					{nextStable} <NextStableIcon />
 				</a>
 			)
 		}
@@ -120,7 +127,7 @@ const nextVersion = version.prerelease
 		flex-wrap: wrap;
 		gap: size(6);
 		padding: 0;
-			list-style: none;
+		list-style: none;
 
 		> li,
 		> li > p {
@@ -150,8 +157,11 @@ const nextVersion = version.prerelease
 	}
 
 	nav {
-		display: flex;
-		align-items: center;
+		display: grid;
+		grid-template:
+			"prev-stable     next-stable"
+			"prev-prerelease next-prerelease";
+		justify-content: space-between;
 		flex-wrap: wrap;
 		margin-block: size(16);
 
@@ -159,7 +169,7 @@ const nextVersion = version.prerelease
 			margin-bottom: 0;
 		}
 
-		&:not(:first-child) {
+		&:last-child {
 			margin-top: 0;
 		}
 
@@ -172,10 +182,34 @@ const nextVersion = version.prerelease
 			[data-icon] {
 				font-size: size(24);
 			}
+
+			&[hidden] {
+				display: none;
+			}
 		}
 
-		.right {
-			margin-left: auto;
+		.prev-stable {
+			grid-area: prev-stable;
+		}
+
+		.next-stable {
+			grid-area: next-stable;
+		}
+
+		.prev-prerelease {
+			grid-area: prev-prerelease;
+		}
+
+		.next-prerelease {
+			grid-area: next-prerelease;
+		}
+
+		.prev-prerelease, .next-prerelease {
+			opacity: 0.8;
+		}
+
+		.next-stable, .next-prerelease {
+			justify-self: flex-end;
 		}
 	}
 </style>

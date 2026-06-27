@@ -7,6 +7,7 @@
  */
 
 import FluentArrowCounterclockwise20Regular from "~icons/fluent/arrow-counterclockwise-20-regular";
+import FluentBeakerSettings20Regular from "~icons/fluent/beaker-settings-20-regular";
 import FluentBug20Regular from "~icons/fluent/bug-20-regular";
 import FluentCheckmark20Regular from "~icons/fluent/checkmark-20-regular";
 import FluentChevronDoubleDown20Regular from "~icons/fluent/chevron-double-down-20-regular";
@@ -32,7 +33,7 @@ import FluentWeatherSunny20Regular from "~icons/fluent/weather-sunny-20-regular"
 import FluentWrench20Regular from "~icons/fluent/wrench-20-regular";
 import PhTildeLight from "~icons/ph/tilde-light";
 
-import { SITE_LANGUAGE } from "../../consts.tsx";
+import { IS_DEV, SITE_LANGUAGE } from "../../consts.tsx";
 import type { ImageRotation } from "../../types.ts";
 import { EnumPreference } from "./types/EnumPreference.tsx";
 import { NumberPreference } from "./types/NumberPreference.tsx";
@@ -84,6 +85,14 @@ export const preferences = createPreferences(
 			},
 		}),
 		showAdvanced,
+		new TogglePreference("showPrerelease", {
+			icon: FluentBeakerSettings20Regular,
+			title: "Show Pre-release Versions",
+			description: "Shows development versions in the version picker and changelog navigation.",
+
+			dependencies: [showAdvanced.asDependency(true)],
+			defaultValue: () => IS_DEV,
+		}),
 	),
 
 	...groupPreferences(

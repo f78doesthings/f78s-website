@@ -10,65 +10,127 @@
 import type { VersionInfo } from "../../types";
 import FormattedDate from "../FormattedDate.astro";
 
+import LatestIcon from "~icons/fluent/new-16-regular";
+import PrereleaseIcon from "~icons/fluent/beaker-16-regular";
+
 type Props = {
 	versions: VersionInfo[];
-	showLatest?: boolean;
 };
 
-const { versions, showLatest = true } = Astro.props;
+const { versions } = Astro.props;
+let firstPrerelease = true;
+let firstStable = true;
 ---
 
 <ol class="version-list">
 	{
-		versions.map((v, i) => (
-			<li>
-				<a href={`/version/${v.id}`} class="version">
-					{v.id}
-				</a>
-				{showLatest && i === 0 && <span class="latest">Latest</span>}
-				<div class="separator" />
-				<FormattedDate date={v.date} />
-			</li>
-		))
+		versions.map((v, i) => {
+			const latest = v.prerelease ? firstPrerelease : firstStable;
+			if (v.prerelease) {
+				firstPrerelease = false;
+			} else {
+				firstStable = false;
+			}
+			return (
+				<li
+					data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : ""}
+					hidden={v.prerelease}
+					class:list={{ prerelease: v.prerelease, latest }}
+				>
+					<a href={`/version/${v.id}`} class="version">
+						{v.id}
+					</a>
+					{latest && (
+						<span class="latest-badge" title="Latest version">
+							<LatestIcon />
+						</span>
+					)}
+					{v.prerelease && (
+						<span class="prerelease-badge" title="Development version">
+							<PrereleaseIcon />
+						</span>
+					)}
+					<div class="separator" />
+					<FormattedDate date={v.date} />
+				</li>
+			);
+		})
 	}
 </ol>
 
 <style lang="scss">
 	@use "../../styles/utils" as *;
 	@use "../../styles/colors" as *;
+	@use "sass:map";
+
+	@mixin version-badge($colors) {
+		--badge-background: #{map.get($colors, 600)};
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: size(24);
+		height: size(24);
+
+		background-color: color-mix(in srgb, var(--badge-background), transparent 80%);
+		border: 1px solid map.get($colors, 500);
+		border-radius: $radius-full;
+		color: map.get($colors, 50);
+
+		[data-icon] {
+			font-size: size(16);
+			margin: 0;
+		}
+
+		@include preferences("light") {
+			--badge-background: #{map.get($colors, 400)};
+			color: map.get($colors, 950);
+			border-color: map.get($colors, 600);
+		}
+	}
 
 	.version-list {
 		padding: 0;
 
 		> li {
 			display: flex;
+			flex-wrap: wrap;
 			align-items: center;
 			list-style: none;
-			gap: size(8);
-			margin-block: 0 size(4);
+			gap: 0 size(8);
+			margin: 0 0 size(2);
+
+			&[hidden] {
+				display: none;
+			}
 
 			.separator {
 				flex-grow: 1;
 			}
 
-			.latest {
-				padding: size(2) size(8);
-				background-color: color-mix(in srgb, $red-600, transparent 80%);
-				border: 1px solid $red-500;
-				border-radius: $radius-full;
-				color: $red-50;
+			&.latest {
+				font-size: size(18);
+				margin-bottom: size(6);
+			}
+
+			.latest-badge {
+				@include version-badge($colors-red);
+			}
+
+			.prerelease-badge {
+				@include version-badge($colors-yellow);
+			}
+
+			.formatted-date {
 				font-size: size(14);
 
-				@include preferences("light") {
-					color: $red-950;
-					border-color: $red-600;
-					background-color: color-mix(in srgb, $red-400, transparent 80%);
+				:global([data-icon]) {
+					font-size: size(20);
 				}
 			}
 
-			&:not(:first-child) {
+			&.prerelease {
 				opacity: 0.75;
-				margin: 0;
 
 				@media (prefers-contrast: more) {
 					opacity: 0.9;
