@@ -8,23 +8,23 @@
 
 // A bunch of miscellaneous utilities.
 
-import { DurationFormat } from "@formatjs/intl-durationformat";
+import "@formatjs/intl-durationformat/polyfill.js";
 import type { CollectionEntry } from "astro:content";
 
 import { BADGES, SITE_LANGUAGE } from "../../consts.tsx";
 
-const shortMinutesFormatter = new DurationFormat(SITE_LANGUAGE, {
+const shortMinutesFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hours: "narrow",
 	hoursDisplay: "auto",
 });
 
-const longMinutesFormatter = new DurationFormat(SITE_LANGUAGE, {
+const longMinutesFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hoursDisplay: "auto",
 });
 
-const hoursFormatter = new DurationFormat(SITE_LANGUAGE, {
+const hoursFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hoursDisplay: "always",
 });
