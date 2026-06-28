@@ -208,6 +208,11 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 
 		@include bounce-anim;
 
+		:not(.sidebar) > & > .title {
+			font-family: var(--font-heading), sans-serif;
+			font-size: size(17);
+		}
+
 		@media not (min-width: $breakpoint-desktop) {
 			&.mobile-rearrange {
 				grid: var(--grid-mobile);
@@ -229,8 +234,6 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 
 		.title {
 			grid-area: title;
-			font-family: var(--font-heading), sans-serif;
-			font-size: size(17);
 		}
 
 		.description {

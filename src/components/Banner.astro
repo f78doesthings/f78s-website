@@ -86,7 +86,7 @@ const { id } = Astro.props;
 		$banner-alpha: 88%;
 
 		position: sticky;
-		top: size(60);
+		top: $header-height;
 
 		width: 100%;
 		display: none;
@@ -182,10 +182,6 @@ const { id } = Astro.props;
 			button {
 				--hover-text: #{$red-150};
 			}
-		}
-
-		@media (min-width: $breakpoint-desktop) {
-			top: 0;
 		}
 	}
 </style>

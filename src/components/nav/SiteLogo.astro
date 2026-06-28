@@ -40,6 +40,12 @@ const { ...cid } = Astro.props;
 		$light-end: $zinc-950
 	) {
 		> :nth-child(#{$index}) {
+			color: $dark-start;
+
+			@include preferences("light") {
+				color: $light-start;
+			}
+
 			@include preferences("fx") {
 				background-image: linear-gradient($dark-start, $dark-end);
 
@@ -49,6 +55,7 @@ const { ...cid } = Astro.props;
 			}
 
 			@include preferences("fx", "light") {
+				color: transparent;
 				background-image: linear-gradient($light-start, $light-end);
 			}
 		}
@@ -82,13 +89,7 @@ const { ...cid } = Astro.props;
 			> * {
 				display: inline-block;
 				background-clip: text;
-				color: transparent;
-			}
-		}
-
-		@include preferences("no-fx") {
-			> :last-child {
-				display: none;
+				-webkit-text-fill-color: transparent;
 			}
 		}
 

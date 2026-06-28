@@ -34,13 +34,17 @@
 // TODO: add more variables
 $page-width: size(1024);
 $page-margin: size(22);
+$sidebar-width: size(272);
+$header-height: size(60);
 $badge-height: size(26);
 $radius-full: calc(infinity * 1px);
 
-$breakpoint-desktop: size(960);
+$breakpoint-tablet: size(960);
+$breakpoint-desktop: size(1280);
 
 $glass-shadow: 0 0 size(20) hsl(0deg 0% 0% / 9%);
 
+$ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
 $ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
 $anim-ease: 170ms ease;
 $anim-fade: 265ms ease;
@@ -154,6 +158,16 @@ $anim-back: 275ms $ease-out-back;
 
 @mixin active {
 	&:active {
+		@content;
+	}
+}
+
+@mixin hover-or-active {
+	@include hover {
+		@content;
+	}
+
+	@include active {
 		@content;
 	}
 }

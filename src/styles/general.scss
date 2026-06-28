@@ -67,14 +67,10 @@
 	}
 
 	// Make sure the target we're scrolling to is in view (does not account for banners yet)
-	scroll-padding-top: size(80);
-
-	@media (min-width: $breakpoint-desktop) {
-		scroll-padding-top: $page-margin;
-	}
+	scroll-padding-top: calc($header-height + $page-margin);
 
 	// Prevent scrolling when a pop-up is open (for browsers that support :has)
-	&:has(> body > .open, > body > #media-viewer-root > .open) {
+	&:has(> body > #media-viewer-root > .open) {
 		overflow: hidden;
 	}
 
@@ -134,28 +130,31 @@ body {
 		}
 	}
 
-	@media screen and (min-width: $breakpoint-desktop) {
+	// Use grid layout on larger screens
+	@media screen and (min-width: $breakpoint-tablet) {
 		display: grid;
 		place-items: start center;
 		grid-template:
-			"sidebar main  " 1fr
-			"sidebar footer" auto
-			/ auto 1fr;
-
-		&:has(> [data-banner].visible) {
-			grid-template:
-				"sidebar banner" auto
-				"sidebar main  " 1fr
-				"sidebar footer" auto
-				/ auto 1fr;
-		}
+			"header header header" auto
+			"nav    banner toc   " auto
+			"nav    main   toc   " 1fr
+			"nav    footer toc   " auto
+			/ auto 1fr auto;
 
 		[data-banner] {
 			grid-area: banner;
 		}
 
-		.sidebar {
-			grid-area: sidebar;
+		#navigation-menu {
+			grid-area: nav;
+		}
+
+		#headings-menu {
+			grid-area: toc;
+		}
+
+		> header {
+			grid-area: header;
 		}
 
 		> main {
@@ -712,7 +711,9 @@ body > footer {
 
 	pointer-events: none;
 	visibility: collapse;
-	transition: all $anim-fade allow-discrete;
+	transition:
+		all $anim-fade allow-discrete,
+		display 0s;
 
 	:not(.backdrop).open + &,
 	&.open {
