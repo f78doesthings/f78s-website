@@ -96,7 +96,7 @@ const { id } = Astro.props;
 		gap: size(8);
 		padding: size(10) $page-margin;
 		margin: 0 (-$page-margin);
-		z-index: 900;
+		z-index: 1900;
 
 		background: linear-gradient(
 			color.change($red-850, $alpha: $banner-alpha),
@@ -172,6 +172,17 @@ const { id } = Astro.props;
 		}
 
 		@include glass;
+		box-shadow: none;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: size(20);
+			background: linear-gradient(hsl(0deg 0% 0% / 5%), transparent);
+		}
 
 		@include preferences("light") {
 			background: linear-gradient(

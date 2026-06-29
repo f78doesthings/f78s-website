@@ -242,8 +242,10 @@ const { id, right = false, class: className, ...props } = Astro.props;
 			width: 0;
 			height: calc(100dvh - $header-height);
 			visibility: visible;
-			z-index: 1900;
-			transition: width 350ms step-end;
+			z-index: 1800;
+			transition:
+				width $anim-sidebar-time step-end,
+				overflow $anim-sidebar-time step-start;
 
 			> nav {
 				width: $sidebar-width;
@@ -256,7 +258,9 @@ const { id, right = false, class: className, ...props } = Astro.props;
 
 			&.open {
 				width: $sidebar-width;
-				transition: width $anim-sidebar-time step-start;
+				transition:
+					width $anim-sidebar-time step-start,
+					overflow $anim-sidebar-time step-end allow-discrete;
 
 				> nav {
 					visibility: visible;
@@ -279,8 +283,16 @@ const { id, right = false, class: className, ...props } = Astro.props;
 
 			@media not (prefers-contrast: more) {
 				@include preferences("fx") {
-					transition: width $anim-sidebar !important;
+					transition:
+						width $anim-sidebar,
+						overflow $anim-sidebar-time step-start allow-discrete;
 					z-index: 900;
+
+					&.open {
+						transition:
+							width $anim-sidebar,
+							overflow $anim-sidebar-time step-end allow-discrete;
+					}
 
 					> nav {
 						background-color: transparent;

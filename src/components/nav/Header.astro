@@ -427,7 +427,9 @@ const { headings } = Astro.props;
 	}
 
 	#headings-menu {
-		padding-bottom: 0;
+		> :global(nav) {
+			padding-bottom: 0;
+		}
 
 		.table-of-contents {
 			position: relative;

@@ -677,9 +677,18 @@ body > footer {
 	padding: $page-margin;
 
 	background-color: hsl(0deg 0% 0% / 75%);
-	box-shadow: $glass-shadow;
 	border-top: 1px solid var(--color-border);
 	color: var(--color-dim);
+
+	&::before {
+		content: "";
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: size(20);
+		background: linear-gradient(transparent, hsl(0deg 0% 0% / 5%));
+	}
 
 	@include preferences("light") {
 		background-color: hsl(0deg 0% 100% / 75%);
