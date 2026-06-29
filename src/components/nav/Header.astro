@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Site navigation (top bar and sidebar)
+// Site navigation (top bar and sidebars)
 
 import type { MarkdownHeading } from "astro";
 import { SITE_VERSION } from "astro:env/client";
@@ -26,6 +26,7 @@ import PreferenceControl from "../preferences/PreferenceControl.astro";
 import SiteLogo from "./SiteLogo.astro";
 import SidebarLink from "./SidebarLink.astro";
 import Sidebar from "./Sidebar.astro";
+import TableOfContents from "./TableOfContents.astro";
 
 interface Props {
 	headings?: MarkdownHeading[];
@@ -92,123 +93,15 @@ const { headings } = Astro.props;
 {
 	headings && (
 		<Sidebar id="headings-menu" right>
-			{headings && <h2>Table of Contents</h2>}
-			<div class="table-of-contents">
-				<SidebarLink href="#top" class="depth-1">
-					(Top)
-				</SidebarLink>
-
-				{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
-				{headings.map(({ depth, slug, text }) => {
-					return (
-						<SidebarLink href={`#${slug}`} class={`depth-${depth}`} data-slug={slug}>
-							{text}
-						</SidebarLink>
-					);
-				})}
-			</div>
+			<h2>Table of Contents</h2>
+			<TableOfContents headings={headings} />
 		</Sidebar>
 	)
 }
 
-<script>
-	const TIME_BETWEEN_HEADING_UPDATES = 500;
-
-	let tableOfContents: HTMLElement | null;
-	let headings: [HTMLAnchorElement, HTMLElement][] = [];
-	let currentHeading = "";
-	let lastHeadingUpdate = 0;
-	let justNavigated = true;
-	let handle: number | undefined;
-
-	// TODO: add a button to scroll the active link into view when it's offscreen
-
-	document.addEventListener("astro:page-load", () => {
-		tableOfContents = document.querySelector(".table-of-contents");
-		if (!tableOfContents) {
-			return;
-		}
-
-		const contents = tableOfContents.querySelectorAll<HTMLAnchorElement>("a");
-		headings = [];
-		for (const item of contents) {
-			const slug = item.dataset.slug;
-			const heading = document.querySelector<HTMLElement>(
-				slug ? `main #${slug}` : "main > article > header",
-			);
-			if (heading) {
-				headings.push([item, heading]);
-			}
-		}
-
-		currentHeading = location.hash.substring(1);
-		justNavigated = true;
-		updateHeadings();
-		justNavigated = false;
-	});
-
-	function updateHeadings() {
-		// Find the last link that hasn't gone off the top of the screen
-		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
-		const activeIndex =
-			headings.findIndex(
-				([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
-			) - 1;
-		const [activeLink, activeHeading] = headings[activeIndex] ?? [];
-
-		// Update the sidebar links
-		for (const [link, heading] of headings) {
-			const rect = heading.getBoundingClientRect();
-			const isOnScreen = rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
-			link.classList.toggle("active", link === activeLink || isOnScreen);
-
-			// If the browser didn't feel like scrolling the heading into view, then do so manually
-			if (justNavigated && currentHeading && heading.id === currentHeading && window.scrollY < 1) {
-				console.info(`Forcefully scrolling heading "${link.hash}" into view`);
-				heading.scrollIntoView();
-			}
-		}
-
-		if (justNavigated || activeHeading === undefined || currentHeading === activeHeading.id) {
-			return;
-		}
-
-		// Update the address bar hash
-		// Browsers don't like it when we spam the History API, so we need to throttle it here
-		// TODO: make a throttle utility for stuff like this (including logging)
-		const now = Date.now();
-		const timeSinceUpdate = now - lastHeadingUpdate;
-		currentHeading = activeHeading.id;
-		clearTimeout(handle);
-
-		if (timeSinceUpdate >= TIME_BETWEEN_HEADING_UPDATES) {
-			setHeading(activeHeading.id);
-		} else {
-			handle = window.setTimeout(
-				() => setHeading(activeHeading.id),
-				TIME_BETWEEN_HEADING_UPDATES - timeSinceUpdate,
-			);
-		}
-	}
-
-	function setHeading(id: string) {
-		const hash = `#${id}`;
-		if (location.hash !== hash) {
-			lastHeadingUpdate = Date.now();
-			history.replaceState(null, "", hash);
-		}
-	}
-
-	document.addEventListener("scroll", updateHeadings);
-</script>
-
 <style lang="scss">
 	@use "../../styles/colors" as *;
 	@use "../../styles/utils" as *;
-	@use "sass:color";
-	@use "sass:map";
-	@use "sass:list";
-	@use "sass:math";
 
 	// Top bar
 	header {
@@ -393,56 +286,9 @@ const { headings } = Astro.props;
 		}
 	}
 
-	// Table of contents
-	@mixin toc-depth($depth) {
-		$font-weight: list.nth(400 385 360 335 315 300, $depth);
-		$color-step: list.nth(50 100 200 250 300 325, $depth);
-		$margin: size(5);
-
-		&.depth-#{$depth} {
-			padding: $margin $page-margin $margin calc($page-margin * ($depth + 1) / 2);
-			font-weight: $font-weight;
-			color: map.get($colors-taupe, $color-step);
-
-			@include preferences("light") {
-				color: map.get($colors-zinc, 1000 - $color-step);
-			}
-
-			@media (prefers-contrast: more) {
-				color: var(--color-text);
-			}
-
-			@if $depth > 1 {
-				@for $upper-depth from 1 through $depth - 1 {
-					+ .depth-#{$upper-depth} {
-						margin-top: $margin;
-
-						& :global(.highlight) {
-							height: calc(100% + $margin);
-						}
-					}
-				}
-			}
-		}
-	}
-
 	#headings-menu {
 		> :global(nav) {
 			padding-bottom: 0;
-		}
-
-		.table-of-contents {
-			position: relative;
-			margin-top: size(6);
-			padding-bottom: size(10);
-			flex-grow: 1;
-			overflow-y: auto;
-
-			a {
-				@for $depth from 1 through 6 {
-					@include toc-depth($depth);
-				}
-			}
 		}
 	}
 </style>
