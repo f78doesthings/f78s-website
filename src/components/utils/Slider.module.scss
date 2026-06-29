@@ -38,11 +38,22 @@
 	min-width: size(100);
 
 	.track {
+		--track-alpha: 33%;
+		--secondary-alpha: 28%;
+
 		position: relative;
-		background: linear-gradient(hsl(0deg 0% 55% / 30%), hsl(0deg 0% 50% / 30%));
+		background: linear-gradient(
+			hsl(0deg 0% 55% / var(--track-alpha)),
+			hsl(0deg 0% 50% / var(--track-alpha))
+		);
 		width: 100%;
 		height: size(4);
 		border-radius: $radius-full;
+
+		@media (prefers-contrast: more) {
+			--track-alpha: 55%;
+			--secondary-alpha: 60%;
+		}
 
 		.primary-fill,
 		.secondary-fill {
@@ -55,13 +66,21 @@
 		}
 
 		.primary-fill {
-			background: linear-gradient($red-500, $red-600);
+			background: linear-gradient($red-550, $red-650);
+			z-index: 1;
 
 			@include neon;
+
+			@include preferences("light") {
+				background: linear-gradient($red-500, $red-600);
+			}
 		}
 
 		.secondary-fill {
-			background: linear-gradient(hsl(0deg 0% 55% / 25%), hsl(0deg 0% 50% / 25%));
+			background: linear-gradient(
+				hsl(0deg 0% 55% / var(--secondary-alpha)),
+				hsl(0deg 0% 50% / var(--secondary-alpha))
+			);
 		}
 	}
 

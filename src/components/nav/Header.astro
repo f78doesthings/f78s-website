@@ -65,8 +65,8 @@ const { headings } = Astro.props;
 	<SidebarLink href="/"><HomeIcon /> Home</SidebarLink>
 	<SidebarLink href="/blog"><BlogIcon /> Blog</SidebarLink>
 
-	<h2>Topics</h2>
-	<div class="topics">
+	<h2>My hobbies</h2>
+	<div class="future-topics">
 		<div class="placeholder">
 			<SidebarLink><MusicIcon /> Music</SidebarLink>
 			<SidebarLink><GamesIcon /> Gaming</SidebarLink>
@@ -218,6 +218,7 @@ const { headings } = Astro.props;
 		height: $header-height;
 		z-index: 1000;
 		background-color: var(--color-component);
+		box-shadow: $glass-shadow;
 
 		@media print {
 			display: none;
@@ -227,10 +228,28 @@ const { headings } = Astro.props;
 			border-bottom: 1px solid var(--color-border);
 		}
 
-		@include glass;
+		@media not (prefers-contrast: more) {
+			@include preferences("fx") {
+				background-color: transparent;
 
-		@include preferences("fx") {
-			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+				&::before {
+					content: "";
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: calc($header-height + size(16));
+					background: linear-gradient(var(--color-page), transparent);
+					backdrop-filter: contrast(88%) brightness(33%) blur(size(8));
+					mask: linear-gradient(black, hsl(0deg 0% 0% / 99.2%) $header-height, transparent);
+				}
+			}
+
+			@include preferences("fx", "light") {
+				&::before {
+					backdrop-filter: contrast(30%) brightness(160%) blur(size(8));
+				}
+			}
 		}
 
 		nav {
@@ -312,7 +331,7 @@ const { headings } = Astro.props;
 			flex-grow: 1;
 		}
 
-		.topics {
+		.future-topics {
 			position: relative;
 			user-select: none;
 

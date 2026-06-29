@@ -55,7 +55,7 @@ const { id, right = false, class: className, ...props } = Astro.props;
 			const toggleSidebar = (force?: boolean) => {
 				const open = sidebar.classList.toggle("open", force);
 				for (const button of openButtons) {
-					button.classList.toggle("active", open);
+					button.classList.toggle("active", !isMobile && open);
 				}
 
 				if (isMobile) {
@@ -136,9 +136,14 @@ const { id, right = false, class: className, ...props } = Astro.props;
 		overflow: hidden;
 		visibility: collapse;
 		z-index: 2100;
-		transition: all $anim-sidebar allow-discrete;
+		transition:
+			left $anim-sidebar,
+			right $anim-sidebar,
+			visibility $anim-sidebar-time allow-discrete;
 
 		> nav {
+			--shadow-direction: right;
+			position: relative;
 			display: flex;
 			flex-direction: column;
 			padding-block: size(12) size(10);
@@ -147,7 +152,6 @@ const { id, right = false, class: className, ...props } = Astro.props;
 			background-color: var(--color-component);
 
 			&::after {
-				--shadow-direction: right;
 				content: "";
 				position: absolute;
 				left: 100%;
@@ -155,6 +159,10 @@ const { id, right = false, class: className, ...props } = Astro.props;
 				width: size(20);
 				height: 100%;
 				background: linear-gradient(to var(--shadow-direction), hsl(0deg 0% 0% / 5%), transparent);
+			}
+
+			@media (prefers-contrast: more) {
+				border-right: 1px solid var(--color-border);
 			}
 		}
 
@@ -177,10 +185,18 @@ const { id, right = false, class: className, ...props } = Astro.props;
 				right: 100%;
 			}
 
-			> nav::after {
+			> nav {
 				--shadow-direction: left;
-				left: auto;
-				right: 100%;
+
+				&::after {
+					left: auto;
+					right: 100%;
+				}
+
+				@media (prefers-contrast: more) {
+					border-right: none;
+					border-left: 1px solid var(--color-border);
+				}
 			}
 		}
 
@@ -212,10 +228,6 @@ const { id, right = false, class: className, ...props } = Astro.props;
 
 		@media print {
 			display: none;
-		}
-
-		@media (prefers-contrast: more) {
-			border-right: 1px solid var(--color-border);
 		}
 
 		@media not (min-width: $breakpoint-tablet) {
@@ -260,25 +272,56 @@ const { id, right = false, class: className, ...props } = Astro.props;
 				}
 			}
 
-			> [data-hide-sidebar] {
-				display: none;
-			}
-
-			@include preferences("fx") {
-				backdrop-filter: blur(size(2));
-				transition: width $anim-sidebar !important;
-
-				> nav {
-					background-color: color-mix(in srgb, var(--color-component), transparent 12%);
-				}
-
-				&.right > nav {
-					transform: none !important;
-				}
-			}
-
+			> [data-hide-sidebar],
 			& + .backdrop {
 				display: none;
+			}
+
+			@media not (prefers-contrast: more) {
+				@include preferences("fx") {
+					transition: width $anim-sidebar !important;
+					z-index: 900;
+
+					> nav {
+						background-color: transparent;
+
+						&::before {
+							content: "";
+							position: absolute;
+							top: 0;
+							left: 0;
+							width: calc(100% + size(16));
+							height: 100%;
+							z-index: -1;
+							backdrop-filter: contrast(97%) brightness(75%) blur(size(3));
+							mask: linear-gradient(
+								to var(--shadow-direction),
+								hsl(0deg 0% 0% / 98%),
+								hsl(0deg 0% 0% / 93%) calc(100% - size(18)),
+								transparent
+							);
+						}
+
+						&::after {
+							content: none;
+						}
+					}
+
+					&.right > nav {
+						transform: none !important;
+
+						&::before {
+							left: auto;
+							right: 0;
+						}
+					}
+				}
+
+				@include preferences("fx", "light") {
+					> nav::before {
+						backdrop-filter: blur(size(2));
+					}
+				}
 			}
 		}
 	}

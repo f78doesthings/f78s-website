@@ -161,8 +161,8 @@ const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 		display: grid;
 		grid-template-columns: auto auto 1fr;
 		column-gap: size(10);
-		max-width: max-content;
 		overflow-x: scroll;
+		margin-inline: -$page-margin;
 
 		[data-icon] {
 			font-size: size(24);
@@ -183,13 +183,24 @@ const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 
 			box-sizing: content-box;
 			margin: 0;
-			padding: size(10) size(16);
+			padding: size(10) $page-margin;
 			min-height: size(24);
 
 			&:nth-child(odd) {
 				background-color: hsl(0deg 0% 50% / 12%);
-				border-block: 1px solid var(--color-border);
+				border-block: 1px solid;
+				border-image: linear-gradient(
+						90deg,
+						transparent -50%,
+						var(--color-border) 50%,
+						transparent 150%
+					)
+					1;
 			}
+		}
+
+		@media (min-width: $breakpoint-desktop) {
+			margin-inline: 0;
 		}
 	}
 </style>

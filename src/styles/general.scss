@@ -401,10 +401,16 @@ main {
 
 	@include preferences("bg") {
 		background-color: color-mix(in srgb, var(--color-page), transparent 35%);
+
+		@media (prefers-contrast: more) {
+			background-color: var(--color-page);
+		}
 	}
 
-	@include preferences("fx", "bg") {
-		backdrop-filter: blur(size(2));
+	@media not (prefers-contrast: more) {
+		@include preferences("fx", "bg") {
+			backdrop-filter: blur(size(2));
+		}
 	}
 
 	@media (min-width: $breakpoint-desktop) {
@@ -679,8 +685,26 @@ body > footer {
 		background-color: hsl(0deg 0% 100% / 75%);
 	}
 
-	@include preferences("bg", "fx") {
-		backdrop-filter: blur(size(2));
+	@media not (prefers-contrast: more) {
+		border-image: linear-gradient(
+				90deg,
+				transparent -50%,
+				var(--color-border) 50%,
+				transparent 150%
+			)
+			1;
+
+		@include preferences("bg", "fx") {
+			backdrop-filter: blur(size(2));
+		}
+	}
+
+	@media (prefers-color-scheme: more) {
+		background-color: black;
+
+		@include preferences("light") {
+			background-color: white;
+		}
 	}
 
 	@media print {
