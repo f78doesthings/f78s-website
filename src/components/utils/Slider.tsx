@@ -160,10 +160,10 @@ export function Slider({
 			{...cid}
 		>
 			<div class={styles.track}>
+				<div class={styles["secondary-fill"]} ref={secondaryFill}></div>
 				<div class={styles["primary-fill"]} ref={primaryFill}>
 					<div class={styles.thumb} ref={sliderThumb}></div>
 				</div>
-				<div class={styles["secondary-fill"]} ref={secondaryFill}></div>
 			</div>
 		</div>
 	);

@@ -93,13 +93,14 @@ const { icon: Icon, title } = alertTypes[type];
 			display: flex;
 			align-items: center;
 			gap: size(6);
+			margin-bottom: size(8);
 
 			font-size: size(17);
 			font-family: var(--font-heading), sans-serif;
 			color: var(--alert-label);
 
 			+ :global(*) {
-				margin-top: size(8);
+				margin-top: 0;
 			}
 		}
 
