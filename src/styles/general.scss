@@ -355,31 +355,34 @@ option {
 	background-color: var(--color-component);
 }
 
-.btn {
+.btn,
+.btn-secondary {
 	display: inline-flex;
 	align-items: center;
 	gap: size(8);
 	padding: size(8) size(16);
 
-	background: linear-gradient($red-650, $red-800);
 	border-radius: $radius-full;
-
 	font-weight: 500;
-	color: var(--color-heading);
 	text-decoration: none;
+	cursor: pointer;
+}
 
+.btn {
+	background: linear-gradient($red-650, $red-800);
+	color: var(--color-heading);
 	transition:
 		filter $anim-ease,
 		transform $anim-back;
 
 	@include hover {
-		filter: brightness(115%);
-		transform: scale(104%) rotate(-1deg);
+		filter: brightness(110%);
+		transform: scale(103%) rotate(-0.8deg);
 	}
 
 	@include active {
-		filter: brightness(90%);
-		transform: scale(98%) rotate(0.5deg);
+		filter: brightness(93%);
+		transform: scale(98%) rotate(0.44deg);
 	}
 
 	@include preferences("light") {
@@ -388,12 +391,20 @@ option {
 	}
 }
 
+.btn-secondary {
+	background: none;
+	border: none;
+
+	@include btn-transparent;
+}
+
 // Page content
 main {
 	width: 100%;
 	max-width: $page-width;
 	padding: 0 $page-margin;
 	line-height: 1.25;
+	container: main / inline-size;
 
 	@media print {
 		padding: 0;

@@ -1,0 +1,77 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import Link from "../../../components/nav/Link";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { resolveMedia } from "../../../server-utils";
+import { VisualizerApp } from "./_VisualizerApp";
+
+const demos = [
+	[
+		"gaze upon the stars",
+		//@ts-ignore - I don't know why it's upset, it works fine...
+		import("../../../content/blog/gaze-upon-the-stars/assets/audio/gaze-upon-the-stars.m4a"),
+	],
+] as const;
+const demoSources: [name: string, src: string][] = [];
+
+for (const [name, media] of demos) {
+	const src = await resolveMedia(media);
+	if (src) {
+		demoSources.push([name, src]);
+	}
+}
+---
+
+<BaseLayout title="Visualizer Playground">
+	<h1>The Visualizer Playground</h1>
+	<p>
+		Here you can choose any audio file you want <small>(so long as your browser supports it)</small
+		>, and experience it with the audio visualizers I created for this website. Keep in mind that
+		these visualizers are still experimental.
+	</p>
+	<p>
+		Don't have any audio files to play? <Link
+			href="https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX?dir=/Music"
+			external>I've got you covered.</Link
+		><br />
+		<small>
+			The files you pick never leave your device. While you can select video files, the video itself
+			is not displayed for now.
+		</small>
+	</p>
+	<VisualizerApp client:load demoSources={demoSources} />
+	<p>
+		<small>Settings will be added here in the future.</small>
+	</p>
+</BaseLayout>
+
+<style lang="scss" is:global>
+	@use "../../../styles/utils" as *;
+	@use "../../../styles/colors" as *;
+
+	.demos {
+		display: flex;
+		flex-wrap: wrap;
+		gap: size(8);
+		margin-block: size(8);
+
+		button {
+			transition: color $anim-fade;
+		}
+
+		.selected-demo {
+			color: $red-450;
+
+			@include preferences("light") {
+				color: $red-700;
+			}
+		}
+	}
+</style>

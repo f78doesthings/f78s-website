@@ -12,8 +12,10 @@
 .combined-visualizer {
 	display: grid;
 	grid-template:
-		"oscilloscope" 1fr
-		"spectrum    " 2fr;
+		"oscilloscope meter" 1fr
+		"spectrum     meter" 2fr
+		/ 1fr calc(size(36) + 2%);
+	gap: size(10);
 
 	> * {
 		width: 100%;
@@ -27,5 +29,9 @@
 
 	.spectrum {
 		grid-area: spectrum;
+	}
+
+	.meter {
+		grid-area: meter;
 	}
 }

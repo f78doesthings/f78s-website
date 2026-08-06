@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 f78.
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -12,14 +12,14 @@ interface CanvasScaleSettings {
 	/**
 	 * Returns the canvas resolution scale to use.
 	 *
-	 * Defaults to 1 if omitted.
+	 * @default () => 1
 	 */
 	renderScale?: () => number;
 
 	/**
 	 * Returns how much the display's pixel density should affect the canvas resolution.
 	 *
-	 * Defaults to 1 if omitted.
+	 * @default () => 1
 	 */
 	dpiFactor?: () => number;
 

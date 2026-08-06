@@ -10,10 +10,11 @@
 
 import { useSignal } from "@preact/signals";
 import { useSignalRef } from "@preact/signals/utils";
-import type { AudioHTMLAttributes } from "preact";
+import type { AudioHTMLAttributes, Ref } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 
 import { createMediaContext, type MediaContext } from "../../../scripts/utils/audio.js";
+import { wrapRefs } from "../../../scripts/utils/preact.js";
 import type { CopyrightInfo, Replace } from "../../../types.js";
 import { MediaControls } from "../utils/MediaControls.jsx";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay.jsx";
@@ -21,21 +22,37 @@ import {
 	MediaShortcutResponse,
 	type MediaShortcutAnimation,
 } from "../utils/MediaShortcutResponse.js";
-import { VisualizerSelector } from "./visualizers/VisualizerSelector.js";
 
 import "../../../styles/media.scss";
+import { VisualizerSelector } from "./visualizers/VisualizerSelector.js";
+
 import styles from "./AudioPlayerClient.module.scss";
 
 type Props = Replace<
 	AudioHTMLAttributes,
 	CopyrightInfo & {
+		/** Allows you to obtain a reference to the audio element. */
+		audioRef?: Ref<HTMLAudioElement>;
+
 		class?: string;
-		src: string;
+
+		/** If present, visualizers keep running even if the audio played is paused. */
+		noPause?: boolean;
+
+		/** The source URL of the audio file. */
+		src?: string;
 	}
 >;
 
 /** The client-side portion of AudioPlayer. Use AudioPlayer in pages instead. */
-export function AudioPlayerClient({ src, children, class: className = "", ...props }: Props) {
+export function AudioPlayerClient({
+	src,
+	children,
+	class: className = "",
+	noPause,
+	audioRef,
+	...props
+}: Props) {
 	const audio = useRef<HTMLAudioElement>(null);
 	const root = useSignalRef<HTMLDivElement | null>(null);
 	const contentContainer = useSignalRef<HTMLDivElement | null>(null);
@@ -48,8 +65,8 @@ export function AudioPlayerClient({ src, children, class: className = "", ...pro
 		isFullscreen.value = root.current !== null && document.fullscreenElement === root.current;
 	};
 
-	const updatePaused = async () => {
-		isPaused.value = !audio.current || audio.current.paused || audio.current.ended;
+	const updatePaused = () => {
+		isPaused.value = !noPause && (!audio.current || audio.current.paused || audio.current.ended);
 	};
 
 	useEffect(() => {
@@ -84,11 +101,18 @@ export function AudioPlayerClient({ src, children, class: className = "", ...pro
 	// BUG: the visualizer occasionally disappears when paused on mobile outside of fullscreen
 	return (
 		<div ref={root} class={`${styles["audio-player"]} ${className}`} tabindex={0}>
-			<MediaInfoOverlay class={styles.info} src={src} {...props}>
-				{children}
-			</MediaInfoOverlay>
+			{src && (
+				<MediaInfoOverlay class={styles.info} src={src} {...props}>
+					{children}
+				</MediaInfoOverlay>
+			)}
 			<div class={styles.content} ref={contentContainer}>
-				<VisualizerSelector media={mediaConnection} paused={isPaused} class={styles.visualizer} />
+				<VisualizerSelector
+					media={mediaConnection}
+					paused={isPaused}
+					noPause={noPause}
+					class={styles.visualizer}
+				/>
 				<MediaShortcutResponse animation={mediaAnimation.value} />
 			</div>
 			<MediaControls
@@ -100,7 +124,7 @@ export function AudioPlayerClient({ src, children, class: className = "", ...pro
 				mediaAnimation={mediaAnimation}
 			/>
 
-			<audio src={src} ref={audio} preload="metadata" {...props} />
+			<audio src={src} ref={wrapRefs(audio, audioRef)} preload="metadata" {...props} />
 		</div>
 	);
 }

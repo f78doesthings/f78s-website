@@ -7,6 +7,7 @@
  */
 
 import type { VisualizerProps } from "./AudioVisualizer";
+import { MeterVisualizer } from "./MeterVisualizer";
 import { OscilloscopeVisualizer } from "./OscilloscopeVisualizer";
 import { SpectrumVisualizer } from "./SpectrumVisualizer";
 
@@ -20,8 +21,9 @@ export function CombinedVisualizer({
 }: VisualizerProps) {
 	return (
 		<div class={`${styles["combined-visualizer"]} ${className}`} ref={visualizerRef}>
-			<OscilloscopeVisualizer class={styles["oscilloscope"]} {...props} />
-			<SpectrumVisualizer class={styles["spectrum"]} {...props} />
+			<OscilloscopeVisualizer class={styles.oscilloscope} {...props} />
+			<SpectrumVisualizer class={styles.spectrum} {...props} />
+			<MeterVisualizer class={styles.meter} {...props} />
 		</div>
 	);
 }

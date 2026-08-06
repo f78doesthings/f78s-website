@@ -22,16 +22,26 @@ import SimpleIconsYoutube from "~icons/simple-icons/youtube";
 import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
 
 const links = await getCollection("links");
-const blogLink: LinkData = {
-	id: "blog",
-	title: BLOG_TITLE,
-	description:
-		"This is where I talk about whatever I feel like talking about. Right now there's not that much here yet.",
-	url: "/blog",
-	icon: "fluent:rss-24-regular",
-	order: -100,
-	tags: ["new", "beta"],
-};
+
+const miscLinks: Omit<LinkData, "order">[] = [
+	{
+		id: "blog",
+		title: BLOG_TITLE,
+		description:
+			"This is where I talk about whatever I feel like talking about. Right now there's not that much here yet.",
+		url: "/blog",
+		icon: "fluent:rss-24-regular",
+		tags: ["beta"],
+	},
+	{
+		id: "visualizer",
+		title: "Visualizer Playground",
+		description: "Try out the website's audio visualizers with your own audio files!",
+		url: "/misc/visualizer",
+		icon: "fluent:sound-wave-circle-24-regular",
+		tags: ["new", "alpha"],
+	},
+];
 
 // TODO: consider converting this to MDX for table of contents and such
 ---
@@ -84,22 +94,13 @@ const blogLink: LinkData = {
 		college, so I won't be producing much content for the time being. Right now I'm mainly putting
 		out <b>covers of the Home Paige OST</b>, which you can listen to on <Link
 			href="https://soundcloud.com/f78music/sets/home-paige-covers"
-			external
-		>
-			<SimpleIconsSoundcloud />
-			SoundCloud</Link
+			external><SimpleIconsSoundcloud /> SoundCloud</Link
 		> and <Link
 			href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs"
-			external
-		>
-			<SimpleIconsYoutube />
-			YouTube</Link
+			external><SimpleIconsYoutube /> YouTube</Link
 		>*. You can also find downloads for them <Link
 			href="https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX?dir=/Music/Home%20Paige%20covers"
-			external
-		>
-			<SimpleIconsNextcloud />
-			in this public Nextcloud folder</Link
+			external><SimpleIconsNextcloud /> in this public Nextcloud folder</Link
 		>.
 	</p>
 	<p>
@@ -109,10 +110,9 @@ const blogLink: LinkData = {
 			don't have much of.
 		</small>
 	</p>
-	{
-		/* BUG: The SoundCloud icon is *still* missing here in the deployed website for some reason... */
-	}
-	<LinkTree collection={links} links={[blogLink]} />
+	<LinkTree links={miscLinks.map((v, i) => ({ ...v, order: i }))} />
+	{/* BUG: The SoundCloud icon is still missing here in the deployed website for some reason... */}
+	<LinkTree collection={links} />
 
 	<h3>The Legend of Badges</h3>
 	<p>
@@ -134,82 +134,82 @@ const blogLink: LinkData = {
 			})
 		}
 	</dl>
-
-	<style lang="scss">
-		@use "../styles/colors" as *;
-		@use "../styles/utils" as *;
-		@use "sass:color";
-
-		.badge-legend {
-			dd {
-				margin: 0.5rem 0 1rem 2rem;
-				color: var(--color-dim);
-			}
-		}
-
-		@media (min-width: $breakpoint-desktop) {
-			.badge-legend {
-				display: grid;
-				grid-template-columns: auto 1fr;
-				align-items: center;
-				gap: 0.5rem 0.75rem;
-
-				dd {
-					margin: 0;
-				}
-			}
-		}
-
-		.my-name {
-			--start-color: #{$red-550};
-			--end-color: #{$red-450};
-
-			font-size: 1.0625rem;
-			font-family: var(--font-heading), sans-serif;
-			font-weight: 800;
-			color: color-mix(in oklch, var(--start-color), var(--end-color));
-
-			@include preferences("light") {
-				--start-color: #{$red-650};
-				--end-color: #{$red-550};
-			}
-
-			// Subtle gradient animation
-			@include preferences("fx") {
-				position: relative;
-				background-image: linear-gradient(
-					to right,
-					var(--start-color),
-					var(--end-color),
-					var(--start-color),
-					var(--end-color)
-				);
-				background-size: 300%;
-				background-clip: text;
-				color: transparent;
-				animation: name-animation 5s infinite linear;
-
-				&::after {
-					content: "f78";
-					position: absolute;
-					top: 0;
-					left: 0;
-
-					background: inherit;
-					filter: blur(0.1875rem);
-					opacity: 0.3;
-				}
-
-				@keyframes name-animation {
-					from {
-						background-position: 0;
-					}
-
-					to {
-						background-position: 100%;
-					}
-				}
-			}
-		}
-	</style>
 </BaseLayout>
+
+<style lang="scss">
+	@use "../styles/colors" as *;
+	@use "../styles/utils" as *;
+	@use "sass:color";
+
+	.badge-legend {
+		dd {
+			margin: 0.5rem 0 1rem 2rem;
+			color: var(--color-dim);
+		}
+	}
+
+	@media (min-width: $breakpoint-desktop) {
+		.badge-legend {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			align-items: center;
+			gap: 0.5rem 0.75rem;
+
+			dd {
+				margin: 0;
+			}
+		}
+	}
+
+	.my-name {
+		--start-color: #{$red-550};
+		--end-color: #{$red-450};
+
+		font-size: 1.0625rem;
+		font-family: var(--font-heading), sans-serif;
+		font-weight: 800;
+		color: color-mix(in oklch, var(--start-color), var(--end-color));
+
+		@include preferences("light") {
+			--start-color: #{$red-650};
+			--end-color: #{$red-550};
+		}
+
+		// Subtle gradient animation
+		@include preferences("fx") {
+			position: relative;
+			background-image: linear-gradient(
+				to right,
+				var(--start-color),
+				var(--end-color),
+				var(--start-color),
+				var(--end-color)
+			);
+			background-size: 300%;
+			background-clip: text;
+			color: transparent;
+			animation: name-animation 5s infinite linear;
+
+			&::after {
+				content: "f78";
+				position: absolute;
+				top: 0;
+				left: 0;
+
+				background: inherit;
+				filter: blur(0.1875rem);
+				opacity: 0.3;
+			}
+
+			@keyframes name-animation {
+				from {
+					background-position: 0;
+				}
+
+				to {
+					background-position: 100%;
+				}
+			}
+		}
+	}
+</style>

@@ -138,6 +138,12 @@ export function MediaControls({
 		}
 	};
 
+	const jumpToPercent = (percent: number) => {
+		if (media.value) {
+			media.value.currentTime = media.value.duration * percent;
+		}
+	};
+
 	const seek = (seconds: number) => {
 		if (media.value) {
 			media.value.currentTime += seconds;
@@ -201,6 +207,7 @@ export function MediaControls({
 		};
 
 		const updateBufferProgress = () => {
+			// BUG: I feel like this code is not working as intended...
 			if (!media.value) {
 				return;
 			}
@@ -222,6 +229,15 @@ export function MediaControls({
 			}
 		};
 
+		const initialize = () => {
+			duration.value = NaN;
+			updatePlayState();
+			updateTimeCode();
+			updateBufferProgress();
+			updateVolume();
+			setLooping(media.value?.loop ?? false);
+		};
+
 		on("play", updatePlayState);
 		on("pause", updatePlayState);
 		on("ended", updatePlayState);
@@ -229,12 +245,8 @@ export function MediaControls({
 		on("timeupdate", updateTimeCode);
 		on("progress", updateBufferProgress);
 		on("volumechange", updateVolume);
-
-		updatePlayState();
-		updateTimeCode();
-		updateBufferProgress();
-		updateVolume();
-		setLooping(media.value?.loop ?? false);
+		on("loadstart", initialize);
+		initialize();
 	});
 
 	// Crude keyboard shortcut system
@@ -246,7 +258,7 @@ export function MediaControls({
 					return;
 				}
 
-				//console.debug("Key code:", ev.code, "| Key:", ev.key);
+				console.debug("Key code:", ev.code, "| Key:", ev.key);
 				let handled = true;
 				if (!ev.shiftKey) {
 					switch (ev.code) {
@@ -279,6 +291,47 @@ export function MediaControls({
 							break;
 						case "KeyL":
 							seek(10);
+							break;
+
+						case "Numpad0":
+						case "Digit0":
+							jumpToPercent(0);
+							break;
+						case "Numpad1":
+						case "Digit1":
+							jumpToPercent(0.1);
+							break;
+						case "Numpad2":
+						case "Digit2":
+							jumpToPercent(0.2);
+							break;
+						case "Numpad3":
+						case "Digit3":
+							jumpToPercent(0.3);
+							break;
+						case "Numpad4":
+						case "Digit4":
+							jumpToPercent(0.4);
+							break;
+						case "Numpad5":
+						case "Digit5":
+							jumpToPercent(0.5);
+							break;
+						case "Numpad6":
+						case "Digit6":
+							jumpToPercent(0.6);
+							break;
+						case "Numpad7":
+						case "Digit7":
+							jumpToPercent(0.7);
+							break;
+						case "Numpad8":
+						case "Digit8":
+							jumpToPercent(0.8);
+							break;
+						case "Numpad9":
+						case "Digit9":
+							jumpToPercent(0.9);
 							break;
 
 						default:

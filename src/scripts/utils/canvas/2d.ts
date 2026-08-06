@@ -9,8 +9,13 @@
 //#region Gradient helpers
 
 interface GradientSettings {
+	/** Whether to mirror the gradient. */
 	mirrored?: boolean;
+
+	/** The pixel coordinates of the gradient. */
 	coords?: [fromX: number, fromY: number, toX: number, toY: number];
+
+	/** Sets the alpha to the returned value for the given offset. */
 	setAlpha?: (offset: number) => number;
 }
 
@@ -22,10 +27,15 @@ interface GradientSettings {
  */
 export function createGradient(
 	ctx: CanvasRenderingContext2D,
-	colors: string[],
+	colors: string | string[],
 	{ mirrored, coords = [0, ctx.canvas.height, 0, 0], setAlpha }: GradientSettings = {},
 ) {
 	const gradient = ctx.createLinearGradient(...coords);
+	if (typeof colors === "string") {
+		colors = [colors, colors];
+	} else if (colors.length < 2) {
+		throw new RangeError("Arrays passed to `colors` must contain at least 2 elements");
+	}
 
 	for (let i = 0; i < colors.length; i++) {
 		let color = colors[i];
@@ -68,10 +78,3 @@ export function drawLine(
 }
 
 //#endregion
-
-import { autoResizeCanvas } from "./auto-resize";
-
-/** @deprecated Import from `./auto-resize` instead */
-const deprecated_autoResizeCanvas = autoResizeCanvas;
-
-export { deprecated_autoResizeCanvas as autoResizeCanvas };

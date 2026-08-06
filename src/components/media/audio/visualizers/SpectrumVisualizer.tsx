@@ -8,7 +8,7 @@
 
 import { clamp } from "../../../../scripts/utils";
 import { createGradient, drawLine } from "../../../../scripts/utils/canvas/2d";
-import { AudioVisualizer, visualizerGradients, type VisualizerProps } from "./AudioVisualizer";
+import { AudioVisualizer, visualizerThemes, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio spectrum. */
 export function SpectrumVisualizer(props: VisualizerProps) {
@@ -50,7 +50,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	return (
 		<AudioVisualizer
 			{...props}
-			init={({ analyser }) => {
+			init={({ analysers: [analyser] }) => {
 				analyser.fftSize = windowSize;
 				analyser.smoothingTimeConstant = 0;
 				return {
@@ -58,14 +58,14 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 					previous: new Float32Array(analyser.frequencyBinCount).fill(-Infinity),
 				};
 			}}
-			draw={({ analyser, ctx, data, deltaTime }) => {
+			draw={({ analysers: [analyser], ctx, data, deltaTime, running }) => {
 				const width = ctx.canvas.width;
 				const height = ctx.canvas.height;
 				const renderScale = Number(ctx.canvas.dataset.renderScale ?? 1) || 1;
 				const bufferLength = data.current.length;
 				analyser.getFloatFrequencyData(data.current);
 
-				const fontSize = Math.ceil(renderScale * 10 + height / 200);
+				const fontSize = Math.ceil(renderScale * 9 + ((width + height) / 400) ** 0.875);
 				const textPadding = Math.ceil(fontSize / 5);
 				const textMargin = Math.floor(fontSize / 2);
 				const minX = Math.log10(minFreq + 1);
@@ -141,8 +141,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				}
 
 				// Spectrum gradient
-				const strokeGradient = createGradient(ctx, visualizerGradients.Lit);
-				const fillGradient = createGradient(ctx, visualizerGradients.Lit, {
+				const strokeGradient = createGradient(ctx, visualizerThemes.Lit.gradient);
+				const fillGradient = createGradient(ctx, visualizerThemes.Lit.gradient, {
 					setAlpha: (offset) => 24 + 30 * offset ** 0.9,
 				});
 
@@ -164,7 +164,10 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				const floor = height - getX(0);
 				for (let i = 0; i < bufferLength; i++) {
 					const frequency = (i / bufferLength) * halfSampleRate;
-					const currentDecibels = Math.max(data.current[i], data.previous[i] - volumeReduction);
+					const currentDecibels = Math.max(
+						running ? data.current[i] : -Infinity,
+						data.previous[i] - volumeReduction,
+					);
 					const decibels = currentDecibels + slope * Math.log2(frequency / slopeCenter);
 					data.previous[i] = currentDecibels;
 
