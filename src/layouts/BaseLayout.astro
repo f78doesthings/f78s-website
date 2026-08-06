@@ -30,9 +30,7 @@ import Banner from "../components/Banner.astro";
 import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
 import { SITE_VERSION } from "astro:env/client";
 
-interface Props extends Partial<
-	Omit<MarkdownLayoutProps<Record<string, unknown>>, "rawContent" | "compiledContent">
-> {
+interface CommonProps {
 	/** The title of the page. */
 	title?: string;
 
@@ -50,17 +48,20 @@ interface Props extends Partial<
 	isBlog?: boolean;
 
 	/** When this page was last updated. */
-	lastModified?: Date;
+	lastModified?: unknown;
 }
 
+type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
+	CommonProps;
+
 const {
-	title,
-	description,
-	image,
-	isBlog = false,
-	lastModified,
 	headings,
 	frontmatter,
+	title = frontmatter?.title,
+	description = frontmatter?.description,
+	image = frontmatter?.image,
+	isBlog = frontmatter?.isBlog,
+	lastModified = frontmatter?.lastModified,
 } = Astro.props;
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
@@ -68,11 +69,6 @@ const url = new URL(Astro.url);
 if (IS_DEV) {
 	siteTitle += " [DEV BUILD]";
 	url.hostname = "dev.f78.be";
-}
-
-let lastModifiedDate = lastModified;
-if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
-	lastModifiedDate = new Date(frontmatter.lastModified);
 }
 
 const contentLicense = LICENSES["CC-BY-SA-4.0"];
@@ -130,15 +126,15 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 	<body>
 		<div class="loading-bar" transition:persist></div>
 
-		<Header headings={headings} />
+		<Header headings={headings} noTopHeading={!isBlog} />
 
 		{
 			/* prettier-ignore */
 			IS_DEV ? (
 				<Banner id={`dev-build+${SITE_VERSION}`}>
-					<DragonEmoji />
+					<DragonEmoji title="Here be dragons." />
 					<span>
-						This is a <Link href={"/version"}>development build</Link> of the website.
+						This is a <Link href="/version">development build</Link> of the website.
 						Issues are to be expected, and should be reported on{" "}
 						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
 					</span>
@@ -161,8 +157,8 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 
 		<footer>
 			{
-				lastModifiedDate && (
-					<FormattedDate date={lastModifiedDate}>
+				lastModified && (
+					<FormattedDate date={lastModified}>
 						<LastUpdatedIcon slot="icon" />
 						<Fragment slot="before">Last updated:</Fragment>
 					</FormattedDate>

@@ -26,13 +26,11 @@ import PreferenceControl from "../preferences/PreferenceControl.astro";
 import SiteLogo from "./SiteLogo.astro";
 import SidebarLink from "./SidebarLink.astro";
 import Sidebar from "./Sidebar.astro";
-import TableOfContents from "./TableOfContents.astro";
+import TableOfContents, { type Props as TableOfContentsProps } from "./TableOfContents.astro";
 
-interface Props {
-	headings?: MarkdownHeading[];
-}
+type Props = Partial<TableOfContentsProps>;
 
-const { headings } = Astro.props;
+const { headings, noTopHeading } = Astro.props;
 
 // TODO: add Skip Navigation button (although keyboard navigation is kind of screwed anyway)
 ---
@@ -69,9 +67,9 @@ const { headings } = Astro.props;
 	<h2>My hobbies</h2>
 	<div class="future-topics">
 		<div class="placeholder">
-			<SidebarLink><MusicIcon /> Music</SidebarLink>
-			<SidebarLink><GamesIcon /> Gaming</SidebarLink>
-			<SidebarLink><CodeIcon /> Programming</SidebarLink>
+			<SidebarLink href="/hobbies/gaming"><GamesIcon /> Gaming</SidebarLink>
+			<SidebarLink href="/hobbies/music"><MusicIcon /> Music</SidebarLink>
+			<SidebarLink href="/hobbies/programming"><CodeIcon /> Programming</SidebarLink>
 		</div>
 		<div class="coming-soon">Coming soon...</div>
 	</div>
@@ -94,7 +92,7 @@ const { headings } = Astro.props;
 	headings && (
 		<Sidebar id="headings-menu" right>
 			<h2>Table of Contents</h2>
-			<TableOfContents headings={headings} />
+			<TableOfContents headings={headings} noTopHeading={noTopHeading} />
 		</Sidebar>
 	)
 }
@@ -220,6 +218,10 @@ const { headings } = Astro.props;
 	}
 
 	#navigation-menu {
+		> :global(nav) {
+			overflow: hidden auto;
+		}
+
 		.separator {
 			flex-grow: 1;
 		}
@@ -262,6 +264,7 @@ const { headings } = Astro.props;
 				}
 
 				.coming-soon {
+					color: var(--color-heading);
 					opacity: 0.9;
 				}
 

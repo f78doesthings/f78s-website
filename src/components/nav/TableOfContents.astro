@@ -14,13 +14,22 @@ import SidebarLink from "./SidebarLink.astro";
 
 interface Props {
 	headings: MarkdownHeading[];
+	noTopHeading?: boolean;
 }
 
-const { headings, ...cid } = Astro.props;
+export type { Props };
+
+const { headings, noTopHeading, ...cid } = Astro.props;
 ---
 
 <div class="table-of-contents" {...cid}>
-	<SidebarLink href="#top" class="depth-1" {...cid}>(Top)</SidebarLink>
+	{
+		!noTopHeading && (
+			<SidebarLink href="#top" class="depth-1" {...cid}>
+				(Top)
+			</SidebarLink>
+		)
+	}
 
 	{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
 	{
