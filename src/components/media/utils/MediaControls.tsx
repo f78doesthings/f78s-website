@@ -247,6 +247,17 @@ export function MediaControls({
 		on("volumechange", updateVolume);
 		on("loadstart", initialize);
 		initialize();
+
+		// If the media is not loaded when we initialize, we force it to.
+		// This tends to happen after a page transition.
+		if (
+			media.value &&
+			media.value.src &&
+			media.value.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
+		) {
+			console.debug("Media was not loaded properly, forcing a load", media.value);
+			media.value.load();
+		}
 	});
 
 	// Crude keyboard shortcut system
