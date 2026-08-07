@@ -12,9 +12,9 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
+import a from "ansis";
 import { consola } from "consola";
 import ignore from "ignore";
-import pc from "picocolors";
 
 async function confirmExit() {
 	const shouldContinue = await consola.prompt("Do you want to continue anyway?", {
@@ -34,7 +34,7 @@ const deployBranch = process.env.DEPLOY_SCRIPT ?? "main";
 if (gitBranch !== deployBranch) {
 	consola.error(
 		"The deploy script run does not match the Git branch.\n",
-		`\tCurrent branch: ${pc.red(gitBranch)} ${pc.gray("|")} Expected: ${pc.yellow(deployBranch)}`,
+		`\tCurrent branch: ${a.red(gitBranch)} ${a.gray("|")} Expected: ${a.yellow(deployBranch)}`,
 	);
 	await confirmExit();
 } else {
@@ -46,7 +46,7 @@ const gitStatus = child_process.execSync("git status --porcelain", { encoding: "
 if (gitStatus) {
 	consola.log("\n" + gitStatus);
 	consola.warn(
-		`There are ${pc.red(gitStatus.split("\n").length)} uncommitted changes.`,
+		`There are ${a.red(gitStatus.split("\n").length)} uncommitted changes.`,
 		"The website may show incorrect version information if you don't commit them.",
 	);
 	await confirmExit();
@@ -86,10 +86,10 @@ for (const file of files) {
 }
 
 if (noHeader > 0) {
-	consola.warn(`${pc.red(noHeader)} / ${pc.white(count)} files are missing copyright headers.`);
+	consola.warn(`${a.red(noHeader)} / ${a.white(count)} files are missing copyright headers.`);
 	await confirmExit();
 } else {
-	consola.success(`Checked ${pc.green(count)} files for missing copyright headers.`);
+	consola.success(`Checked ${a.green(count)} files for missing copyright headers.`);
 }
 
 // Update the Cloudflare Workers compatibility date

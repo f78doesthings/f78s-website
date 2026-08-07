@@ -12,13 +12,15 @@ import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
+import { readingTime } from "@xsynaptic/satteri-reading-time";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
 import consola from "consola";
 import simpleGit from "simple-git";
 import Icons from "unplugin-icons/vite";
 
 import packageJSON from "./package.json";
-import { hastExternalLinks } from "./plugins/hast-external-links.ts";
+import { satteriHastExternalLinks } from "./plugins/satteri/hast/external-links.ts";
+import { satteriMdastLastModified } from "./plugins/satteri/mdast/last-modified.ts";
 
 const git = simpleGit();
 
@@ -122,8 +124,8 @@ export default defineConfig({
 				superscript: true,
 				subscript: true,
 			},
-			// TODO: port the 2 frontmatter recipes to Satteri if possible
-			hastPlugins: [hastExternalLinks()],
+			hastPlugins: [satteriHastExternalLinks()],
+			mdastPlugins: [readingTime(), satteriMdastLastModified()],
 		}),
 		shikiConfig: {
 			themes: {

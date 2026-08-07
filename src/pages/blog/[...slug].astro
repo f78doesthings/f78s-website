@@ -27,7 +27,7 @@ type Props = CollectionEntry<"blog">;
 const post = Astro.props;
 const {
 	Content,
-	remarkPluginFrontmatter: { lastModified, readingTime },
+	remarkPluginFrontmatter: { lastModified, minutesRead },
 	headings,
 } = await render(post);
 ---
@@ -35,7 +35,7 @@ const {
 <BlogPost
 	{...post.data}
 	lastModified={lastModified && new Date(lastModified)}
-	readingTime={readingTime}
+	minutesRead={minutesRead}
 	headings={headings}
 >
 	<Content />

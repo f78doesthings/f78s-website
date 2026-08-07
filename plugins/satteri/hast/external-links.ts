@@ -6,23 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { fromHtml } from "hast-util-from-html";
 import { defineHastPlugin } from "satteri";
 
-/** Converts the string to a hast {@linkcode Element}. */
-function html(...params: Parameters<typeof String.raw>) {
-	// Might be a bit crude
-	const text = String.raw(...params).trim();
-	const tree = fromHtml(text, { fragment: true });
-	const element = tree.children.find((child) => child.type === "element");
-	if (!element) {
-		throw new Error("Failed to parse HTML");
-	}
+import { html } from "../../utils";
 
-	return element;
-}
-
-export function hastExternalLinks() {
+export function satteriHastExternalLinks() {
 	return defineHastPlugin({
 		name: "external-links",
 		element: {

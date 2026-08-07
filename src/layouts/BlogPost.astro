@@ -18,7 +18,7 @@ import type { MarkdownHeading } from "astro";
 type Props = CollectionEntry<"blog">["data"] & {
 	isBlog?: boolean;
 	lastModified?: Date;
-	readingTime?: string;
+	minutesRead?: number;
 	headings?: MarkdownHeading[];
 };
 
@@ -37,7 +37,7 @@ const {
 
 	isBlog = true,
 	lastModified,
-	readingTime,
+	minutesRead,
 	headings,
 	...cid
 } = Astro.props;
@@ -88,12 +88,12 @@ const {
 				}
 				<span class="separator">&bullet;</span>
 				<p
-					title={readingTime
+					title={minutesRead !== undefined
 						? undefined
 						: "The reading time may be temporarily unavailable while the website is being migrated to Astro v7."}
 				>
 					<FluentClock20Regular />{" "}
-					{readingTime ?? "Read time unavailable"}
+					{minutesRead !== undefined ? `${minutesRead} minute read` : "Read time unavailable"}
 				</p>
 			</div>
 		</header>
