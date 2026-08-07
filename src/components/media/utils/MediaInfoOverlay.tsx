@@ -6,8 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ComponentChildren } from "preact";
-
 import { getFileName } from "../../../scripts/utils";
 import type { CopyrightInfo } from "../../../types";
 import Badge from "../../Badge";
@@ -18,10 +16,9 @@ import styles from "./MediaInfoOverlay.module.scss";
 interface Props extends CopyrightInfo {
 	class?: string;
 	src: string;
-	children?: ComponentChildren;
 }
 
-export function MediaInfoOverlay({ src, class: className = "", children, ...props }: Props) {
+export function MediaInfoOverlay({ src, class: className = "", ...props }: Props) {
 	const [fileName, extName] = getFileName(src).split(".");
 	return (
 		<div class={`${styles["media-info"]} ${className}`}>
@@ -32,7 +29,6 @@ export function MediaInfoOverlay({ src, class: className = "", children, ...prop
 				</span>
 				<Badge type="alpha" class={styles.badge} />
 			</h2>
-			{children && <div class={styles.caption}>{children}</div>}
 			<LicenseNotice {...props} />
 		</div>
 	);

@@ -54,7 +54,7 @@ if (!props.width && !props.height && !props.widths) {
 	/* Prettier adds whitespace here, which causes styling issues with the media */
 	/* prettier-ignore */
 	meta && (
-		<ImageViewer client:idle alt={alt ?? ""} {...props} {...meta}><slot /></ImageViewer>
+		<ImageViewer client:idle alt={alt ?? ""} {...props} {...meta} />
 	)
 }
 

@@ -27,3 +27,14 @@
 		pointer-events: auto;
 	}
 }
+
+.media-viewer-overlay {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.media-viewer-info {
+	padding-right: $page-margin;
+	mask: linear-gradient(to right, black calc(100% - $page-margin), transparent);
+}

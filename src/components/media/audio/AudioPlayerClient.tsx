@@ -29,7 +29,7 @@ import { VisualizerSelector } from "./visualizers/VisualizerSelector.js";
 import styles from "./AudioPlayerClient.module.scss";
 
 type Props = Replace<
-	AudioHTMLAttributes,
+	Omit<AudioHTMLAttributes, "children">,
 	CopyrightInfo & {
 		/** Allows you to obtain a reference to the audio element. */
 		audioRef?: Ref<HTMLAudioElement>;
@@ -47,7 +47,6 @@ type Props = Replace<
 /** The client-side portion of AudioPlayer. Use AudioPlayer in pages instead. */
 export function AudioPlayerClient({
 	src,
-	children,
 	class: className = "",
 	noPause,
 	audioRef,
@@ -101,11 +100,7 @@ export function AudioPlayerClient({
 	// BUG: the visualizer occasionally disappears when paused on mobile outside of fullscreen
 	return (
 		<div ref={root} class={`${styles["audio-player"]} ${className}`} tabindex={0}>
-			{src && (
-				<MediaInfoOverlay class={styles.info} src={src} {...props}>
-					{children}
-				</MediaInfoOverlay>
-			)}
+			{src && <MediaInfoOverlay class={styles.info} src={src} {...props} />}
 			<div class={styles.content} ref={contentContainer}>
 				<VisualizerSelector
 					media={mediaConnection}

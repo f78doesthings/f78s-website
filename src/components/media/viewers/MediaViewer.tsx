@@ -23,9 +23,6 @@ import styles from "./MediaViewer.module.scss";
 export interface MediaProps extends CopyrightInfo {
 	/** The media source. */
 	src: string;
-
-	/** Used for the caption. */
-	children?: ComponentChildren;
 }
 
 // TODO: Consider refactoring this (especially since it's only used for the image viewer)
@@ -102,8 +99,8 @@ export function MediaViewer({ props, buttons, children, controls }: MediaViewerP
 			containerClass={styles["media-viewer"]}
 			containerRef={ref}
 			top={
-				<>
-					<MediaInfoOverlay {...props} />
+				<div class={styles["media-viewer-overlay"]}>
+					<MediaInfoOverlay class={styles["media-viewer-info"]} {...props} />
 					<div class="btn-media-group">
 						{buttons}
 						<a href={props.src} download={baseName} title="Download" aria-label="Download">
@@ -118,7 +115,7 @@ export function MediaViewer({ props, buttons, children, controls }: MediaViewerP
 							<FluentDismiss24Regular />
 						</button>
 					</div>
-				</>
+				</div>
 			}
 			bottom={controls}
 		>

@@ -79,6 +79,9 @@ document.addEventListener("astro:after-swap", () =>
 	document.dispatchEvent(new Event("custom:preferences-updated")),
 );
 document.addEventListener("custom:preferences-updated", updatePageData);
+document.addEventListener("fullscreenchange", () => {
+	document.documentElement.classList.toggle("is-fullscreen", document.fullscreenElement !== null);
+});
 loadPreferences();
 
 defineDevTool("resetPreferences", () => {

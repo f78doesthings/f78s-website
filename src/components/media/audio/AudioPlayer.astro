@@ -25,8 +25,8 @@ if (!resolvedSrc) {
 // `as any` added to hide error messages from Astro/Preact attribute incompatibility (not ideal)
 ---
 
-<figure>
-	<AudioPlayerClient client:visible src={resolvedSrc} {...props as any}><slot /></AudioPlayerClient>
+<figure class="media-player">
+	<AudioPlayerClient client:visible src={resolvedSrc} {...props as any} />
 	<figcaption>
 		<slot />
 	</figcaption>

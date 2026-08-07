@@ -70,12 +70,13 @@
 	scroll-padding-top: calc($header-height + $page-margin);
 
 	// Prevent scrolling when a pop-up is open (for browsers that support :has)
-	&:has(> body > #media-viewer-root > .open) {
+	&:has(> body > #media-viewer-root > .open),
+	&.is-fullscreen {
 		overflow: hidden;
+		scrollbar-gutter: auto;
 	}
 
-	// TODO: this leaves a rather ugly gap on the right (including in fullscreen mode),
-	//       is there a better solution for this?
+	// TODO: this leaves a rather ugly gap on the right, is there a better solution for this?
 	scrollbar-gutter: stable;
 
 	// For older Safari versions
@@ -599,6 +600,10 @@ main {
 				color: var(--color-dimmer);
 			}
 		}
+	}
+
+	.media-player > figcaption {
+		padding-top: size(6);
 	}
 
 	// Text styles

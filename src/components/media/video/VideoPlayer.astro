@@ -30,10 +30,12 @@ const resolvedSrc = await resolveMedia(src);
 if (!resolvedSrc) {
 	throw new Error(`Could not resolve video source: ${src}`);
 }
+
+// `as any` added to hide error messages from Astro/Preact attribute incompatibility (not ideal)
 ---
 
-<figure>
-	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any} />
+<figure class="media-player">
+	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any}><slot /></VideoPlayerClient>
 	<figcaption>
 		<slot />
 	</figcaption>

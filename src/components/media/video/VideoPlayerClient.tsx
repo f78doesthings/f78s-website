@@ -23,7 +23,7 @@ import "../../../styles/media.scss";
 import styles from "./VideoPlayerClient.module.scss";
 
 type Props = Replace<
-	VideoHTMLAttributes,
+	Omit<VideoHTMLAttributes, "children">,
 	CopyrightInfo & {
 		class?: string;
 		src: string;
@@ -31,7 +31,7 @@ type Props = Replace<
 >;
 
 /** The client-side portion of VideoPlayer. Use VideoPlayer in pages instead. */
-export function VideoPlayerClient({ src, children, class: className = "", ...props }: Props) {
+export function VideoPlayerClient({ src, class: className = "", ...props }: Props) {
 	// There is a fair bit of code duplicated from AudioPlayerClient,
 	// should probably be refactored at some point
 	const video = useRef<HTMLVideoElement>(null);
@@ -98,13 +98,7 @@ export function VideoPlayerClient({ src, children, class: className = "", ...pro
 			forceOverlays={isPaused.value}
 			lockBottom={!isFullscreen.value}
 			onOverlayChange={(overlaying) => (isOverlaying.value = overlaying)}
-			top={
-				isFullscreen.value && (
-					<MediaInfoOverlay src={src} {...props}>
-						{children}
-					</MediaInfoOverlay>
-				)
-			}
+			top={isFullscreen.value && <MediaInfoOverlay src={src} {...props} />}
 			bottom={
 				<MediaControls
 					media={mediaConnection}
