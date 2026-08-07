@@ -40,9 +40,10 @@ const footer = match?.groups?.footer ?? "";
 const typeTexts: Record<string, string | undefined> = {
 	feat: "New features or changes to website content",
 	fix: "Fixes to existing features or content",
-	refactor: "Code rewrites/restructures (little to no UI impact)",
+	refactor: "Code rewrites/restructures (minimal UI impact)",
 	perf: "Special type of 'refactor' for performance improvements",
-	docs: "Exclusively for changes to the repository's documentation",
+	docs: "Exclusively for changes to the repository's documentation (no UI impact)",
+	style: "Changes to code style (no UI impact)",
 	build: "Affects the project's build process (minimal UI impact)",
 };
 
@@ -51,9 +52,9 @@ const scopeTexts: Record<string, string | undefined> = {
 	posts: "New blog posts or edits to existing ones",
 	nav: "Affects the site's navigation bars",
 	media: "Corresponds to image, video and audio features",
-	prefs: "The preferences feature",
+	prefs: "Governs the preferences feature",
 	blog: "Exclusively for the blog's functional features",
-	version: "Governs the version/changelog features (you're using this right now!)",
+	version: "The version/changelog features (you're using this right now!)",
 };
 ---
 
