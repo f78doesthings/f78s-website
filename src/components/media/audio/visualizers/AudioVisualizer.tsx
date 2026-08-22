@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// oxlint-disable typescript/no-unsafe-type-assertion
+
 import { useSignalEffect, type Signal } from "@preact/signals";
 import type { Ref } from "preact";
 import { useEffect, useRef } from "preact/hooks";
@@ -47,6 +49,12 @@ interface VisualizerContext<T = undefined> extends BaseVisualizerContext {
 
 	/** Whether the audio is currently playing. */
 	running: boolean;
+
+	/** Whether the audio was playing last frame. */
+	wasRunning: boolean;
+
+	/** The current theme. */
+	theme: VisualizerTheme;
 }
 
 interface Props<T = undefined> extends VisualizerProps {
@@ -63,23 +71,52 @@ interface Props<T = undefined> extends VisualizerProps {
 	draw: (ctx: VisualizerContext<T>) => void;
 }
 
+type HexColor = `#${string}`;
+
 interface VisualizerTheme {
 	/** The primary colour. */
-	color: string;
+	primary: HexColor;
+
+	/** A darker variant of the primary colour. */
+	primaryDark: HexColor;
+
+	/** The secondary colour for when the audio is clipping. */
+	secondary: HexColor;
+
+	/** A darker variant of the secondary colour. */
+	secondaryDark: HexColor;
 
 	/** A gradient for the volume (from low to high). */
-	gradient: string[];
+	gradientPrimary: HexColor[];
 
 	/** An alternative gradient for when the audio is clipping. */
-	clippingGradient: string[];
+	gradientSecondary: HexColor[];
+}
+
+function defineTheme<K extends string = never>(
+	themeDefinition: (palette: Record<K, HexColor>) => VisualizerTheme,
+	palette?: Record<K, HexColor>,
+): VisualizerTheme {
+	return themeDefinition(palette ?? ({} as Record<K, HexColor>));
 }
 
 export const visualizerThemes = {
-	Lit: {
-		color: "#ff3333",
-		gradient: ["#dd1c28", "#ff2828", "#ff8f2b", "#ffef2f"],
-		clippingGradient: ["#ffaa30", "#ffff40"],
-	},
+	Lit: defineTheme(
+		(p) => ({
+			primary: p.red,
+			primaryDark: p.darkRed,
+			secondary: p.yellow,
+			secondaryDark: p.orange,
+			gradientPrimary: [p.darkRed, p.red, p.orange, p.yellow],
+			gradientSecondary: ["#ffaa30", "#ffff40"],
+		}),
+		{
+			darkRed: "#dd1c28",
+			red: "#ff2828",
+			orange: "#ff8f2b",
+			yellow: "#ffef2f",
+		},
+	),
 } satisfies Record<string, VisualizerTheme>;
 
 /** A helper component for creating audio visualizers. */
@@ -149,6 +186,7 @@ export function AudioVisualizer<T = undefined>({
 		const data = init?.(visualizerContext);
 		let prevWidth = ctx.canvas.width;
 		let prevHeight = ctx.canvas.height;
+		let wasRunning = false;
 		let destroyed = false;
 		let forceFrame = true;
 		let prevTime = 0;
@@ -173,11 +211,14 @@ export function AudioVisualizer<T = undefined>({
 					time,
 					deltaTime: time - prevTime,
 					running,
+					wasRunning,
+					theme: visualizerThemes.Lit,
 				});
 				forceFrame = false;
 				prevTime = time;
 			}
 
+			wasRunning = running;
 			requestAnimationFrame(nextFrame);
 		};
 

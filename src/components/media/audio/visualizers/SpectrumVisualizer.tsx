@@ -8,7 +8,7 @@
 
 import { clamp } from "../../../../scripts/utils";
 import { createGradient, drawLine } from "../../../../scripts/utils/canvas/2d";
-import { AudioVisualizer, visualizerThemes, type VisualizerProps } from "./AudioVisualizer";
+import { AudioVisualizer, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio spectrum. */
 export function SpectrumVisualizer(props: VisualizerProps) {
@@ -31,10 +31,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	/** Lowest displayed frequency (Hz) */
 	const minFreq = 10;
 
-	// Not much point in going higher because of the filter cutoff from the 128kbps AAC files
-	// that this website uses
 	/** Highest displayed frequency (Hz) */
-	const maxFreq = 16000;
+	const maxFreq = 22050;
 
 	/** Highest displayed volume (dBFS) */
 	const maxVol = 0;
@@ -58,7 +56,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 					previous: new Float32Array(analyser.frequencyBinCount).fill(-Infinity),
 				};
 			}}
-			draw={({ analysers: [analyser], ctx, data, deltaTime, running }) => {
+			draw={({ analysers: [analyser], ctx, data, deltaTime, running, theme }) => {
 				const width = ctx.canvas.width;
 				const height = ctx.canvas.height;
 				const renderScale = Number(ctx.canvas.dataset.renderScale ?? 1) || 1;
@@ -123,7 +121,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				}
 
 				// Draw volume lines
-				const volumeLineSpacing = 48 * 2 ** -Math.round(height / renderScale / 360);
+				const volumeLineSpacing = 48 * 2 ** -Math.round(height / renderScale / 320);
 				ctx.textAlign = "left";
 				ctx.textBaseline = "middle";
 
@@ -141,8 +139,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				}
 
 				// Spectrum gradient
-				const strokeGradient = createGradient(ctx, visualizerThemes.Lit.gradient);
-				const fillGradient = createGradient(ctx, visualizerThemes.Lit.gradient, {
+				const strokeGradient = createGradient(ctx, theme.gradientPrimary);
+				const fillGradient = createGradient(ctx, theme.gradientPrimary, {
 					setAlpha: (offset) => 24 + 30 * offset ** 0.9,
 				});
 
@@ -151,7 +149,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				let prevY = 0;
 				let prevCurveX = 0;
 				let prevCurveY = 0;
-				const maxThickness = renderScale + (width + height) / 640;
+				const maxThickness = renderScale + (width + height) / 720;
 				let prevThickness = maxThickness;
 
 				const path = new Path2D();
@@ -187,12 +185,12 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 
 						// Make the line progressively thinner as the frequencies get closer together,
 						// in order to improve detail (the formula could probably be improved though)
-						const thickness =
-							clamp(((x - prevX) * (1.9 / renderScale)) ** 0.38 / 1.9, 0.05, 1) * maxThickness;
+						const distance = (x - prevX) ** 1 / (0.6 + height / renderScale / 320);
+						const thickness = (distance * (1.8 / renderScale)) ** 0.35 / 1.4;
+						const finalThickness = clamp(thickness, 0.1, 1) * maxThickness;
 						if (prevThickness - thickness > 0.05 + prevThickness / 40) {
 							ctx.stroke();
-							ctx.lineWidth = thickness;
-							prevThickness = thickness;
+							ctx.lineWidth = prevThickness = finalThickness;
 
 							// Start a new curve where the previous one ended off
 							ctx.beginPath();

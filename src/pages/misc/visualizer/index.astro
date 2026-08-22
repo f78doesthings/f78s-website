@@ -18,6 +18,11 @@ const demos = [
 		//@ts-ignore - I don't know why it's upset, it works fine...
 		import("../../../content/blog/gaze-upon-the-stars/assets/audio/gaze-upon-the-stars.m4a"),
 	],
+	[
+		"starting up",
+		//@ts-ignore
+		import("../../../content/blog/starting-up/assets/audio/starting-up.m4a"),
+	],
 ] as const;
 const demoSources: [name: string, src: string][] = [];
 
@@ -59,7 +64,6 @@ for (const [name, media] of demos) {
 	.demos {
 		display: flex;
 		flex-wrap: wrap;
-		gap: size(8);
 		margin-block: size(8);
 
 		button {

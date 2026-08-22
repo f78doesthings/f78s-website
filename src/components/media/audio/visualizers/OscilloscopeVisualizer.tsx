@@ -8,7 +8,7 @@
 
 import { truncate } from "../../../../scripts/utils";
 import { createGradient } from "../../../../scripts/utils/canvas/2d";
-import { AudioVisualizer, visualizerThemes, type VisualizerProps } from "./AudioVisualizer";
+import { AudioVisualizer, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio waveform. */
 export function OscilloscopeVisualizer(props: VisualizerProps) {
@@ -61,7 +61,7 @@ export function OscilloscopeVisualizer(props: VisualizerProps) {
 					timeSinceZoomAdjust: autoZoomDelay + 1,
 				};
 			}}
-			draw={({ analysers: [analyser], ctx, data, deltaTime, running }) => {
+			draw={({ analysers: [analyser], ctx, data, deltaTime, running, theme }) => {
 				const width = ctx.canvas.width;
 				const height = ctx.canvas.height;
 				const renderScale = Number(ctx.canvas.dataset.renderScale ?? 1) || 1;
@@ -99,13 +99,13 @@ export function OscilloscopeVisualizer(props: VisualizerProps) {
 					ctx.font = `${fontSize}px "Cascadia Code", monospace`;
 					ctx.fillStyle = "hsla(0, 0%, 50%, 0.75)";
 					ctx.textBaseline = "top";
-					ctx.fillText(`${truncate(data.currentZoom, 2)}x`, textMargin, textMargin);
+					ctx.fillText(`${truncate(data.currentZoom, 2, true)}x`, textMargin, textMargin);
 				}
 
 				// Begin waveform path
 				ctx.lineWidth = renderScale + (width + height) / 960;
-				ctx.strokeStyle = visualizerThemes.Lit.color;
-				ctx.fillStyle = createGradient(ctx, visualizerThemes.Lit.color, {
+				ctx.strokeStyle = theme.primary;
+				ctx.fillStyle = createGradient(ctx, theme.primary, {
 					mirrored: true,
 					setAlpha: (offset) => 48 * (1 + offset),
 				});

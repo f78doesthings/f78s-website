@@ -37,9 +37,15 @@ export function clamp(value: number, min: number, max: number, step = 0) {
 	return Math.min(Math.max(value, min), max);
 }
 
-export function truncate(value: number, digits = 0, config: Intl.NumberFormatOptions = {}) {
+export function truncate(
+	value: number,
+	maxDigits = 0,
+	alwaysShowDigits = false,
+	config: Intl.NumberFormatOptions = {},
+) {
 	return value.toLocaleString(SITE_LANGUAGE, {
-		maximumFractionDigits: digits,
+		minimumFractionDigits: alwaysShowDigits ? maxDigits : 0,
+		maximumFractionDigits: maxDigits,
 		...config,
 	});
 }
