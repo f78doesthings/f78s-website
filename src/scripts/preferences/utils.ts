@@ -75,9 +75,16 @@ export function getDependencyString(dependencies?: MapLike<Preference, NotUndefi
 	);
 }
 
-export function dependenciesMet(dependencies: MapLike<Preference | undefined, NotUndefined[]>) {
+export function dependenciesMet(
+	dependencies: MapLike<Preference | undefined, NotUndefined[]>,
+	ignoreAvailability = false,
+) {
 	for (const [preference, allowedValues] of dependencies) {
-		if (!preference?.isAvailable() || !allowedValues.some((value) => preference.equals(value))) {
+		if (
+			!preference ||
+			!(preference.isAvailable() || ignoreAvailability) ||
+			!allowedValues.some((value) => preference.equals(value))
+		) {
 			return false;
 		}
 	}

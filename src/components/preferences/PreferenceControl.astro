@@ -31,6 +31,9 @@ interface Props {
 
 	/** Disables the mobile layout. */
 	noMobile?: boolean;
+
+	/** Always show this control, even if the preference has unmet dependencies. */
+	alwaysShow?: boolean;
 }
 
 const {
@@ -38,6 +41,7 @@ const {
 	showTitle,
 	showDescription = false,
 	showIcon = false,
+	alwaysShow = false,
 	noMobile,
 	...cid
 } = Astro.props;
@@ -115,15 +119,16 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 }
 
 const PreferenceIcon = preference.icon ?? (() => undefined);
+const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 // TODO: this probably needs refactoring at some point
 ---
 
 <label
 	{...cid}
-	hidden={preference.dependencies.size > 0}
+	hidden={hasDependencies}
 	aria-label={preference.title}
 	data-preference-control={id}
-	data-preference-dependencies={preference.dependencies.size > 0
+	data-preference-dependencies={hasDependencies
 		? getDependencyString(preference.dependencies)
 		: undefined}
 	style={{
@@ -167,6 +172,8 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 				continue;
 			}
 
+			const ignoreAvailability = dependent.dataset.ignorePreferenceAvailability !== undefined;
+			console.debug(jsonDependencies, ignoreAvailability);
 			try {
 				const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
 				const resolved = dependencies.map(([id, expectedValues]) => {
@@ -181,7 +188,7 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 					}
 					return [preferences[id], expectedValues] as const;
 				});
-				dependent.hidden = !dependenciesMet(resolved);
+				dependent.hidden = !dependenciesMet(resolved, ignoreAvailability);
 			} catch (e) {
 				console.error("Error updating dependency status for", dependent, "\n", e);
 			}

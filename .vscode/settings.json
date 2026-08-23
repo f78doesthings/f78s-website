@@ -41,7 +41,8 @@
 			"**/.gitignore",
 			"**/.gitattributes",
 			"**/.gitmodules",
-			"**/*.config.*"
+			"**/*.config.*",
+			"**/.ncurc.*"
 		],
 		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx"]
 	},

@@ -9,6 +9,7 @@
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
+import consola from "consola";
 import type { DefaultLogFields, LogOptions } from "simple-git";
 
 import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
@@ -116,6 +117,8 @@ const baseLogOptions: LogOptions = {
 // TODO: this collection can take a while to load (good thing it's only at build time)
 const versions = defineCollection({
 	loader: async () => {
+		consola.info("Reloading the version content collection. This may take a bit...");
+
 		const result: VersionInfo[] = [];
 		const firstCommit = await git.firstCommit();
 		const tags = (await git.tags()).all;

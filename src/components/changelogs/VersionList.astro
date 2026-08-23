@@ -33,7 +33,8 @@ let firstStable = true;
 			}
 			return (
 				<li
-					data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : ""}
+					data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : undefined}
+					data-ignore-preference-availability={v.prerelease ? "" : undefined}
 					hidden={v.prerelease}
 					class:list={{ prerelease: v.prerelease, latest }}
 				>
