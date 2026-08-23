@@ -1,0 +1,87 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"span"> {
+	type: "gradient";
+}
+
+const { type, ...props } = Astro.props;
+---
+
+<em class="text-effects">
+	<span class:list={[type, props.class]} {...props}><slot /></span>
+	{
+		type === "gradient" && (
+			<span class:list={["gradient-glow", props.class]} aria-hidden {...props}>
+				<slot />
+			</span>
+		)
+	}
+</em>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	.text-effects {
+		position: relative;
+		font-style: normal;
+
+		.gradient,
+		.gradient-glow {
+			color: color-mix(in oklch, var(--start-color), var(--end-color));
+
+			// Subtle gradient animation
+			@include preferences("fx") {
+				background-image: linear-gradient(
+					to right,
+					var(--start-color),
+					var(--end-color),
+					var(--start-color),
+					var(--end-color)
+				);
+				background-size: 300%;
+				background-clip: text;
+				color: transparent;
+				animation: gradient-animation 5s infinite linear;
+
+				&::after {
+					content: attr(data-text);
+				}
+
+				@keyframes gradient-animation {
+					from {
+						background-position: 0;
+					}
+
+					to {
+						background-position: 100%;
+					}
+				}
+			}
+		}
+
+		.gradient-glow {
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			background: inherit;
+			filter: blur(size(3));
+			opacity: 0.3;
+
+			user-select: none;
+
+			@include preferences("no-fx") {
+				display: none;
+			}
+		}
+	}
+</style>

@@ -4,7 +4,6 @@ description: "A follow-up exploring the music video made in Unreal Engine."
 pubDate: 2026-06-30T00:00:00Z
 draft: true
 heroImage: ./assets/images/hero.avif
-heroDescription: This cover image is very much a work-in-progress.
 heroCreatedIn: "2026"
 ---
 
@@ -12,18 +11,23 @@ import Alert from "../../../../components/Alert.astro";
 import TODO from "../../../../components/TODO.astro";
 import Link from "../../../../components/nav/Link.tsx";
 import MainImage from "../../../../components/media/MainImage.astro";
+import TextEffects from "../../../../components/utils/TextEffects.astro";
 
-<Alert type="warning">
-	This is an **incomplete early version** of the blog post, which was shared with the Home Paige
-	Discord members.
+import "./styles.scss";
+
+<Alert type="important">
+	Like the last one, this article may also be a bit rough around the edges, perhaps even more so.
+	Again, feedback is welcome. <TODO text="add link to GitHub discussion" />
 </Alert>
 
 [Last time](/blog/gaze-upon-the-stars), I talked about how I created one of my best songs, "gaze
-upon the stars". Today, I'm _finally_ here to discuss its music video.
+upon the stars". Today, I'm at last here to discuss its music video.
 
 If you're wondering what took me so long this time, the hot weather here prevented me from doing too
 much on my PC. It tends to turn into a space heater under load, and the space it's heating happens
-to be very small, so it quickly spirals out of control. But without further ado, let's dive into it!
+to be very small, so it quickly spirals out of control. I've also been having some sleep issues
+thanks to loud neighbours. But without further ado, let's _finally_ dive into how the music video
+was made!
 
 The animation was created in **Unreal Engine** <small>(version **5.7.4**, to be exact)</small>,
 which happens to be the same engine Home Paige uses. I had previously tried both Unity and Godot,
@@ -36,16 +40,14 @@ either. Not by a long shot, in fact...
 
 ## Tangent: Unreal Engine woes
 
-<TODO text="consider adding images to the tangent section" />
-
 Let me take you on a tangent to talk about some of the issues I've experienced with Unreal. It's not
 important for the rest of the article, so if you don't care, just
 [skip to the next section here](#chapter-2-the-music-video).
 
 ### Linuxn't
 
-Unreal Editor 5.7 uses Wayland on Linux by default, and it might just have the worst Wayland support
-I've ever seen in the nearly 2 years I've been daily driving Linux. There's
+Unreal Editor 5.7 is the first version to use Wayland on Linux by default, and it might just have
+the worst Wayland support I've ever seen in the over 2 years I've been daily driving Linux. There's
 [a post about it](https://forums.unrealengine.com/t/unreal-editor-5-7-ui-interaction-is-broken-on-linux-for-3-month-already/2652325)
 on the Unreal Engine forums if you want to learn more.
 
@@ -56,20 +58,25 @@ because it broke a bunch of other things instead. Thankfully I found a fix in
 although it's still not perfect.
 
 <small>
-	According to that forum post, these issues are *supposedly* fixed in UE 5.8. I haven't tested it
-	yet though, because I don't want to wait ages for it to first download, and then compile a stupid
-	amount of shaders, just for a chance that my project ends up breaking...
+	According to that forum post, these issues are *supposedly* fixed in UE 5.8. I cannot confirm this
+	until I start making the next music video.
 </small>
 
 ### Miscellaneous Instabilities
 
 There have also been some other issues. For instance, every time I launch the project, the grass
-just doesn't exist, and I have to reopen the level to fix it. Or sometimes when I save certain
-things, the terrain in the distance just freaks out.
+just doesn't exist, and I have to reopen the level to fix it.
+
+<MainImage src={import("./assets/images/grass-said-no.avif")} alt="" createdIn="2026" />
+
+Or sometimes when I save certain things, the terrain in the distance just freaks out. I somehow
+didn't have a screenshot of that, so I reproduced it just for you!
+
+<MainImage src={import("./assets/images/terrain-said-no.avif")} alt="" createdIn="2026" />
 
 Unreal Engine has also crashed on me several times, most notably when switching from the cinematic
-viewport to the normal one. _Quite annoying when you're working on cinematic stuff like this, don't
-you think?_
+viewport to the normal one. Quite annoying when you're working on cinematic stuff like this, don't
+you think?
 
 ### Unexpected Blackout
 
@@ -77,13 +84,15 @@ Finally, in the process of writing this article, Unreal Editor decided it was no
 render the viewport (specifically in Lit mode). That's what inspired me to write this section in the
 first place, although as it turns out, it may not have been Unreal's fault.
 
+<MainImage src={import("./assets/images/lit-mode-said-no.avif")} alt="" createdIn="2026" />
+
 I tried many things to resolve this, including:
 
 - Turning it off and back on again <small>_(man, usually that one does it...)_</small>
 - Re-downloading Unreal Editor
 - Re-enabling Wayland support
-- Upgrading to the UE 5.8 preview. That one actually made it much worse, as it either made the
-  entire window black, or straight up crashed my GPU.
+- Upgrading to the UE 5.8 preview (5.8 was not released yet at that time). That one actually made it
+  much worse, as it either made the entire window black, or straight up crashed my GPU.
 
 I then looked in the Discord server for my distro (Nobara), and found someone else who also started
 running into this issue after an update on 14 May. Armed with the knowledge that it was likely a
@@ -91,17 +100,24 @@ driver or kernel issue, I switched to an **experimental build of the Mesa driver
 
 Ironically, the build it installed was still a month old (from 20 May, to be exact). That's likely
 because Nobara hadn't been getting package updates for a while, since a new major version was in the
-works. And actually, I started getting severe graphical glitches in Unlit mode instead. Well this is
-just a certified Linux moment...
+works.
+
+And actually, I started getting severe graphical glitches in Unlit mode instead. In fact, they still
+happen from time to time, including to this day (23 August). Well, this is just a certified Linux
+moment...
+
+<MainImage src={import("./assets/images/unlit-mode-said-no.avif")} alt="" createdIn="2026" />
 
 ### Concluding this Tangent
 
 As you can see, Unreal Engine does have its fair share of issues, even more so on Linux. A bit
 unfortunate considering how good the Linux desktop is getting these days, although supporting it can
-be quite a hassle at times. However, Unreal's tools for creating so-called linear content compensate
-for that _just_ enough for me to keep using it.
+be quite a hassle at times. However, Unreal's tools for creating what is apparently called "linear
+content" compensate for that _just_ enough for me to keep using it.
 
 ## Chapter 2: The Music Video
+
+<TODO text="publish the Unreal project files if possible" />
 
 When I publish this blog post, I will see if I can upload the Unreal Engine project somewhere, but
 for now you'll have to make do with what I've written. There are plenty of images here for you to
@@ -111,9 +127,9 @@ In this article, I'll go through some of the assets, materials, techniques and o
 make the music video. Keep in mind this was my first time using Unreal, so there is a fair bit of
 jank involved. That... isn't exactly unusual for me, to be honest.
 
-It may also get a bit technical in places. I will probably try to improve some of the sections
-before release. Anyway, with all of that aside, let's go over how the music video was made, shall
-we?
+I also want to warn you that this article gets a bit technical in places. My apologies for that.
+Hopefully you don't mind all that much. Anyway, with all of that aside, let's go over how the music
+video was made, shall we?
 
 ### Gazing upon the Stars
 
@@ -137,7 +153,7 @@ making **my own sky material**.
 <Alert type="tip">
 	I used a very similar approach to create the animated starry background of this very website using
 	**WebGL**. The source code for that is [available on
-	GitHub](https://github.com/f78doesthings/f78s-website/tree/dec49bfdcecbc642bc367b86d618ea72fa71eb6c/src/scripts/immersive-background).
+	GitHub](https://github.com/f78doesthings/f78s-website/tree/d26d5ef/src/components/background).
 	<small>
 		Can't see said background? Then make sure the **Immersive Mode** and **Background**
 		[preferences](/preferences) are enabled.
@@ -145,24 +161,25 @@ making **my own sky material**.
 </Alert>
 
 Of course, in order to make a night sky, you need some stars. And because I wanted to make them
-procedural, I used some noise for that. But first I needed a position to feed into the noise
-function. Good Sky did actually come in handy, as its skydome mesh comes with texture coordinates
-that are well suited for this.
+procedural, I used some noise for that. But noise works with a position, so I needed to get that
+first. Good Sky did actually come in handy, as its skydome mesh comes with texture coordinates that
+made this very easy.
 
-In order to get those coordinates scaled down and moving, I wrote this material function (so I could
-re-use it):
+In order to get those coordinates scaled down and moving, I wrote this material function that I
+called `MF_NoiseCoords`, so I could re-use it later:
 
 <MainImage src={import("./assets/images/MF_NoiseCoords.avif")} alt="" createdIn="2026" />
 
-Now feed it some parameters, and out comes a position that you can give to a noise function.
-Interestingly, I found that Unreal Engine's **gradient noise** gave me the best looking stars.
+Now feed it some parameters, and out comes a position that you can give to a noise function. Notice
+it also outputs the adjusted scale; this will come in handy later. But first, stars. Interestingly,
+I found that Unreal Engine's **gradient noise** gave me the best results:
 
 <MainImage src={import("./assets/images/M_NightSky-Stars.avif")} alt="" createdIn="2026" />
 
 <Alert type="note">
 	The **Sequencer Time** node you see in these graphs comes from another named reroute. I talk about
-	it [later in the article](#sequencing-a-material). If you're not planning to use the Sequencer,
-	just use the normal **Time** node.
+	it [later in the article](#sequencer-driven-materials). If you're not planning to use the
+	Sequencer, just use the normal **Time** node.
 </Alert>
 
 ##### Twinkle, Twinkle
@@ -172,7 +189,8 @@ Cool. Now we have moving stars. But here on Earth, stars don't just appear to mo
 course!
 
 The graph is essentially the same as the above, just with different parameters. So instead of adding
-another image, here's a complete list of the things I changed for the twinkle noise:
+another yet image <small>(this article already has a lot of them, which is not ideal for the GitHub
+repository size)</small>, here's a complete list of the things I changed for the twinkle noise:
 
 - Inputs:
   - Speed → `-1, -0.6, 0.6, 0.125`
@@ -184,7 +202,7 @@ another image, here's a complete list of the things I changed for the twinkle no
 - There's also a **1-x** node after the last **Saturate** node, just before the final output.
 
 You then multiply the stars with this new noise, et voilà, twinkling stars! Okay, there's a bit more
-going on afterwards, but I'll save that for the end.
+going on afterwards, but I'll save that for the end of this section.
 
 ##### Colouring them in
 
@@ -192,23 +210,23 @@ Stars are also [not just pure white](https://en.wikipedia.org/wiki/Color_index).
 whole range of temperatures, resulting in colours from orange to white to blue. It is pretty subtle
 though, which is why people often just make stars white. Most of us simply don't care all that much.
 
-I do care, though. And that means it's time to add another layer of noise in the mix:
+I do care, though. And that means it's time to add another layer of noise in the mix. I definitely
+didn't use the most correct approach for this, but it's good enough for government work:
 
 <MainImage src={import("./assets/images/M_NightSky-ColorMap.avif")} alt="" createdIn="2026">
 	There is a lot of math involved here to try and get a more reasonable colour temperature range.
 </MainImage>
 
-And here's the function for getting the colour from a temperature, based on
+And here's the function for getting the colour from a temperature (`MF_ColorFromTemperature`), based
+on
 [this algorithm from Tanner Helland](https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html).
 It probably didn't need to be this complex, but whatever.
 
 <MainImage src={import("./assets/images/MF_ColorFromTemperature.avif")} alt="" createdIn="2026" />
 
-Again, you multiply the final colour noise with the twinkling stars to make them coloured. Easy! The
-end result is barely noticeable though, and in hindsight I could've saturated the colours a bit. Oh
-well. It's still a bit better than just plain white.
-
-<small>I didn't actually do this part for the website yet. Maybe later...</small>
+Again, you multiply the final colour noise with the twinkling stars to make them coloured. Simple!
+The end result is barely noticeable though, and in hindsight I could've saturated the colours a bit.
+Oh, well. It's still a bit better than just plain white.
 
 #### Paige in the Sky
 
@@ -217,31 +235,35 @@ depicting some of the Home Paige characters. Now that I have a custom sky materi
 that hard, right...?
 
 Well, there is a problem, and it's that I'm not particularly good at drawing. And with the way I
-implemented constellations, I had to draw them myself. And the images I ended up referencing were no
-more than 128 x 128 pixels in size, which is just abysmal for trying to convert to dots and lines.
+implemented constellations, I'd had to draw them myself, since I don't know anyone that could do it
+for me.
 
-I persevered though, and after a week or so I ended up with this. It's pretty scuffed in places, but
-thankfully that doesn't really matter. I just found out I forgot some things, though, like part of
-Sophy's hair and possibly the stars for Oselle's mouth. Oops.
+The images I ended up referencing were no more than 128 x 128 pixels in size, which is just abysmal
+for trying to convert to dots and lines. _I really wasn't making this easy for myself._ I persevered
+though, and after a week or so I ended up with this. It's pretty scuffed in places, but thankfully
+that doesn't really matter.
 
 <MainImage src={import("./assets/images/constellations.avif")} alt="" createdIn="2026" />
 
-##### Constellation Implementation
+I just found out I forgot some things, though, like part of Sophy's hair and possibly the stars for
+Oselle's mouth. _Good thing you can't really tell that in the final music video..._
+
+##### The Constellation Function
 
 You may have noticed the constellation texture contains 4 of them, and that it's actually split into
 3 separate layers. That way I can customize them more easily inside of Unreal Engine. However, that
 does mean it'll take a bit more effort to get them into the sky.
 
 First, another function. Since the constellations only need to cover a small portion of the sky, we
-need to manipulate the UVs properly, as well as create a mask. Here's how:
+need to start by manipulating the UVs properly, as well as creating a mask. Here's how I did that:
 
 <MainImage src={import("./assets/images/MF_Constellation-UVs.avif")} alt="" createdIn="2026">
 	All functions used here are built into Unreal Engine.
 </MainImage>
 
-Next, we need to sample the layer textures, change their intensities and combine them together.
-While there are 4 layers here, the last one is just a black texture in this case, so you can omit it
-if you don't need a 4th layer.
+Next up, we sample the layer textures, change their intensities and combine them together. While
+there are 4 layers here, the last one is just a black texture in this case, so you can omit it if
+you don't need a 4th layer.
 
 <MainImage src={import("./assets/images/MF_Constellation-Layers.avif")} alt="" createdIn="2026" />
 
@@ -251,10 +273,14 @@ the masks together; you'll see why in just a moment.
 
 <MainImage src={import("./assets/images/MF_Constellation-Output.avif")} alt="" createdIn="2026" />
 
-Now that we have our constellation function, we just need to put it to use. Let's start off with the
-common inputs, most importantly the UVs. You may have noticed the `MF_NoiseCoords` function from
-earlier has that **scale** output; we can use it together with the **Star Speed** parameter we
-previously defined for the stars, in order to match their speed perfectly.
+##### Using the Function
+
+Now that we have our constellation function (appropriately called `MF_Constellation`), we just need
+to put it to use. Let's start off with the common inputs, most importantly the UVs.
+
+Here's where we need that **scale** output from the `MF_NoiseCoords` function; we can use it
+together with the **Star Speed** parameter we previously defined for the stars, in order to match
+their speed perfectly.
 
 <MainImage
 	src={import("./assets/images/M_NightSky-ConstellationInputs.avif")}
@@ -279,11 +305,12 @@ after this. And no, there's no moon either. It would've been offscreen anyway.
 
 Here we take everything we've made up until now, adjust their brightness and combine them. We can
 use the accumulated constellation mask to hide the stars near constellations, so that they're a bit
-more clear. We also bring in the atmosphere produced by the level's **SkyAtmosphere**.
+more clear. We also bring in the atmosphere produced by the level's `SkyAtmosphere`.
 
 <MainImage src={import("./assets/images/M_NightSky-FinalColor.avif")} alt="" createdIn="2026" />
 
-The brightness function used here and in the constellation function is pretty simple:
+The brightness function (`MF_BrightnessSettings`) used here and in the constellation function is
+pretty simple:
 
 <MainImage src={import("./assets/images/MF_BrightnessSettings.avif")} alt="" createdIn="2026" />
 
@@ -293,33 +320,39 @@ material properties:
 - Material/Shading Model → `Unlit`
 - Material/Advanced/Is Sky → <input type="checkbox" checked disabled />
 
-And that's it! We finally have our procedurally generated skybox. We just a few things left to talk
-about...
+And that's it! We finally have our procedurally generated starry skybox. We just a few things left
+to talk about...
 
 #### Shooty Starry Particles
 
 Remember, I was also asked to add shooting stars <small>(aka meteors)</small>. Putting these
 directly into the sky material isn't a good idea, so instead, let's talk particles. In Unreal
-Engine, this is handled by the
+Engine, these are handled by the
 [Niagara VFX system](https://dev.epicgames.com/documentation/unreal-engine/creating-visual-effects-in-niagara-for-unreal-engine?application_version=5.7).
 
 I'm not going to dive into the details here, as that would take way too long. Just know that I used
-the **Radial Burst** template as a starting off point. The most important thing is that the spawn
-rate was set specifically so that it would make the meteors appear in time with the song's tempo:
+the **Radial Burst** template as a starting off point, though it was modified quite a bit. For
+instance, I disabled its sprite renderer, as it was causing ugly artefacts in renders.
+
+One neat thing I did is calculate the spawn rate specifically so that the meteors would appear more
+or less in time with the beat:
 
 <MainImage src={import("./assets/images/FXS_Meteors-SpawnRate.webp")} alt="" createdIn="2026" />
 
 The spawn rate is perhaps a bit high, so just pretend it's a meteor shower or something. I also
-disabled the template's sprite renderer, as it was causing ugly artefacts in renders. Lastly, I
 whipped up another material to get the ribbon trails to look how I want them to:
 
 <MainImage src={import("./assets/images/M_MeteorTrail.avif")} alt="" createdIn="2026" />
 
+That's all I wanted to say about the shooting stars. We just have one more topic related to the sky
+to talk about.
+
 #### Puffs of Cloud
 
 Naturally, the clouds aren't part of the sky material either. In fact, they're just Unreal Engine's
-default volumetric clouds. I did, however, tweak the settings to make them much less detailed and
-not as dense:
+default volumetric clouds. I did, however, tweak the settings to make them not as dense, as well as
+much less detailed. <small>Remember, this is Home Paige, not _(insert realistic looking UE game
+here)_.</small>
 
 <MainImage
 	src={import("./assets/images/MI_VolumetricCloudSettings.avif")}
@@ -328,10 +361,11 @@ not as dense:
 />
 
 These clouds do have an effect on the overall lighting, which results in some of the images in this
-article having different brightnesses than each other. But without them, the shadows simply become
-too dark. Oh yeah, and they're also tinted purple.
+article having different brightnesses than each other. You can also notice the brightness changing
+in the music video. Without the clouds though, the shadows simply become too dark.
 
-With that, our night sky is complete! We can finally move on to the next subject, which is the
+Oh yeah, the clouds also tinted purple. This was actually done somewhere in the lighting settings.
+And with that, our night sky is complete! We can finally move on to the next subject, which is the
 **scenery**.
 
 ### Making a Scene
@@ -349,19 +383,18 @@ that is debatable.
 
 #### Light it Up
 
-<TODO text="maybe give the text 'post-processing' a gradient animation" />
-
 No scene is complete without lighting. For this, I threw in something special by making the darker
 tones a bit purply. That helps to give the lighting some character. The light level ended up a bit
 darker than I would've liked though, especially after YouTube's colour mangling, but I suppose it
 works. It is nighttime, after all.
 
-Of course, you can't really have an Unreal Engine project in 2026 without **post-processing**. The 2
-main ones we've got here are bloom...
+Of course, you can't really have an Unreal Engine project in 2026 without <TextEffects
+	type="gradient" class="post-processing-text">post-processing</TextEffects>. The 2 main ones we've
+got here are **bloom**...
 
 <MainImage src={import("./assets/images/PostProcessVolume-Bloom.webp")} alt="" createdIn="2026" />
 
-...and a touch of extra vignette. Nothing too fancy.
+...and a touch of extra **vignette**. Nothing too fancy.
 
 <MainImage
 	src={import("./assets/images/PostProcessVolume-Vignette.webp")}
@@ -398,6 +431,8 @@ For some reason, I thought it was a good idea to build my own procedurally gener
 material. Was that really necessary? Maybe not, but it did make me learn to use Unreal's material
 editor, which in turn helped me create the custom sky.
 
+<small>Yes, I did in fact make this concrete material *before* the sky. The more you know.</small>
+
 ##### Stack the Layers
 
 We start off with -- you guessed it! -- more noise. Let's go over each layer here one by one.
@@ -411,15 +446,18 @@ We start off with -- you guessed it! -- more noise. Let's go over each layer her
 
 <MainImage src={import("./assets/images/M_Concreteish-NoiseLayers.avif")} alt="" createdIn="2026" />
 
-There are 2 more material functions at play here. The first is a simple helper function to make some
-noise:
+There are 2 more material functions at play here. The first (`MF_Noise`) is a simple helper function
+to make some noise:
 
 <MainImage src={import("./assets/images/MF_Noise.avif")} alt="" createdIn="2026" />
 
-And the second is a crude little [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function);
-a function that gets closer to 1 as the input increases, but never actually reaches it. Technically
-it should do the same for negative numbers but approaching -1 instead, but I just skipped it since
-there are no negative numbers to be seen here.
+And the second (`MF_Sigmoid`) is a crude little
+[sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function); a function that gets closer to 1
+as the input increases, but never actually reaches it.
+
+Technically it should do the same for negative numbers but approaching -1 instead, but I just
+skipped it since there are no negative numbers to be seen here. If there were, something must have
+gone seriously wrong.
 
 <MainImage src={import("./assets/images/MF_Sigmoid.avif")} alt="" createdIn="2026">
 	The **factor** defaults to `1`. To properly handle negative numbers, you should just be able to
@@ -454,16 +492,94 @@ With this, we can give it a bit of texture:
 	<MainImage src={import("./assets/images/M_Concreteish-Example3.avif")} alt="" createdIn="2026" />
 </div>
 
-Hey, that's not all that bad. There's definitely still some room for improvement, but I can work
-with this. And we've always got a bunch of parameters to tweak, too.
+Hey, that's not so bad. There's definitely still room for improvement, but I can work with this. And
+we've always got a bunch of parameters to tweak, too.
 
 ### But where's Paige?
 
-You're saying we made it this far into the article, and we haven't even talked about our main
-protagonist here? That's just unacceptable. And in fact, you'll have to keep waiting, because I'm
-currently trapped in another week-long heatwave...
+You're saying we made it this far into the article, and we haven't even discussed our main
+protagonist here? That's just unacceptable. Let's fix that.
 
-<TODO text="write the entire section about Paige" />
+I want to preface this by saying I almost certainly used a completely wrong approach to get her into
+Unreal Engine, because as you remember, Home Paige is already an Unreal Engine game. But it should
+be obvious by know that we don't really do things the correct way here.
+
+#### Importing the Model
+
+Alright, let's talk about what I did here. I started with
+[specifically this version](https://discord.com/channels/1414500915200917597/1444687154025594952/1445414636017946636)
+of a Blender rig I found in the Home Paige Discord server. Because it was mainly designed to be used
+in Blender, it has lots of flaws that made this job much harder than it probably needed to be.
+
+<small>
+	This is the same rig I used in my old Unity project. And yes, I'm aware that there's a newer
+	version of the rig, but that one was somehow even harder to work with.
+</small>
+
+The best results I got for importing it into Unreal Engine was by exporting a `.glb` file. However,
+if I recall correctly, it still had a bunch of material issues that needed correcting. Thankfully
+that didn't take all too long, mainly since I already had an already working version in Unity that I
+could reference.
+
+I also made some tweaks to the star material, so that they glow slightly orange. It works quite well
+with the bloom, I'd say.
+
+#### Rigging it Up
+
+Because I have absolutely no clue on how to use Blender, I wanted to create a rig inside of Unreal
+Engine, so I could use that to animate her instead. To be honest, I could've just learned a bit of
+Blender to create the animation there instead, especially because the Unreal Engine rig likes to
+break sometimes.
+
+I started by creating a control rig, with controls for every relevant bone:
+
+<div class="side-by-side">
+	<MainImage
+		src={import("./assets/images/Paige_CtrlRig-ControlHierarchy.webp")}
+		alt=""
+		createdIn="2026"
+	/>
+	<MainImage src={import("./assets/images/Paige_CtrlRig-Preview.avif")} alt="" createdIn="2026" />
+</div>
+
+You'll have undoubtedly noticed that each control's name specifically ends with `--` and a bone
+name. And as you can tell, the rig I used had generic names for them, which made this process quite
+tedious.
+
+I then selected every control <small>(except for the face selector ones, we'll get there when we get
+there)</small> and dragged them into the Forwards Solve graph, creating an item array. Now I just
+needed to loop over said array, retrieving the correct bone from those carefully crafted control
+names, and transforming that bone accordingly:
+
+<MainImage src={import("./assets/images/Paige_CtrlRig-SolveBones.avif")} alt="" createdIn="2026" />
+
+Now we can start animating Paige inside Unreal Engine, with the same technology used to create the
+music video itself:
+[the Sequencer](https://dev.epicgames.com/documentation/unreal-engine/animating-with-control-rig-in-unreal-engine?application_version=5.7)!
+Simply create an actor track for Paige, and add the newly created control rig to that track.
+
+For the music video, I created a very simple sitting animation, because animating is also not one of
+my strong suits. I just want something serviceable to accompany the song I created. If you want to
+see Paige animations that are actually good, I'd strongly recommend
+[checking out what Minimin is cooking](https://www.youtube.com/@Minimin_Studio).
+
+#### Facilitating Facial Animations
+
+In the music video, we just stare at Paige's back the entire time. However, this very article's hero
+image has her face in it, and that default face wouldn't be sufficient.
+
+I used
+[this tutorial](https://dev.epicgames.com/community/learning/tutorials/k8y8/editing-materials-with-control-rig)
+for animating materials using a control rig. This approach calls for very specific material
+parameters, so I needed to create some materials for each facial feature that needed to be animated,
+each with unique parameter names. Here's what one of them looks like:
+
+<MainImage src={import("./assets/images/M_Paige_Mouth.avif")} alt="" createdIn="2026" />
+
+Keep in mind each spritesheet for Paige's facial features has a different number of sprites in them.
+The **B** value of the **Divide** node needs to be changed depending on how many of them it has.
+Here it's 16 because the mouth texture has 16 sprites on each axis, but for the eyes it needs to be
+8, and 4 for the eyebrows.
 
 ### It's Sequencer Time!
 
@@ -476,34 +592,41 @@ dedicated to stuff like this, which is what led me to try it out in the first pl
 
 import StarEmoji from "~icons/noto/star";
 
-<TODO text="finish writing the Camera-nimation section" />
+If we want to make a video, we need a camera. Just like real life. Unlike real life however, in
+Unreal Engine, we can create a camera simply with the press of a button. Meanwhile, us mere mortals
+have to spend our hard-earned money on one.
+
+I made it so that this camera would very slowly move and rotate over time. So slowly, in fact, that
+it probably took you a while to notice it was even moving. And if you didn't notice at all, try
+scrubbing through the video. That should make it obvious.
 
 One cool trick we can do with this new camera is **animating the exposure compensation** to create a
 fade effect, like so:
 
 <MainImage src={import("./assets/images/LS_Stargazer-Exposure.avif")} alt="" createdIn="2026">
 	Make sure to use a curve like the one shown here, especially for longer fades. Otherwise, it'll
-	simply stay black for too long.
+	stay dark for too long.
 </MainImage>
 
-Doing it this way will make the darker parts of the image fade out faster, while bright things
+Doing it this way will make the darker parts of the image fade out faster, while bright objects
 {/* oxfmt-ignore */} <small>(like Paige's star antennae <StarEmoji />)</small> will remain visible
 for longer. Just like a real camera!
 
 #### Staying in Sync
 
-##### Avoiding Audio Issues
+##### Avoiding Audio Anomalies
 
-Being able to drag any imported audio file straight into the Sequencer is nice and all, however I
-noticed that the audio would de-sync more and more while playing. Not exactly ideal when you're
-trying to make a music video. You can set the Sequencer's clock source to **Audio** to try and
-combat this...
+The Sequencer allows us to drag any imported audio file directly into it. That's quite neat, however
+one problem I ran into is that the audio would de-sync more and more while playing. Not exactly
+ideal when you're trying to make a music video.
+
+You can set the Sequencer's clock source to **Audio** to try and combat this:
 
 <MainImage src={import("./assets/images/Sequencer-AudioClock.avif")} alt="" createdIn="2026" />
 
-{/* Include a <wbr /> here to fix the console command overflowing on mobile */}
+{/* The <wbr /> here is to fix the console command overflowing on mobile */}
 
-...but while it does fix the de-syncing, for some reason, it makes the audio crackly instead.
+And while this does fix the de-syncing, for some reason, it makes the audio crackly instead.
 Thankfully I found
 [a solution to this](https://forums.unrealengine.com/t/ue5-sequencer-audio-de-sync-issue-with-clock-set-to-tick-cracking-popping-when-clock-set-to-audio/548281)
 on the forums, namely the console command <kbd>Sequencer.Audio.<wbr />UseAudioClockForAudioDesync
@@ -527,12 +650,22 @@ Sequencer.Audio.UseAudioClockForAudioDesync = 1
 
 Normally, if you want a material to evolve over time, you would use the appropriately named **Time**
 node, which just outputs the world time in seconds. However, I wanted the sky to move in sync with
-the Sequencer. And since Unreal Engine doesn't let you (easily) sequence material parameters, I
-instead used what's called a **material parameter collection**.
+the Sequencer.
+
+I tried looking up how to do this, but what I found back then was that you had to use what's called
+a **material parameter collection** to animate materials. Now, that may have been the case back in
+the UE4 days, but while researching a similar topic in late August, I accidentally found out that
+[you CAN animate material parameters](https://dev.epicgames.com/documentation/unreal-engine/animate-materials-in-unreal-engine-cinematic?application_version=5.7#animatematerialparameters).
+In fact, it's been possible since at least Unreal Engine 5.0.
+
+However, I didn't know this at the time, and in fact, using a material parameter collection has one
+big benefit: you're able to re-use it across multiple materials. As such, it is probably the best
+approach for this use case.
 
 So, what I did is I created one of these collections, containing nothing more than a scalar **Time**
-parameter. Then I added it to the Sequencer and animated it to always hold the sequence's current
-time:
+parameter. It's so simple I don't even need to show it to you. Then I added it to the Sequencer and
+made it so it linearly increases by 1 every second, so that it would effectively hold the sequence's
+current time in seconds:
 
 <MainImage
 	src={import("./assets/images/LS_Stargazer-SequencerTime.avif")}
@@ -552,18 +685,85 @@ Particle systems, like the one that handles our shooting stars, also need a bit 
 them synchronized with the Sequencer.
 [The Unreal Engine documentation](https://dev.epicgames.com/documentation/unreal-engine/niagara-for-linear-content)
 fortunately already has this case covered, but to summarize it essentially boils down to making the
-emitter **deterministic** and adding a **lifecycle track** to the sequence.
+emitter **deterministic** and adding a **lifecycle track** for it in the sequence.
 
 #### Exporting the Video
 
-<TODO text="write the exporting section" />
+Phew. We finally have our music video. Now we just need to render it. That shouldn't be too hard,
+right?
+
+_\*sighs\*_ You wish. I used the Movie Render Queue for this, and while it shows an option to export
+an H.264 video, it simply isn't supported Linux. In fact, none of the video export modes are. _Once
+again, us Linux users are being left in the dark._
+
+Not all hope is lost, though. We can still export an image sequence. For the first test renders I
+did, I used a simple `.png` sequence, but even at a reduced resolution and framerate, it was still
+taking up tens of gigabytes of disk space, which is not ideal. There is an option to use a `.jpg`
+sequence, but I don't trust it.
+
+Instead, I switched to an `.exr` sequence with `DWAB` compression. While this is lossy, you honestly
+can't even tell. That still ended up with a size of about 20 gigabytes, but it's definitely less
+than what a PNG sequence would've been at 4K 60fps. And we also get some... advantages?
+
+You see, these EXR images store 16-bit **_linear_** colours. That's fine for professional work,
+especially because you get much more brightness detail than the 8-bit images from PNG sequences,
+even with the lossy compression. They may even be suitable for HDR work, but I wasn't able to figure
+that out. One big downside though is that if you try to use them directly, the end result will be
+way too dark.
+
+Now is a good time to discuss how I turned this image sequence into a proper video. Unreal Engine
+does have an option to use a
+[command-line encoder](https://dev.epicgames.com/documentation/unreal-engine/cinematic-rendering-export-formats-in-unreal-engine?application_version=5.7#commandlineencoder),
+but my install of FFmpeg refused to cooperate, so I instead just executed FFmpeg directly:
+
+```bash
+ffmpeg -hide_banner -y \
+	-hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 \
+	-framerate 60 -i './stargazer-music-video_final/%04d.exr' -i 'f78 - gaze upon the stars.flac' \
+	-c:a copy -c:v hevc_vaapi -b:v 50M -tier 1 -vf 'zscale=t=iec61966-2-1,format=nv12,hwupload' \
+	'stargazer-v2_final.mkv'
+```
+
+Let's dissect this step by step.
+
+1. `-hide_banner` hides the incredibly big banner, and `-y` always overwrites the output file if it
+   already exists, instead of asking. This is just for convenience, so don't worry about it.
+2. `-hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128` tells FFmpeg that
+   we want to use VAAPI for hardware acceleration. This is what worked for me on Linux with my AMD
+   GPU. For more information, refer to the [FFmpeg wiki](https://trac.ffmpeg.org/wiki/HWAccelIntro).
+3. `-framerate 60` specifes the input framerate. This is required as we're dealing with an image
+   sequence.
+4. `-i './stargazer-music-video_final/%04d.exr'` passes said image sequence as an input, using a
+   pattern.
+5. `-i 'f78 - gaze upon the stars.flac'` then specifies the original song as an input. While you can
+   export audio from Unreal Engine, it is not necessary, since the only audio track is the song
+   itself. It can also break, too.
+6. `-c:a copy` tells FFmpeg to not encode the audio, and just add it to the video container
+   directly. YouTube recommends FLAC audio for music videos anyway.
+7. `-c:v hevc_vaapi -b:v 50M -tier1` specifies HEVC (H.265) as the video codec, with the High tier,
+   a target bitrate of 50Mbps (which was overkill, it only needed 20Mbps), and using the VAAPI
+   hardware acceleration from earlier. While CRF would be better, it's unfortunately not supported
+   by VAAPI.
+8. `-vf 'zscale=t=iec61966-2-1,format=nv12,hwupload'` specifies the following video filters:
+   1. **`zscale=t=iec61966-2-1` is the important part.** It's what converts the linear values from
+      our EXR sequence to sRGB, which looked the most accurate to me.
+   2. `format=nv12,hwupload` is some more VAAPI hardware acceleration stuff.
+9. Now we're just left with `'stargazer-v2_final.mkv'`, which is the output path.
+
+And at last, we have a video file. Now we just upload it to YouTube, and... there's a slight
+problem. You see, YouTube uses the BT.709 colour space, so it ended up mangling our sRGB colours a
+bit. The end result is that the video looks a bit darker than it's supposed to. Thankfully we can
+just call that a feature, since, again, it is nighttime. I'll try to figure it out by the time I
+finish the next music video.
 
 ### Conclusion
 
-Hey, since you've made it all the way to the end, if you found something I missed, let me know in
-the Home Paige Discord server or something.
+Wow. That was... a lot to take in. I don't really know what to say any more, other than thank you
+for persevering through those supposed 27 minutes of yapping. See you next time (which better not be
+in 3 months again)!
 
-<TODO text="write a proper conclusion" />
+Below are the obligatory attributions for the Sketchfab models I used. Hopefully the models don't
+disappear like the last time I used a model from there.
 
 [^1]:
     "Park Bench" (https://skfb.ly/onCvs) by plezzo is licensed under
