@@ -10,6 +10,8 @@ import * as child_process from "node:child_process";
 import * as path from "node:path";
 
 import { program } from "@commander-js/extra-typings";
+import a from "ansis";
+import consola from "consola";
 
 // This script converts an audio or video file for use with this website.
 
@@ -20,8 +22,25 @@ interface Placeholder {
 }
 
 interface Format {
+	/** The allowed input file extensions, i.e. `mp4`, `wav`, ... */
 	inputFormats: string[];
+
+	/**
+	 * The command to run for each output file type.
+	 *
+	 * Supports the following placeholders (see `placeholders` below):
+	 *
+	 * - `%f`: The path to the `ffmpeg` executable, followed by `-hide_banner -y` (required)
+	 * - `%i`: `-i`, followed by the path to the input file (required)
+	 * - `%o`: The path to the output file (required)
+	 * - `%%`: A literal `%` character (required)
+	 *
+	 * If any required placeholder is missing, the string instead represents output parameters for
+	 * FFmpeg, as if it was in the following format: `%f %i VALUE %o`
+	 */
 	outputCommand: string;
+
+	/** The output file extension. */
 	outputExtension: string;
 }
 
@@ -31,9 +50,9 @@ program
 	.name("npm run convert --")
 	.showHelpAfterError(true)
 	.argument("<inputs...>", "The input files to convert.")
-	.requiredOption("-o, --output-dir <output>", "The directory to .")
+	.requiredOption("-o, --output-dir <output>", "The directory to place the converted files in.")
 	.option(
-		"-a, --aac-encoder <encoder>",
+		"-A, --aac-encoder <encoder>",
 		"The AAC encoder to use. Refer to the FFmpeg AAC encoding guide for more information.\n" +
 			'- "aac_at" generally provides the best quality, but is only natively supported on Mac.\n' +
 			'- "libfdk_aac" also offers excellent quality and works on all platforms, but is considered "non-free" ' +
@@ -45,7 +64,7 @@ program
 	.option("-F, --ffmpeg-path <path>", 'The path to the "ffmpeg" executable.', "ffmpeg")
 	.action((inputPaths, { ffmpegPath: ffmpeg, outputDir, aacEncoder }) => {
 		if (!aacEncoders.includes(aacEncoder)) {
-			console.error(
+			consola.fatal(
 				`Unknown AAC encoder "${aacEncoder}". Only the following values are allowed: ${aacEncoders.join(", ")}`,
 			);
 			return;
@@ -54,19 +73,7 @@ program
 		const h264Flags = "-c:v libx264 -crf 28 -preset:v veryslow -profile:v main -pix_fmt yuv420p";
 		const aacFlags = `-c:a ${aacEncoder} -b:a 128k -ar 44100 -movflags +faststart`;
 
-		/**
-		 * The command to run for each output file type.
-		 *
-		 * Supports the following placeholders (see `placeholders` below):
-		 *
-		 * - `%f`: The path to the `ffmpeg` executable, followed by `-hide_banner -y`
-		 * - `%i`: `-i`, followed by the path to the input file
-		 * - `%o`: The path to the output file
-		 * - `%%`: A literal `%` character
-		 *
-		 * If no placeholders are present, the string instead represents output parameters for FFmpeg,
-		 * as if it was in the following format: `%f %i VALUE %o`
-		 */
+		/** @see {@linkcode Format} */
 		const formats: Format[] = [
 			{
 				inputFormats: ["mp4", "mkv"],
@@ -82,18 +89,27 @@ program
 
 		for (const inputPath of inputPaths) {
 			const inputName = path.basename(inputPath);
-			const inputType = path.extname(inputName);
-			const format = formats.find((other) => other.inputFormats.includes(inputType.substring(1)));
+			const inputExtension = path.extname(inputName);
+			const inputType = inputExtension.substring(1).toLowerCase();
+			const format = formats.find((other) => other.inputFormats.includes(inputType));
 			if (!format) {
-				console.error(
-					`Expected output file type to be one of ${Object.keys(formats).join(", ")}, but got ${inputType}.`,
+				consola.error(
+					`Expected output file type to be one of ${Object.keys(formats).join(", ")}, but got ${inputExtension}.`,
 				);
 				continue;
 			}
 
+			if (inputType === "mp3") {
+				consola.warn(
+					"File",
+					a.yellow(inputPath),
+					"is already in a lossy format. Use a lossless format to avoid additional audio degradation.",
+				);
+			}
+
 			const output = path.join(
 				outputDir,
-				inputName.replace(inputType, `.${format.outputExtension}`),
+				inputName.replace(inputExtension, `.${format.outputExtension}`),
 			);
 			const placeholders: Placeholder[] = [
 				{
@@ -129,13 +145,13 @@ program
 				command = command.replace(pattern, replacement);
 			}
 
-			console.debug(command);
+			consola.debug(command);
 			const result = child_process.spawnSync(command, {
 				shell: true,
 				stdio: "inherit",
 			});
 			if (result.error) {
-				console.error(result.error);
+				consola.error(result.error);
 			}
 
 			if (result.status !== 0) {
