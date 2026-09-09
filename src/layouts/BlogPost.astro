@@ -27,6 +27,7 @@ const {
 	description,
 	pubDate,
 	draft,
+	discussionId,
 	heroImage,
 	heroAlt,
 	heroDescription,
@@ -50,6 +51,7 @@ const {
 	isBlog={isBlog}
 	lastModified={lastModified}
 	headings={headings}
+	discussionId={discussionId && `Blog post: ${discussionId}`}
 >
 	<article>
 		<header>
@@ -87,11 +89,7 @@ const {
 					)
 				}
 				<span class="separator">&bullet;</span>
-				<p
-					title={minutesRead !== undefined
-						? undefined
-						: "The reading time may be temporarily unavailable while the website is being migrated to Astro v7."}
-				>
+				<p>
 					<FluentClock20Regular />{" "}
 					{minutesRead !== undefined ? `${minutesRead} minute read` : "Read time unavailable"}
 				</p>

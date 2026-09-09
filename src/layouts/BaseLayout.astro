@@ -49,6 +49,9 @@ interface CommonProps {
 
 	/** When this page was last updated. */
 	lastModified?: unknown;
+
+	/** A unique, persistent ID that is used to display a GitHub discussion using `giscus`. */
+	discussionId?: string;
 }
 
 type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
@@ -62,6 +65,7 @@ const {
 	image = frontmatter?.image,
 	isBlog = frontmatter?.isBlog,
 	lastModified = frontmatter?.lastModified,
+	discussionId,
 } = Astro.props;
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
@@ -126,7 +130,11 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 	<body>
 		<div class="loading-bar" transition:persist></div>
 
-		<Header headings={headings} noTopHeading={!isBlog} />
+		<Header
+			headings={headings}
+			showTopHeading={isBlog}
+			showDiscussHeading={discussionId !== undefined}
+		/>
 
 		{
 			/* prettier-ignore */
@@ -153,6 +161,39 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 
 		<main>
 			<slot />
+			{
+				discussionId && (
+					<section id="comments">
+						<h2>Comments</h2>
+						<script
+							is:inline
+							data-astro-rerun
+							src="https://giscus.app/client.js"
+							data-repo="f78doesthings/f78s-website"
+							data-repo-id="R_kgDOSI1PSA"
+							data-category="Page discussions"
+							data-category-id="DIC_kwDOSI1PSM4DFNKN"
+							data-mapping="specific"
+							data-term={discussionId}
+							data-strict="1"
+							data-reactions-enabled="1"
+							data-emit-metadata="0"
+							data-input-position="top"
+							data-theme="preferred_color_scheme"
+							data-lang="en"
+							data-loading="lazy"
+							crossorigin="anonymous"
+							async
+						/>
+						<p class="discussion-id">
+							Discussion name: <b>{discussionId}</b> &bullet; Powered by{" "}
+							<Link href="https://giscus.app" external>
+								giscus
+							</Link>{" "}
+						</p>
+					</section>
+				)
+			}
 		</main>
 
 		<footer>

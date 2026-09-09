@@ -30,9 +30,12 @@ const blog = defineCollection({
 			/** The date the blog post was published. */
 			pubDate: z.coerce.date(),
 
-			// Development
+			// Extra
 			/** Whether this post is a draft and should not be published yet. */
 			draft: z.boolean().default(false),
+
+			/** A unique, persistent ID that is used to display a GitHub discussion using `giscus`. */
+			discussionId: z.string().optional(),
 
 			// Cover / hero image
 			/** An optional cover image for the blog post. */

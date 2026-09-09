@@ -682,6 +682,24 @@ main {
 	}
 }
 
+#comments {
+	> .discussion-id {
+		font-size: size(12.25);
+		color: var(--color-dimmer);
+		font-style: italic;
+
+		@media not (prefers-contrast: more) {
+			a {
+				opacity: 0.75;
+			}
+		}
+
+		b {
+			font-weight: 550;
+		}
+	}
+}
+
 body > footer {
 	display: flex;
 	flex-direction: column;

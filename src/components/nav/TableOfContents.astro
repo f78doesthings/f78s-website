@@ -14,17 +14,18 @@ import SidebarLink from "./SidebarLink.astro";
 
 interface Props {
 	headings: MarkdownHeading[];
-	noTopHeading?: boolean;
+	showTopHeading?: boolean;
+	showDiscussHeading?: boolean;
 }
 
 export type { Props };
 
-const { headings, noTopHeading, ...cid } = Astro.props;
+const { headings, showTopHeading, showDiscussHeading, ...cid } = Astro.props;
 ---
 
 <div class="table-of-contents" {...cid}>
 	{
-		!noTopHeading && (
+		showTopHeading && (
 			<SidebarLink href="#top" class="depth-1" {...cid}>
 				(Top)
 			</SidebarLink>
@@ -40,6 +41,14 @@ const { headings, noTopHeading, ...cid } = Astro.props;
 				</SidebarLink>
 			);
 		})
+	}
+
+	{
+		showDiscussHeading && (
+			<SidebarLink href={`#comments`} class="depth-2" data-slug="comments" {...cid}>
+				Comments
+			</SidebarLink>
+		)
 	}
 </div>
 
@@ -80,11 +89,12 @@ const { headings, noTopHeading, ...cid } = Astro.props;
 	});
 
 	function updateHeadings() {
-		// Find the last link that hasn't gone off the top of the screen
+		// Find the last link that hasn't gone too far up the screen
 		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
+		const nextSectionBoundary = scrollPadding + (innerHeight - scrollPadding) * 0.3;
 		const activeIndex =
 			headings.findIndex(
-				([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
+				([, heading]) => heading.getBoundingClientRect().top >= nextSectionBoundary,
 			) - 1;
 		const [activeLink, activeHeading] = headings[activeIndex] ?? [];
 

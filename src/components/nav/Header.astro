@@ -9,7 +9,6 @@
 
 // Site navigation (top bar and sidebars)
 
-import type { MarkdownHeading } from "astro";
 import { SITE_VERSION } from "astro:env/client";
 
 import NavigationIcon from "~icons/fluent/navigation-20-regular";
@@ -30,7 +29,7 @@ import TableOfContents, { type Props as TableOfContentsProps } from "./TableOfCo
 
 type Props = Partial<TableOfContentsProps>;
 
-const { headings, noTopHeading } = Astro.props;
+const { headings, ...props } = Astro.props;
 
 // TODO: add Skip Navigation button (although keyboard navigation is kind of screwed anyway)
 ---
@@ -92,7 +91,7 @@ const { headings, noTopHeading } = Astro.props;
 	headings && (
 		<Sidebar id="headings-menu" right>
 			<h2>Table of Contents</h2>
-			<TableOfContents headings={headings} noTopHeading={noTopHeading} />
+			<TableOfContents headings={headings} {...props} />
 		</Sidebar>
 	)
 }
