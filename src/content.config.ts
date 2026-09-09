@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import * as path from "node:path";
+
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
@@ -14,7 +16,7 @@ import type { DefaultLogFields, LogOptions } from "simple-git";
 
 import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 import { git } from "./server-utils.ts";
-import type { VersionInfo } from "./types.ts";
+import type { PrereleaseType, VersionInfo } from "./types.ts";
 
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -94,21 +96,24 @@ const links = defineCollection({
 //#region Versions
 
 const semverRegex =
-	/^v?(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+	/^v?(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(?<message> +.*)?$/;
 
-const isPrerelease = (version: string) => {
+const prereleaseTypes: PrereleaseType[] = ["dev", "alpha", "beta", "rc"];
+const getPrerelease = (version: string) => {
 	const result = semverRegex.exec(version);
-	return result?.groups?.["prerelease"] !== undefined;
+	const prerelease = result?.groups?.["prerelease"];
+	return prereleaseTypes.find((type) => prerelease?.startsWith(type));
 };
 
 const jsonifyCommit = (commit: DefaultLogFields) => {
 	return { ...commit };
 };
 
-function removeTagPrefix(tag: string): string;
-function removeTagPrefix(tag?: string): string | undefined;
-function removeTagPrefix(tag?: string) {
-	return tag?.replace(/^v/, "");
+/** Removes the `v` prefix and any annotations from the tag. */
+function extractVersion(tag: string): string;
+function extractVersion(tag?: string): string | undefined;
+function extractVersion(tag?: string) {
+	return tag?.replace(/^v/, "").replace(/ +.*$/, "");
 }
 
 const baseLogOptions: LogOptions = {
@@ -124,21 +129,20 @@ const versions = defineCollection({
 
 		const result: VersionInfo[] = [];
 		const firstCommit = await git.firstCommit();
-		const tags = (await git.tags()).all;
-		tags.sort();
+		const { all: tags } = await git.tags(["-n", "--sort=v:refname"]);
 
 		for (let i = 0; i < tags.length; i++) {
-			const tag = tags[i];
-			const prerelease = isPrerelease(tag);
-			const prevStable = tags.findLast((version, index) => index < i && !isPrerelease(version));
-			const prevPrerelease = tags.findLast((version, index) => index < i && isPrerelease(version));
+			const [tag, ...message] = tags[i].split(/ +/);
+			const prerelease = getPrerelease(tag);
+			const prevStable = tags.findLast((version, index) => index < i && !getPrerelease(version));
+			const prevPrerelease = tags.findLast((version, index) => index < i && getPrerelease(version));
 			const nextStableIndex = tags.findIndex(
-				(version, index) => index > i && !isPrerelease(version),
+				(version, index) => index > i && !getPrerelease(version),
 			);
 			const nextStable = tags[nextStableIndex];
 			const nextPrerelease = tags.find(
 				(version, index) =>
-					index > i && (nextStableIndex < 0 || index < nextStableIndex) && isPrerelease(version),
+					index > i && (nextStableIndex < 0 || index < nextStableIndex) && getPrerelease(version),
 			);
 
 			const commits = await git.log({
@@ -155,12 +159,13 @@ const versions = defineCollection({
 				: undefined;
 
 			result.push({
-				id: removeTagPrefix(tag),
+				id: extractVersion(tag),
+				message: message.join(" "),
 				prerelease,
-				prevStable: removeTagPrefix(prevStable),
-				prevPrerelease: removeTagPrefix(prevPrerelease),
-				nextStable: removeTagPrefix(nextStable),
-				nextPrerelease: removeTagPrefix(nextPrerelease),
+				prevStable: extractVersion(prevStable),
+				prevPrerelease: extractVersion(prevPrerelease),
+				nextStable: extractVersion(nextStable),
+				nextPrerelease: extractVersion(nextPrerelease),
 				date: devCommits?.latest?.date ?? commits.latest?.date,
 				stableCommits: commits.all.map(jsonifyCommit),
 				prereleaseCommits: devCommits?.all.map(jsonifyCommit),
@@ -171,6 +176,17 @@ const versions = defineCollection({
 	},
 });
 
+const changelogs = defineCollection({
+	loader: glob({
+		base: "./src/content/changelogs",
+		pattern: "*.{md,mdx}",
+
+		// The default generateId strips dots (and possibly other characters) from the name.
+		// This isn't ideal, so we implement it ourselves here to avoid that.
+		generateId: ({ entry }) => entry.replace(path.extname(entry), ""),
+	}),
+});
+
 //#endregion
 
-export const collections = { blog, links, versions };
+export const collections = { blog, links, versions, changelogs };

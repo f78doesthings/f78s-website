@@ -9,19 +9,21 @@
 
 import type { GetStaticPaths } from "astro";
 
-import { IS_DEV } from "../../consts";
+import { IS_DEV, PRERELEASE_TYPES } from "../../consts";
 import { getVersions } from "../../server-utils";
 import type { VersionInfo } from "../../types";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 
-import PrereleaseIcon from "~icons/fluent/beaker-20-regular";
 import BackIcon from "~icons/fluent/arrow-left-24-regular";
 import PrevStableIcon from "~icons/fluent/chevron-left-24-regular";
 import NextStableIcon from "~icons/fluent/chevron-right-24-regular";
 import PrevPrereleaseIcon from "~icons/fluent/chevron-circle-left-24-regular";
 import NextPrereleaseIcon from "~icons/fluent/chevron-circle-right-24-regular";
+import Alert from "../../components/Alert.astro";
+import { render } from "astro:content";
+import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async () => {
 	const versions = await getVersions();
@@ -35,15 +37,28 @@ export const getStaticPaths = (async () => {
 
 type Props = VersionInfo;
 
-const { id: version, prerelease, date, prevStable, nextStable, prevPrerelease, nextPrerelease, stableCommits, prereleaseCommits } = Astro.props;
+const {
+	id: version,
+	message,
+	prerelease,
+	date,
+	prevStable,
+	nextStable,
+	prevPrerelease,
+	nextPrerelease,
+	stableCommits,
+	prereleaseCommits,
+} = Astro.props;
 const commits = prereleaseCommits ?? stableCommits;
 const olderCommits =
 	prereleaseCommits &&
 	stableCommits.slice(
-		stableCommits.findLastIndex((commit) =>
-			commits.some((other) => other.hash === commit.hash),
-		) + 1,
+		stableCommits.findLastIndex((commit) => commits.some((other) => other.hash === commit.hash)) +
+			1,
 	);
+
+const changelogs = await getEntry("changelogs", version);
+const { Content } = changelogs ? await render(changelogs) : {};
 ---
 
 <BaseLayout title={`Changelog for v${version}`}>
@@ -58,24 +73,29 @@ const olderCommits =
 				<Fragment slot="before">Dated</Fragment>
 			</FormattedDate>
 		</li>
-		{
-			prerelease && (
-				<li class="separator">&bullet;</li>
-				<li class="prerelease">
-					<PrereleaseIcon /> Pre-release
-				</li>
-			)
-		}
 	</ul>
 
-	<section>
-		<h2>Changelog</h2>
+	{prerelease && <Alert type={prerelease}>{PRERELEASE_TYPES[prerelease].description}</Alert>}
+	{
+		Content ? (
+			<section>
+				<h2>Release notes</h2>
+				<Content />
+			</section>
+		) : (
+			message
+		)
+	}
+
+	<h2>Commits</h2>
+	<details open={changelogs === undefined}>
+		<summary>View commit history</summary>
 		{commits.map((commit) => <ChangelogEntry commit={commit} />)}
 		{
 			olderCommits && olderCommits.length > 0 && (
 				<details>
 					<summary>
-						View older changes <span class="older-since">(since {prevStable})</span>
+						View older commits <span class="older-since">(since {prevStable})</span>
 					</summary>
 					{olderCommits.map((commit) => (
 						<ChangelogEntry commit={commit} />
@@ -83,7 +103,7 @@ const olderCommits =
 				</details>
 			)
 		}
-	</section>
+	</details>
 
 	<nav>
 		{
@@ -95,14 +115,24 @@ const olderCommits =
 		}
 		{
 			prevPrerelease && (
-				<a href={`/version/${prevPrerelease}`} data-preference-dependencies={'[["showPrerelease",[true]]]'} class="prev-prerelease">
+				<a
+					href={`/version/${prevPrerelease}`}
+					data-preference-dependencies={'[["showPrerelease",[true]]]'}
+					data-ignore-preference-availability
+					class="prev-prerelease"
+				>
 					<PrevPrereleaseIcon /> {prevPrerelease}
 				</a>
 			)
 		}
 		{
 			nextPrerelease && (
-				<a href={`/version/${nextPrerelease}`} data-preference-dependencies={'[["showPrerelease",[true]]]'} class="next-prerelease">
+				<a
+					href={`/version/${nextPrerelease}`}
+					data-preference-dependencies={'[["showPrerelease",[true]]]'}
+					data-ignore-preference-availability
+					class="next-prerelease"
+				>
 					{nextPrerelease} <NextPrereleaseIcon />
 				</a>
 			)
@@ -204,11 +234,17 @@ const olderCommits =
 			grid-area: next-prerelease;
 		}
 
-		.prev-prerelease, .next-prerelease {
-			opacity: 0.8;
+		.prev-prerelease,
+		.next-prerelease {
+			opacity: 0.78;
+
+			@media (prefers-contrast: more) {
+				opacity: 0.88;
+			}
 		}
 
-		.next-stable, .next-prerelease {
+		.next-stable,
+		.next-prerelease {
 			justify-self: flex-end;
 		}
 	}

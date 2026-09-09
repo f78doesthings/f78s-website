@@ -83,12 +83,24 @@ export interface MediaInfo extends CopyrightInfo {
 
 //#region Site versioning
 
+export type PrereleaseType = "dev" | "alpha" | "beta" | "rc";
+
+export interface PrereleaseInfo {
+	title: string;
+	description: string;
+	icon: IconComponent;
+	iconSmall: IconComponent;
+}
+
 export interface VersionInfo {
 	/** The semantic version string. */
 	id: string; // Named `id` for use with content collections
 
-	/** Whether this is a pre-release version. */
-	prerelease: boolean;
+	/** The tag message, if it has one. */
+	message?: string;
+
+	/** Indicates what kind of pre-release version this is. `undefined` means it's a stable version. */
+	prerelease?: PrereleaseType;
 
 	/** The stable version that preceded this one. */
 	prevStable?: string;

@@ -14,10 +14,11 @@ import FluentLightbulb24Regular from "~icons/fluent/lightbulb-24-regular";
 import FluentChatWarning24Regular from "~icons/fluent/chat-warning-24-regular";
 import FluentWarning24Regular from "~icons/fluent/warning-24-regular";
 import FluentErrorCircle24Regular from "~icons/fluent/error-circle-24-regular";
-import type { IconComponent } from "../types";
+import type { IconComponent, PrereleaseType } from "../types";
+import { PRERELEASE_TYPES } from "../consts";
 
 interface Props {
-	type: keyof typeof alertTypes;
+	type: PrereleaseType | keyof typeof alertTypes;
 }
 
 interface Alert {
@@ -49,7 +50,8 @@ const alertTypes = {
 } satisfies Record<string, Alert>;
 
 const { type } = Astro.props;
-const { icon: Icon, title } = alertTypes[type];
+const { icon: Icon, title } =
+	alertTypes[type as keyof typeof alertTypes] ?? PRERELEASE_TYPES[type as PrereleaseType];
 ---
 
 <blockquote class={`alert-${type}`}>
@@ -81,9 +83,13 @@ const { icon: Icon, title } = alertTypes[type];
 	}
 
 	blockquote {
-		border-left-color: var(--alert-border);
+		border-color: var(--alert-border);
 		background-color: var(--alert-background);
 		color: var(--alert-text);
+
+		@media (prefers-contrast: more) {
+			border-color: var(--alert-label);
+		}
 
 		[data-icon] {
 			font-size: size(24);
@@ -99,6 +105,10 @@ const { icon: Icon, title } = alertTypes[type];
 			font-family: var(--font-heading), sans-serif;
 			color: var(--alert-label);
 
+			@media (prefers-contrast: more) {
+				color: var(--alert-text);
+			}
+
 			+ :global(*) {
 				margin-top: 0;
 			}
@@ -106,26 +116,47 @@ const { icon: Icon, title } = alertTypes[type];
 
 		:global(small, .text-dim) {
 			color: color-mix(in srgb, var(--alert-text), transparent 25%);
+
+			@media (prefers-contrast: more) {
+				color: color-mix(in srgb, var(--alert-text), transparent 12%);
+			}
 		}
-	}
 
-	.alert-note {
-		@include alert($colors-blue);
-	}
+		// TODO: clean this up
+		&.alert-note {
+			@include alert($colors-blue);
+		}
 
-	.alert-tip {
-		@include alert($colors-green);
-	}
+		&.alert-tip {
+			@include alert($colors-green);
+		}
 
-	.alert-important {
-		@include alert($colors-purple);
-	}
+		&.alert-important {
+			@include alert($colors-purple);
+		}
 
-	.alert-warning {
-		@include alert($colors-yellow);
-	}
+		&.alert-warning {
+			@include alert($colors-yellow);
+		}
 
-	.alert-caution {
-		@include alert($colors-red);
+		&.alert-caution {
+			@include alert($colors-red);
+		}
+
+		&.alert-dev {
+			@include alert($colors-pink);
+		}
+
+		&.alert-alpha {
+			@include alert($colors-fuchsia);
+		}
+
+		&.alert-beta {
+			@include alert($colors-violet);
+		}
+
+		&.alert-rc {
+			@include alert($colors-blue);
+		}
 	}
 </style>
