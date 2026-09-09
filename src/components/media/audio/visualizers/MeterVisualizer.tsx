@@ -40,7 +40,7 @@ export function MeterVisualizer(props: VisualizerProps) {
 	 * Increasing this improves the meter's accuracy (especially at lower framerates) and smoothens
 	 * the average volume display, at the cost of performance.
 	 */
-	const sampleWindow = 16384;
+	const sampleWindow = 4096;
 
 	// Meter
 	/** The range of the volume meter (dB). */

@@ -103,7 +103,8 @@ export function OscilloscopeVisualizer(props: VisualizerProps) {
 				}
 
 				// Begin waveform path
-				ctx.lineWidth = renderScale + (width + height) / 960;
+				const lineWidth = renderScale + (width + height) / 960;
+				ctx.lineWidth = lineWidth;
 				ctx.strokeStyle = theme.primary;
 				ctx.fillStyle = createGradient(ctx, theme.primary, {
 					mirrored: true,
@@ -128,7 +129,7 @@ export function OscilloscopeVisualizer(props: VisualizerProps) {
 				for (let i = 0; i < displayWindow; i++) {
 					const v = running ? data.samples[startIndex + i] * data.currentZoom : 0;
 					const x = (i / (displayWindow - 1)) * width;
-					const y = halfHeight + v * halfHeight;
+					const y = halfHeight + v * (halfHeight - lineWidth);
 
 					if (i === 0) {
 						ctx.moveTo(x, y);

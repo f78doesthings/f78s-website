@@ -56,6 +56,14 @@
 	}
 }
 
+// Pop-up menu
+.playback-rate {
+	min-width: size(48);
+	text-align: right;
+	font-family: var(--font-mono), monospace;
+	font-size: size(14);
+}
+
 // Keyboard shortcut animations
 .seek-amount {
 	position: absolute;

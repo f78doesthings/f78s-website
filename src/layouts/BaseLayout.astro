@@ -220,6 +220,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 		<ImmersiveBackground client:idle transition:persist />
 		<div class="debug-display" transition:persist></div>
 		<div id="media-viewer-root"></div>
+		<slot name="overlay" />
 	</body>
 </html>
 

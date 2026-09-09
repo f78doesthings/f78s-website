@@ -35,7 +35,7 @@ if (!resolvedSrc) {
 ---
 
 <figure class="media-player">
-	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any}><slot /></VideoPlayerClient>
+	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any} />
 	<figcaption>
 		<slot />
 	</figcaption>

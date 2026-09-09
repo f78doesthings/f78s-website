@@ -10,30 +10,51 @@ import { useComputed, useSignal } from "@preact/signals";
 import { useSignalRef } from "@preact/signals/utils";
 import type { VideoHTMLAttributes } from "preact";
 import { useEffect, useRef } from "preact/hooks";
+import ErrorIcon from "~icons/fluent/error-circle-48-regular";
 
 import { createMediaContext, type MediaContext } from "../../../scripts/utils/audio";
+import { useEventTarget } from "../../../scripts/utils/preact";
 import type { Replace, CopyrightInfo } from "../../../types";
 import { OverlayContainer } from "../../utils/OverlayContainer";
 import { VisualizerSelector } from "../audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../utils/MediaControls";
+
+import "../../../styles/media.scss";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay";
 import { MediaShortcutResponse, type MediaShortcutAnimation } from "../utils/MediaShortcutResponse";
 
-import "../../../styles/media.scss";
 import styles from "./VideoPlayerClient.module.scss";
 
 type Props = Replace<
 	Omit<VideoHTMLAttributes, "children">,
 	CopyrightInfo & {
 		class?: string;
+
+		/** The source URL of the video file. */
 		src: string;
+
+		/** Whether to show an error to the user if no media has been loaded. */
+		checkIfLoaded?: boolean;
+
+		/**
+		 * Controls when to show the audio visualizer.
+		 *
+		 * @default "fullscreen"
+		 */
+		visualizer?: "never" | "fullscreen" | "always";
 	}
 >;
 
 /** The client-side portion of VideoPlayer. Use VideoPlayer in pages instead. */
-export function VideoPlayerClient({ src, class: className = "", ...props }: Props) {
-	// There is a fair bit of code duplicated from AudioPlayerClient,
-	// should probably be refactored at some point
+export function VideoPlayerClient({
+	src,
+	class: className = "",
+	checkIfLoaded = false,
+	visualizer = "fullscreen",
+	...props
+}: Props) {
+	// TODO: There is a fair bit of code duplicated from AudioPlayerClient,
+	//       should probably be refactored at some point
 	const video = useRef<HTMLVideoElement>(null);
 	const root = useSignalRef<HTMLDivElement | null>(null);
 	const contentContainer = useSignalRef<HTMLDivElement | null>(null);
@@ -41,50 +62,56 @@ export function VideoPlayerClient({ src, class: className = "", ...props }: Prop
 	const isPaused = useSignal(true);
 	const isFullscreen = useSignal(false);
 	const isOverlaying = useSignal(false);
+	const hasErrored = useSignal<boolean>();
 	const mediaConnection = useSignal<MediaContext>();
 	const mediaAnimation = useSignal<MediaShortcutAnimation>({});
 
 	const enableTaps = useComputed(() => isOverlaying.value || !isFullscreen.value);
-	const pauseVisualizer = useComputed(() => isPaused.value || !isFullscreen.value);
+	const pauseVisualizer = useComputed(() => !isFullscreen.value);
 
 	//#region Event listeners
 
-	const updateFullscreen = () => {
-		isFullscreen.value = root.current !== null && document.fullscreenElement === root.current;
-	};
-
-	const updatePaused = async () => {
-		isPaused.value = !video.current || video.current.paused || video.current.ended;
-	};
-
 	useEffect(() => {
-		if (!video.current || !root.current) {
-			return undefined;
-		}
-
-		if (!mediaConnection.value) {
+		if (video.current && !mediaConnection.value) {
 			const connection = createMediaContext(video.current);
 			if (connection) {
 				mediaConnection.value = connection;
 			}
 		}
 
-		root.current.addEventListener("fullscreenchange", updateFullscreen);
-		video.current.addEventListener("play", updatePaused);
-		video.current.addEventListener("pause", updatePaused);
-		video.current.addEventListener("ended", updatePaused);
-
 		return () => {
-			root.current?.removeEventListener("fullscreenchange", updateFullscreen);
-			video.current?.removeEventListener("play", updatePaused);
-			video.current?.removeEventListener("pause", updatePaused);
-			video.current?.removeEventListener("ended", updatePaused);
-
 			if (isFullscreen.value) {
 				void document.exitFullscreen();
+				isFullscreen.value = false;
 			}
 		};
 	}, []);
+
+	useEventTarget(
+		// This has to be a function, or else it causes an infinite loop. Don't ask me why.
+		() => root.current,
+		(on) => {
+			on("fullscreenchange", () => {
+				isFullscreen.value = root.current !== null && document.fullscreenElement === root.current;
+			});
+		},
+	);
+
+	useEventTarget(
+		// And here it's needed to fix isPaused not getting set.
+		// There's some serious hackery going on here...
+		() => video.current,
+		(on) => {
+			on("play", () => (isPaused.value = false));
+			on("pause", () => (isPaused.value = true));
+			on("ended", () => (isPaused.value = true));
+			on("loadstart", () => {
+				hasErrored.value = false;
+				isPaused.value = true;
+			});
+			on("error", () => (hasErrored.value = true));
+		},
+	);
 
 	//#endregion
 
@@ -110,12 +137,24 @@ export function VideoPlayerClient({ src, class: className = "", ...props }: Prop
 				/>
 			}
 		>
+			{(hasErrored.value ?? (checkIfLoaded && !video.current?.src)) && (
+				<div class="media-error-overlay">
+					<ErrorIcon />
+					<p>
+						{hasErrored.value
+							? "Failed to load video. Your browser may not support this video format."
+							: "No video has been loaded."}
+					</p>
+				</div>
+			)}
 			<video src={src} ref={video} preload="metadata" class={styles.video} {...props} />
-			<VisualizerSelector
-				media={mediaConnection}
-				paused={pauseVisualizer}
-				class={styles.visualizer}
-			/>
+			{visualizer !== "never" && (
+				<VisualizerSelector
+					media={mediaConnection}
+					paused={pauseVisualizer}
+					class={`${styles.visualizer} ${visualizer === "fullscreen" ? styles["fullscreen-only"] : ""}`}
+				/>
+			)}
 			<MediaShortcutResponse animation={mediaAnimation.value} />
 		</OverlayContainer>
 	);

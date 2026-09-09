@@ -12,29 +12,36 @@
 // Styles for common media elements (note: pretty scuffed)
 $media-button-size: size(44);
 
-@mixin media-style {
+@mixin media-style($blur: false) {
 	background-color: var(--color-component);
 	color: var(--color-heading);
-
 	border: 1px solid var(--color-border);
 	border-radius: $radius-full;
+	box-shadow: $glass-shadow;
 
 	@media not (prefers-contrast: more) {
-		@include glass;
-
 		@include preferences("fx") {
-			background-color: color-mix(in srgb, var(--color-component), transparent 38%);
-			backdrop-filter: blur(size(8)) contrast(110%) brightness(75%);
+			background-color: color-mix(in srgb, var(--color-component), transparent 33%);
+
+			@if $blur {
+				backdrop-filter: blur(size(8)) contrast(110%) brightness(75%);
+			}
 		}
 
-		@include preferences("fx", "light") {
-			backdrop-filter: blur(size(8)) contrast(78%) brightness(160%);
+		@if $blur {
+			@include preferences("fx", "light") {
+				backdrop-filter: blur(size(8)) contrast(75%) brightness(160%);
+			}
 		}
 	}
 }
 
-.media-style {
+:where(.media-style) {
 	@include media-style;
+}
+
+:where(.media-style-blur) {
+	@include media-style(true);
 }
 
 .btn-media,
@@ -51,8 +58,6 @@ $media-button-size: size(44);
 		font-size: size(24);
 	}
 
-	// BUG: this annoyingly creates a backdrop root, preventing popup menus
-	// from having any background blur
 	@include media-style;
 }
 
@@ -133,5 +138,33 @@ $media-button-size: size(44);
 
 	> .slider {
 		height: 100%;
+	}
+}
+
+.media-error-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: size(8);
+
+	background: radial-gradient(
+		color-mix(in srgb, var(--color-page), transparent 20%),
+		color-mix(in srgb, var(--color-page), #000e 50%)
+	);
+
+	[data-icon] {
+		font-size: size(48);
+		color: $red-450;
+	}
+
+	p {
+		margin: 0;
 	}
 }

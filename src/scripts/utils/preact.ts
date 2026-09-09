@@ -29,7 +29,7 @@ export function wrapRefs<T>(
 }
 
 export function useEventTarget<T extends EventTarget>(
-	target: T | null | undefined | (() => T),
+	target: T | null | undefined | (() => T | null | undefined),
 	callback: (on: T["addEventListener"]) => void,
 	dependencies: Inputs = [],
 ) {

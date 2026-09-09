@@ -23,13 +23,13 @@ export interface MediaShortcutAnimation {
 	direction?: AnimationDirection;
 }
 
-const anchors: Record<AnimationDirection, string> = {
-	up: "top",
-	down: "bottom",
-	left: "left",
-	right: "right",
-	grow: "center",
-	shrink: "center",
+const anchors: Record<AnimationDirection, [from: string, to: string]> = {
+	up: ["bottom", "top"],
+	down: ["top", "bottom"],
+	left: ["right", "left"],
+	right: ["left", "right"],
+	grow: ["center", "center"],
+	shrink: ["center", "center"],
 };
 
 /** Plays an animation for a media keyboard shortcut when the animation object changes. */
@@ -42,25 +42,28 @@ export function MediaShortcutResponse({ animation }: Props) {
 			return;
 		}
 
-		animContainer.current.style.transformOrigin = animation.direction
+		const [fromAnchor, toAnchor] = animation.direction
 			? anchors[animation.direction]
-			: "center";
-
+			: ["center", "center"];
 		const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 		animContainer.current.animate(
 			{
 				transform: reduceMotion
 					? ["scale(100%)"]
-					: animation.direction === "grow"
-						? ["scale(87.5%)", "scale(90%)", "scale(100%)"]
-						: ["scale(100%)", "scale(97.5%)", "scale(87.5%)"],
-				opacity: [1, reduceMotion ? 1 : 0.8, 0],
-				offset: [0, 0.56, 1],
+					: [
+							animation.direction === "shrink" ? "scale(112%)" : "scale(87%)",
+							"scale(100%)",
+							"scale(100%)",
+							animation.direction === "grow" ? "scale(112%)" : "scale(87%)",
+						],
+
+				transformOrigin: [fromAnchor, fromAnchor, toAnchor, toAnchor],
+				opacity: [0, 1, 1, 0],
+				offset: [0, 0.22, 0.78, 1],
 			},
 			{
-				//easing: "cubic-bezier(0.65, 0, 0.65, 0.9)",
-				easing: "ease",
-				duration: reduceMotion ? 525 : 440,
+				duration: 700,
+				easing: "linear",
 				fill: "forwards",
 			},
 		);
@@ -71,12 +74,12 @@ export function MediaShortcutResponse({ animation }: Props) {
 
 		overlayContainer.current?.animate(
 			{
-				opacity: [1, 1, 0],
-				offset: [0, 0.7, 1],
+				opacity: [0, 1, 1, 0],
+				offset: [0, 0.22, 0.78, 1],
 			},
 			{
-				easing: "ease",
-				duration: 625,
+				duration: 700,
+				easing: "linear",
 				fill: "forwards",
 			},
 		);
@@ -85,11 +88,11 @@ export function MediaShortcutResponse({ animation }: Props) {
 	return (
 		<div class={styles["media-key-response"]}>
 			{animation.overlay && (
-				<div ref={overlayContainer} class={`${styles.overlay} media-style`}>
+				<div ref={overlayContainer} class={`${styles.overlay} media-style-blur`}>
 					{animation.overlay}
 				</div>
 			)}
-			<div ref={animContainer} class={`${styles.animation} media-style`}>
+			<div ref={animContainer} class={`${styles.animation} media-style-blur`}>
 				{animation.icon}
 			</div>
 		</div>

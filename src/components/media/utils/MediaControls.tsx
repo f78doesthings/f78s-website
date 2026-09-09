@@ -13,15 +13,18 @@ import SeekBackwardIcon from "~icons/fluent/arrow-counterclockwise-24-regular";
 import DownloadIcon from "~icons/fluent/arrow-download-24-regular";
 import LoopOnIcon from "~icons/fluent/arrow-repeat-all-24-regular";
 import LoopOffIcon from "~icons/fluent/arrow-repeat-all-off-24-regular";
+import RateIncreaseIcon from "~icons/fluent/fast-forward-24-regular";
 import EnterFullscreenIcon from "~icons/fluent/full-screen-maximize-24-regular";
 import ExitFullscreenIcon from "~icons/fluent/full-screen-minimize-24-regular";
-import LowVolumeIcon from "~icons/fluent/speaker-1-24-regular";
-import HighVolumeIcon from "~icons/fluent/speaker-2-24-regular";
+import PlaybackRateIcon from "~icons/fluent/gauge-24-regular";
+import RateDecreaseIcon from "~icons/fluent/rewind-24-regular";
+import VolumeLowIcon from "~icons/fluent/speaker-1-24-regular";
+import VolumeHighIcon from "~icons/fluent/speaker-2-24-regular";
 import MutedIcon from "~icons/fluent/speaker-mute-24-regular";
 import PauseIcon from "~icons/ri/pause-large-fill";
 import PlayIcon from "~icons/ri/play-large-fill";
 
-import { clamp, formatDuration, getFileName } from "../../../scripts/utils";
+import { clamp, formatDuration, getFileName, truncate } from "../../../scripts/utils";
 import type { MediaContext } from "../../../scripts/utils/audio";
 import { useEventTarget } from "../../../scripts/utils/preact";
 import { PopupMenu } from "../../utils/PopupMenu";
@@ -62,12 +65,15 @@ export function MediaControls({
 	clickTarget,
 	mediaAnimation,
 }: Props) {
+	const media = useComputed(() => mediaContext.value?.source.mediaElement);
+
 	const [playing, setPlaying] = useState(false);
 	const [looping, setLooping] = useState(false);
 	const [volume, setVolume] = useState(0.5);
 	const [mutedVolume, setMutedVolume] = useState<number>();
 	const [buffered, setBuffered] = useState(0);
 	const [time, setTime] = useState(0);
+	const [playbackRate, setPlaybackRate] = useState(media.value?.defaultPlaybackRate ?? 1);
 
 	const ref = useRef<HTMLDivElement>(null);
 	const prevScroll = useSignal(-1);
@@ -75,7 +81,6 @@ export function MediaControls({
 	const isFullscreen = useSignal(false);
 	const isFocused = useSignal(false);
 	const seekMode = useSignal<boolean>();
-	const media = useComputed(() => mediaContext.value?.source.mediaElement);
 
 	const playPauseText = playing ? "Pause (Space)" : "Play (Space)";
 	const fullscreenText = isFullscreen.value ? "Exit full screen (F)" : "Full screen (F)";
@@ -90,7 +95,11 @@ export function MediaControls({
 
 		const wasPaused = media.value.paused || media.value.ended;
 		if (wasPaused) {
-			void media.value.play();
+			if (media.value.src || media.value.srcObject) {
+				media.value.play().catch((e) => {
+					console.warn("Failed to start media playback:", e, media.value);
+				});
+			}
 		} else {
 			media.value.pause();
 		}
@@ -122,7 +131,7 @@ export function MediaControls({
 
 		if (!ev && mediaAnimation) {
 			mediaAnimation.value = {
-				icon: wasMuted ? <HighVolumeIcon /> : <MutedIcon />,
+				icon: wasMuted ? <VolumeHighIcon /> : <MutedIcon />,
 				direction: wasMuted ? "grow" : "shrink",
 			};
 		}
@@ -131,7 +140,13 @@ export function MediaControls({
 	const toggleFullscreen = () => {
 		const wasFullscreen = isFullscreen.value;
 		if (wasFullscreen) {
-			document.exitFullscreen().catch(console.error);
+			document.exitFullscreen().catch((e) => {
+				// This usually errors out if we're not in fullscreen any more for some reason,
+				// so we enter fullscreen again
+				console.warn("Failed to exit fullscreen, entering it instead:", e);
+				isFullscreen.value = false;
+				toggleFullscreen();
+			});
 		} else if (mediaRoot?.value) {
 			prevScroll.value = window.scrollY;
 			mediaRoot.value.requestFullscreen().catch(console.error);
@@ -175,9 +190,28 @@ export function MediaControls({
 
 		if (mediaAnimation) {
 			mediaAnimation.value = {
-				icon: amount > 0 ? <HighVolumeIcon /> : <LowVolumeIcon />,
+				icon: amount > 0 ? <VolumeHighIcon /> : <VolumeLowIcon />,
 				overlay: `${Math.round(newVolume * 100)}%`,
 				direction: amount > 0 ? "up" : "down",
+			};
+		}
+	};
+
+	const adjustPlaybackRate = (amount: number) => {
+		if (!media.value) {
+			return;
+		}
+
+		const newRate = clamp(playbackRate + amount, 0.25, 4, Math.abs(amount));
+		media.value.playbackRate = newRate;
+		media.value.defaultPlaybackRate = newRate;
+		setPlaybackRate(newRate);
+
+		if (mediaAnimation) {
+			mediaAnimation.value = {
+				icon: amount > 0 ? <RateIncreaseIcon /> : <RateDecreaseIcon />,
+				overlay: `${truncate(newRate, 2)}x`,
+				direction: amount > 0 ? "right" : "left",
 			};
 		}
 	};
@@ -269,9 +303,22 @@ export function MediaControls({
 					return;
 				}
 
-				console.debug("Key code:", ev.code, "| Key:", ev.key);
+				if (import.meta.env.DEV) {
+					console.debug("Key code:", ev.code, "| Key:", ev.key);
+				}
+
 				let handled = true;
-				if (!ev.shiftKey) {
+				if (ev.shiftKey) {
+					switch (ev.code) {
+						// Playback speed
+						case "KeyM":
+							adjustPlaybackRate(-0.25);
+							break;
+						case "Comma":
+							adjustPlaybackRate(0.25);
+							break;
+					}
+				} else {
 					switch (ev.code) {
 						case "Space":
 						case "KeyK":
@@ -387,14 +434,16 @@ export function MediaControls({
 			// BUG: this might not always work, is there a better way?
 			//      (also it scrolls down a bit on mobile, likely because of the navbar)
 			if (fullscreen) {
-				screen.orientation.lock("landscape").catch(console.error);
+				screen.orientation
+					.lock("landscape")
+					.catch((e) => console.warn("Failed to lock orientation:", e));
 			} else {
-				screen.orientation.unlock();
 				const scrollTo = prevScroll.value;
 				if (scrollTo >= 0) {
 					setTimeout(() => window.scroll(0, scrollTo), 100);
 					prevScroll.value = -1;
 				}
+				screen.orientation.unlock();
 			}
 		});
 	});
@@ -410,6 +459,10 @@ export function MediaControls({
 			let tapsSinceBlock = -1;
 
 			on("pointerdown", (ev) => {
+				if (ev.button !== 0) {
+					return;
+				}
+
 				const now = performance.now();
 				isDoubleClick = now - prevClickTime < 500;
 				prevClickTime = isDoubleClick && tapsSinceBlock !== 0 && tapsSinceBlock !== 1 ? -1 : now;
@@ -428,7 +481,7 @@ export function MediaControls({
 
 			on("pointerup", (ev) => {
 				// Additional tap actions on mobile
-				if (!isHolding) {
+				if (!isHolding || ev.button !== 0) {
 					return;
 				}
 
@@ -525,9 +578,9 @@ export function MediaControls({
 						{mutedVolume !== undefined || volume <= 0 ? (
 							<MutedIcon />
 						) : volume >= 0.5 ? (
-							<HighVolumeIcon />
+							<VolumeHighIcon />
 						) : (
-							<LowVolumeIcon />
+							<VolumeLowIcon />
 						)}
 					</button>
 					<Slider
@@ -569,6 +622,25 @@ export function MediaControls({
 								onChange={() => {
 									if (media.value) {
 										media.value.loop = !media.value.loop;
+									}
+								}}
+							/>
+						</label>
+						<label>
+							{/* TODO: make this a submenu */}
+							<PlaybackRateIcon />
+							<span>Playback Speed</span>
+							<span class={styles["playback-rate"]}>{truncate(playbackRate, 2)}x</span>
+							<Slider
+								min={0.25}
+								max={4}
+								step={0.05}
+								value={playbackRate}
+								alwaysShowThumb
+								onDrag={({ newValue }) => {
+									if (media.value) {
+										media.value.playbackRate = newValue;
+										setPlaybackRate(newValue);
 									}
 								}}
 							/>
