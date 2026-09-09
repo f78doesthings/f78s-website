@@ -20,6 +20,7 @@ import CircleFlagsBe from "~icons/circle-flags/be";
 import SimpleIconsSoundcloud from "~icons/simple-icons/soundcloud";
 import SimpleIconsYoutube from "~icons/simple-icons/youtube";
 import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
+import TextEffects from "../components/utils/TextEffects.astro";
 
 const links = await getCollection("links");
 
@@ -51,7 +52,7 @@ const miscLinks: Omit<LinkData, "order">[] = [
 		<div>
 			<h1>Hi there!</h1>
 			<p>
-				I'm <strong class="my-name">f78</strong>
+				I'm <TextEffects type="gradient" class="my-name">f78</TextEffects>
 				<small> (usually pronounced eff-seven-eight)</small>, a 22-year-old guy from <strong
 					><CircleFlagsBe /> Belgium</strong
 				> who's currently studying programming at college. In my spare time I like to do stuff like playing
@@ -168,48 +169,10 @@ const miscLinks: Omit<LinkData, "order">[] = [
 		font-size: 1.0625rem;
 		font-family: var(--font-heading), sans-serif;
 		font-weight: 800;
-		color: color-mix(in oklch, var(--start-color), var(--end-color));
 
 		@include preferences("light") {
 			--start-color: #{$red-650};
 			--end-color: #{$red-550};
-		}
-
-		// Subtle gradient animation
-		@include preferences("fx") {
-			position: relative;
-			background-image: linear-gradient(
-				to right,
-				var(--start-color),
-				var(--end-color),
-				var(--start-color),
-				var(--end-color)
-			);
-			background-size: 300%;
-			background-clip: text;
-			color: transparent;
-			animation: name-animation 5s infinite linear;
-
-			&::after {
-				content: "f78";
-				position: absolute;
-				top: 0;
-				left: 0;
-
-				background: inherit;
-				filter: blur(0.1875rem);
-				opacity: 0.3;
-			}
-
-			@keyframes name-animation {
-				from {
-					background-position: 0;
-				}
-
-				to {
-					background-position: 100%;
-				}
-			}
 		}
 	}
 </style>

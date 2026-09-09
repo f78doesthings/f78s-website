@@ -51,6 +51,9 @@ export default defineConfig({
 	experimental: {
 		contentIntellisense: true,
 	},
+	prefetch: {
+		defaultStrategy: "tap",
+	},
 	integrations: [mdx(), sitemap(), preact()],
 	env: {
 		schema: {

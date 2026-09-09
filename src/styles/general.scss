@@ -247,6 +247,12 @@ abbr[title] {
 	text-underline-offset: size(3, true);
 }
 
+.text-icon {
+	font-size: size(24, true);
+	line-height: 0;
+	vertical-align: middle;
+}
+
 small,
 figcaption {
 	color: var(--color-dim);
@@ -407,6 +413,20 @@ main {
 	line-height: 1.25;
 	container: main / inline-size;
 
+	.side-by-side {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(size(288), 1fr));
+		gap: size(12);
+
+		figure {
+			margin: 0;
+		}
+
+		> * > :is(h1, h2, h3, h4, h5, h6):first-child {
+			margin-top: size(4);
+		}
+	}
+
 	@media print {
 		padding: 0;
 	}
@@ -444,20 +464,6 @@ main {
 			overflow: hidden;
 
 			box-shadow: $glass-shadow;
-		}
-
-		.side-by-side {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: $page-margin;
-
-			figure {
-				margin: 0;
-			}
-
-			> * > :is(h1, h2, h3, h4, h5, h6):first-child {
-				margin-top: size(4);
-			}
 		}
 
 		.section-with-image {
@@ -538,7 +544,8 @@ main {
 			margin-top: 0;
 		}
 
-		> :last-child {
+		> :last-child,
+		> :nth-last-child(2):has(+ :empty) {
 			margin-bottom: 0;
 		}
 

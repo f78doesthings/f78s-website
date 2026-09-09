@@ -31,6 +31,7 @@ const { type, ...props } = Astro.props;
 	@use "../../styles/utils" as *;
 
 	.text-effects {
+		display: inline-block; // Prevent text wrapping from screwing everything up
 		position: relative;
 		font-style: normal;
 
@@ -51,10 +52,6 @@ const { type, ...props } = Astro.props;
 				background-clip: text;
 				color: transparent;
 				animation: gradient-animation 5s infinite linear;
-
-				&::after {
-					content: attr(data-text);
-				}
 
 				@keyframes gradient-animation {
 					from {

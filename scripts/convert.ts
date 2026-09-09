@@ -44,7 +44,9 @@ interface Format {
 	outputExtension: string;
 }
 
-const aacEncoders = ["aac_at", "libfdk_aac", "aac"];
+const aacEncoders = ["aac_at", "libfdk_aac", "aac", "none"];
+const losslessAudioFormats = ["flac", "alac", "wav", "aif", "aiff"];
+const lossyAudioFormats = ["mp3", "m4a", "ogg", "opus"];
 
 program
 	.name("npm run convert --")
@@ -52,13 +54,14 @@ program
 	.argument("<inputs...>", "The input files to convert.")
 	.requiredOption("-o, --output-dir <output>", "The directory to place the converted files in.")
 	.option(
-		"-A, --aac-encoder <encoder>",
+		"-a, --aac-encoder <encoder>",
 		"The AAC encoder to use. Refer to the FFmpeg AAC encoding guide for more information.\n" +
 			'- "aac_at" generally provides the best quality, but is only natively supported on Mac.\n' +
 			'- "libfdk_aac" also offers excellent quality and works on all platforms, but is considered "non-free" ' +
 			"and therefore not included in some FFmpeg builds.\n" +
 			'- "aac" is FFmpeg\'s built-in AAC encoder, and is therefore always available. ' +
-			"Unfortunately, its quality tends to be quite poor.",
+			"Unfortunately, its quality tends to be quite poor." +
+			'- "none" is a custom setting that removes the audio stream entirely, similar to `-an` in FFmpeg.',
 		"libfdk_aac",
 	)
 	.option("-F, --ffmpeg-path <path>", 'The path to the "ffmpeg" executable.', "ffmpeg")
@@ -70,18 +73,19 @@ program
 			return;
 		}
 
-		const h264Flags = "-c:v libx264 -crf 28 -preset:v veryslow -profile:v main -pix_fmt yuv420p";
-		const aacFlags = `-c:a ${aacEncoder} -b:a 128k -ar 44100 -movflags +faststart`;
+		const h264Flags =
+			"-c:v libx264 -crf 28 -preset:v veryslow -profile:v main -r 60 -pix_fmt yuv420p";
+		const aacFlags = `-c:a ${aacEncoder === "none" ? "libfdk_aac" : aacEncoder} -b:a 128k -ar 44100 -movflags +faststart`;
 
 		/** @see {@linkcode Format} */
 		const formats: Format[] = [
 			{
-				inputFormats: ["mp4", "mkv"],
-				outputCommand: `${h264Flags} ${aacFlags}`,
+				inputFormats: ["mp4", "mkv", "webm", "mov", "flv"],
+				outputCommand: `${h264Flags} ${aacEncoder === "none" ? "-an" : aacFlags}`,
 				outputExtension: "mp4",
 			},
 			{
-				inputFormats: ["flac", "wav", "mp3"],
+				inputFormats: losslessAudioFormats.concat(lossyAudioFormats),
 				outputCommand: aacFlags,
 				outputExtension: "m4a",
 			},
@@ -99,7 +103,7 @@ program
 				continue;
 			}
 
-			if (inputType === "mp3") {
+			if (lossyAudioFormats.includes(inputType)) {
 				consola.warn(
 					"File",
 					a.yellow(inputPath),
