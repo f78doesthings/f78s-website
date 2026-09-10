@@ -98,7 +98,7 @@ export function Slider({
 	const updatePrimaryFill = (newValue = value) => {
 		if (primaryFill.current && !beingDragged) {
 			const percent = (newValue - min) / (max - min);
-			primaryFill.current.style.setProperty("--fill-percent", `${percent}`);
+			primaryFill.current.style.setProperty("--fill-percent", `${clamp(percent, 0, 1)}`);
 		}
 	};
 
@@ -148,7 +148,7 @@ export function Slider({
 		updatePrimaryFill(value);
 		if (secondaryValue !== undefined && isFinite(secondaryValue) && secondaryFill.current) {
 			const percent = (secondaryValue - min) / (max - min);
-			secondaryFill.current.style.setProperty("--fill-percent", `${percent}`);
+			secondaryFill.current.style.setProperty("--fill-percent", `${clamp(percent, 0, 1)}`);
 		}
 	}, [value, secondaryValue, min, max]);
 
@@ -160,10 +160,10 @@ export function Slider({
 			{...cid}
 		>
 			<div class={styles.track}>
+				<div class={styles["secondary-fill"]} ref={secondaryFill}></div>
 				<div class={styles["primary-fill"]} ref={primaryFill}>
 					<div class={styles.thumb} ref={sliderThumb}></div>
 				</div>
-				<div class={styles["secondary-fill"]} ref={secondaryFill}></div>
 			</div>
 		</div>
 	);

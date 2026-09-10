@@ -9,26 +9,24 @@
 
 // A (currently simple) audio player.
 
-import type { MediaInfo, Replace } from "../../../types.ts";
 import type { HTMLAttributes } from "astro/types";
+import type { MediaInfo, Replace } from "../../../types.ts";
 import { resolveMedia } from "../../../server-utils";
 import { AudioPlayerClient } from "./AudioPlayerClient.tsx";
 
 type Props = Replace<HTMLAttributes<"audio">, MediaInfo>;
 
-const { src, license = "CC-BY-SA-4.0", ...props } = Astro.props;
+const { src, ...props } = Astro.props;
 const resolvedSrc = await resolveMedia(src);
 if (!resolvedSrc) {
-	throw new Error(`Could not resolve media source: ${src}`);
+	throw new Error(`Could not resolve audio source: ${src}`);
 }
 
 // `as any` added to hide error messages from Astro/Preact attribute incompatibility (not ideal)
 ---
 
-<figure>
-	<AudioPlayerClient client:visible src={resolvedSrc} license={license} {...props as any}
-		><slot /></AudioPlayerClient
-	>
+<figure class="media-player">
+	<AudioPlayerClient client:visible src={resolvedSrc} {...props as any} />
 	<figcaption>
 		<slot />
 	</figcaption>

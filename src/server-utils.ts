@@ -8,29 +8,29 @@
 
 // A bunch of miscellaneous server-side utilities.
 
-import * as child_process from "node:child_process";
-import * as fs from "node:fs";
-
 import type { UnresolvedImageTransform } from "astro";
+import { getCollection } from "astro:content";
+import simpleGit from "simple-git";
 
-import type { MediaSource } from "./types.ts";
+import type { MediaSource, VersionInfo } from "./types.ts";
 
-export function getModifiedTime(filePath: string) {
-	try {
-		// Use file system modification date in a development environment
-		if (import.meta.env.DEV) {
-			const stats = fs.statSync(filePath);
-			return stats.mtime.toISOString();
-		}
+export const git = simpleGit();
 
-		const result = child_process.execSync(`git log -1 --pretty="format:%cI" "${filePath}"`, {
-			encoding: "utf-8",
-		});
-		return result || new Date().toISOString();
-	} catch (e) {
-		console.warn("Failed to get last modified time:\n ", e);
-		return new Date().toISOString(); // Fall back to today
-	}
+export async function getVersions() {
+	const collection = await getCollection("versions");
+	const versions: (VersionInfo & Record<string, never>)[] = collection.map((v) => v.data);
+
+	versions.sort((a, b) => {
+		// Handle undefined
+		if (!a.date && !b.date) return 0;
+		if (!a.date) return 1;
+		if (!b.date) return -1;
+
+		// Sort by date, newest first (this works because the ISO 8601 format is sortable)
+		return b.date.localeCompare(a.date);
+	});
+
+	return versions;
 }
 
 export async function getImageMetadata(src: UnresolvedImageTransform["src"]) {

@@ -34,7 +34,6 @@ export function createMediaContext(media: HTMLMediaElement): MediaContext | unde
 		// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 		const source = audioContext.value.createMediaElementSource(media);
 		const amplifier = audioContext.value.createGain();
-		amplifier.gain.value = 0.5;
 		source.connect(amplifier);
 		amplifier.connect(audioContext.value.destination);
 
@@ -55,6 +54,7 @@ export function createMediaContext(media: HTMLMediaElement): MediaContext | unde
 		media.addEventListener("play", () => setPlaying(true));
 		media.addEventListener("pause", () => setPlaying(false));
 		media.addEventListener("ended", () => setPlaying(false));
+		void setPlaying(!media.paused);
 
 		return {
 			context: audioContext.value,

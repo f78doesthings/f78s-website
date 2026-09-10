@@ -18,7 +18,7 @@ import type { MarkdownHeading } from "astro";
 type Props = CollectionEntry<"blog">["data"] & {
 	isBlog?: boolean;
 	lastModified?: Date;
-	readingTime?: string;
+	minutesRead?: number;
 	headings?: MarkdownHeading[];
 };
 
@@ -27,6 +27,7 @@ const {
 	description,
 	pubDate,
 	draft,
+	discussionId,
 	heroImage,
 	heroAlt,
 	heroDescription,
@@ -37,7 +38,7 @@ const {
 
 	isBlog = true,
 	lastModified,
-	readingTime,
+	minutesRead,
 	headings,
 	...cid
 } = Astro.props;
@@ -50,6 +51,7 @@ const {
 	isBlog={isBlog}
 	lastModified={lastModified}
 	headings={headings}
+	discussionId={discussionId && `Blog post: ${discussionId}`}
 >
 	<article>
 		<header>
@@ -78,8 +80,7 @@ const {
 				{
 					draft ? (
 						<p>
-							<FluentEdit20Regular />
-							Draft
+							<FluentEdit20Regular /> Draft
 						</p>
 					) : (
 						<FormattedDate date={pubDate} format={{ dateStyle: "full" }}>
@@ -88,14 +89,10 @@ const {
 					)
 				}
 				<span class="separator">&bullet;</span>
-				{
-					readingTime && (
-						<p>
-							<FluentClock20Regular />
-							{readingTime}
-						</p>
-					)
-				}
+				<p>
+					<FluentClock20Regular />{" "}
+					{minutesRead !== undefined ? `${minutesRead} minute read` : "Read time unavailable"}
+				</p>
 			</div>
 		</header>
 
@@ -116,7 +113,7 @@ const {
 		text-align: center;
 		color: var(--color-dim);
 
-		:global(> figure) {
+		> :global(.main-image) {
 			margin: 0;
 
 			> picture {

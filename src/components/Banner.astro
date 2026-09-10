@@ -10,48 +10,58 @@
 // Displays a banner on the top of the page.
 
 interface Props {
-	id: string;
+	/**
+	 * The ID of the banner, used to remember which banners have been dismissed by the user.
+	 *
+	 * If this is omitted, the banner cannot be hidden.
+	 */
+	id?: string;
 }
 
 const { id } = Astro.props;
 ---
 
-<div data-banner={id}>
+<div data-banner={id ?? ""} class:list={{ visible: id === undefined }}>
 	<slot />
-	<button>
-		<slot name="dismiss-button">Got it!</slot>
-	</button>
+	{
+		id && (
+			<button>
+				<slot name="dismiss-button">Got it!</slot>
+			</button>
+		)
+	}
 </div>
 
 <script>
+	import { defineDevTool } from "../scripts/utils/dev-tools";
 	import { getStorageItem } from "../scripts/utils/storage-utils";
+
+	const DISMISSED_BANNERS_KEY = "dismissedBanners";
 
 	function setupBanners() {
 		const banners = document.querySelectorAll<HTMLElement>("[data-banner]");
+		const dismissedBanners =
+			getStorageItem<string[]>(
+				DISMISSED_BANNERS_KEY,
+				(value) => Array.isArray(value) && value.every((item) => typeof item === "string"),
+			) ?? [];
+
 		for (const banner of banners) {
 			const bannerButton = banner?.querySelector("button");
-			if (!bannerButton) {
-				console.warn("Banner has no button:", banner);
-				continue;
-			}
-
 			const id = banner.dataset.banner;
-			if (!id) {
-				console.warn("Banner has no ID:", id);
+			if (!bannerButton || !id) {
+				// The banner is not dismissible
 				continue;
 			}
-
-			const dismissedBanners = getStorageItem<string[]>("dismissedBanners", Array.isArray) ?? [];
 
 			if (!dismissedBanners.includes(id)) {
 				banner.classList.add("visible");
-
 				bannerButton.addEventListener(
 					"click",
 					() => {
 						banner.classList.remove("visible");
 						dismissedBanners.push(id);
-						localStorage.setItem("dismissedBanners", JSON.stringify(dismissedBanners));
+						localStorage.setItem(DISMISSED_BANNERS_KEY, JSON.stringify(dismissedBanners));
 					},
 					{ once: true },
 				);
@@ -61,6 +71,10 @@ const { id } = Astro.props;
 
 	document.addEventListener("astro:after-swap", setupBanners);
 	setupBanners();
+	defineDevTool("resetBanners", () => {
+		localStorage.removeItem(DISMISSED_BANNERS_KEY);
+		console.info("Successfully reset dismissed banners. Refresh to see the effect.");
+	});
 </script>
 
 <style lang="scss">
@@ -72,7 +86,7 @@ const { id } = Astro.props;
 		$banner-alpha: 88%;
 
 		position: sticky;
-		top: size(60);
+		top: $header-height;
 
 		width: 100%;
 		display: none;
@@ -82,7 +96,7 @@ const { id } = Astro.props;
 		gap: size(8);
 		padding: size(10) $page-margin;
 		margin: 0 (-$page-margin);
-		z-index: 900;
+		z-index: 1900;
 
 		background: linear-gradient(
 			color.change($red-850, $alpha: $banner-alpha),
@@ -99,9 +113,9 @@ const { id } = Astro.props;
 			}
 		}
 
-		:global([data-icon]),
-		button {
+		> :global([data-icon]) {
 			flex-shrink: 0;
+			font-size: size(20);
 		}
 
 		:global(a) {
@@ -133,6 +147,7 @@ const { id } = Astro.props;
 			--hover-text: #{$red-950};
 
 			padding: size(4) size(10);
+			flex-shrink: 0;
 
 			background-color: transparent;
 			border: 1px solid color-mix(in srgb, var(--color-heading), transparent 50%);
@@ -157,6 +172,17 @@ const { id } = Astro.props;
 		}
 
 		@include glass;
+		box-shadow: none;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: size(20);
+			background: linear-gradient(hsl(0deg 0% 0% / 5%), transparent);
+		}
 
 		@include preferences("light") {
 			background: linear-gradient(
@@ -167,10 +193,6 @@ const { id } = Astro.props;
 			button {
 				--hover-text: #{$red-150};
 			}
-		}
-
-		@media (min-width: $breakpoint-desktop) {
-			top: 0;
 		}
 	}
 </style>

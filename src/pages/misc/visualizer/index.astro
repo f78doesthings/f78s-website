@@ -1,0 +1,145 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { resolveMedia } from "../../../server-utils";
+import { VisualizerApp } from "./_VisualizerApp";
+import AudioFileIcon from "~icons/material-symbols-light/audio-file-outline-rounded";
+
+const demos = [
+	[
+		"f78 - gaze upon the stars",
+		//@ts-ignore - I don't know why it's upset, it works fine...
+		import("../../../content/blog/gaze-upon-the-stars/assets/audio/gaze-upon-the-stars.m4a"),
+	],
+	[
+		"f78 - starting up",
+		//@ts-ignore
+		import("../../../content/blog/starting-up/assets/audio/starting-up.m4a"),
+	],
+] as const;
+const demoSources: [name: string, src: string][] = [];
+
+for (const [name, media] of demos) {
+	const src = await resolveMedia(media);
+	if (src) {
+		demoSources.push([name, src]);
+	}
+}
+---
+
+<BaseLayout title="Visualizer Playground">
+	<h1>The Visualizer Playground</h1>
+	<p>
+		Here you can choose any audio file you want <small>(so long as your browser supports it)</small
+		>, and experience it with the audio visualizers I created for this website. Keep in mind that
+		these visualizers are still experimental.
+	</p>
+	<VisualizerApp client:load demoSources={demoSources} />
+	<p>
+		<small>Settings will be added here in the future.</small>
+	</p>
+
+	<div class="file-drop-overlay" slot="overlay">
+		<div class="container">
+			<AudioFileIcon />
+			Drop an audio file here to load it
+		</div>
+	</div>
+</BaseLayout>
+
+<style lang="scss" is:global>
+	@use "../../../styles/utils" as *;
+	@use "../../../styles/colors" as *;
+	@use "sass:color";
+
+	.demos {
+		display: flex;
+		flex-wrap: wrap;
+		margin-block: size(8);
+
+		button {
+			transition: color $anim-fade;
+		}
+
+		.selected-demo {
+			color: $red-450;
+
+			@include preferences("light") {
+				color: $red-700;
+			}
+		}
+	}
+
+	.file-drop-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 3000;
+		pointer-events: none;
+
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: $page-margin;
+
+		background: radial-gradient(
+			color.change($mauve-900, $alpha: 0.8),
+			color.change($mauve-975, $alpha: 0.85)
+		);
+		opacity: 0;
+		transition:
+			opacity $anim-fade,
+			backdrop-filter $anim-fade;
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+
+			width: 100%;
+			height: 100%;
+
+			border: size(4) dashed $red-500;
+			border-radius: $page-margin;
+
+			transition: transform $anim-fade;
+
+			@include preferences("fx") {
+				transform: scale(97.5%) perspective(100vmax) rotateX(1.5deg);
+			}
+		}
+
+		[data-icon] {
+			font-size: size(48);
+			margin-bottom: size(8);
+		}
+
+		@include preferences("light") {
+			background: radial-gradient(
+				color.adjust($mauve-100, $alpha: 0.8),
+				color.adjust($mauve-25, $alpha: 0.85)
+			);
+		}
+
+		body.dragging-file > & {
+			opacity: 1;
+
+			@include preferences("fx") {
+				backdrop-filter: blur(size(12));
+
+				.container {
+					transform: scale(100%) perspective(100vmax);
+				}
+			}
+		}
+	}
+</style>

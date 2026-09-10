@@ -15,25 +15,28 @@
 			border-radius: size(16);
 		}
 
-		.visualizer {
+		.visualizer.fullscreen-only {
 			display: none;
 		}
 	}
 }
 
 .video-player-content {
+	position: relative;
 	display: flex;
 	flex-direction: column;
+	max-height: 100%;
 
 	.video {
 		width: 100%;
+		min-height: 0;
 		height: auto;
 	}
 
 	.visualizer {
 		width: 100%;
 		flex-grow: 1;
-		min-height: 0;
+		min-height: 25svh;
 		max-height: calc(50svh - 10svw);
 	}
 }

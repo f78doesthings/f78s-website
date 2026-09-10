@@ -12,7 +12,7 @@
 import type { HTMLAttributes } from "astro/types";
 import type { MediaInfo, Replace } from "../../../types.ts";
 import { resolveMedia } from "../../../server-utils";
-import { VideoPlayerClient } from "./VideoPlayerClient";
+import { VideoPlayerClient } from "./VideoPlayerClient.tsx";
 
 type Props = Replace<
 	HTMLAttributes<"video">,
@@ -25,15 +25,17 @@ type Props = Replace<
 	}
 >;
 
-const { src, license = "CC-BY-SA-4.0", ...props } = Astro.props;
+const { src, ...props } = Astro.props;
 const resolvedSrc = await resolveMedia(src);
 if (!resolvedSrc) {
-	throw new Error(`Could not resolve media source: ${src}`);
+	throw new Error(`Could not resolve video source: ${src}`);
 }
+
+// `as any` added to hide error messages from Astro/Preact attribute incompatibility (not ideal)
 ---
 
-<figure>
-	<VideoPlayerClient client:visible src={resolvedSrc} license={license} {...props as any} />
+<figure class="media-player">
+	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any} />
 	<figcaption>
 		<slot />
 	</figcaption>

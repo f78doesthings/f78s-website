@@ -21,12 +21,21 @@ interface Props extends MediaProps {
 
 // TODO: image zooming and panning
 function InnerImageViewer(props: Props) {
-	const { children: _children, ...imgProps } = props;
+	const { alt, width, height, ...mediaProps } = props;
 	const [supported, setSupported] = useState(true);
 
 	return (
-		<MediaViewer props={props}>
-			{supported && <img class={styles.image} {...imgProps} onError={() => setSupported(false)} />}
+		<MediaViewer props={mediaProps}>
+			{supported && (
+				<img
+					class={styles.image}
+					src={mediaProps.src}
+					alt={alt}
+					width={width}
+					height={height}
+					onError={() => setSupported(false)}
+				/>
+			)}
 			{!supported && (
 				<div class={styles.error}>
 					<FluentErrorCircle48Regular />

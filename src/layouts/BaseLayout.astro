@@ -10,19 +10,27 @@
 import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
 import "../styles/general.scss";
-import { BLOG_TITLE, LICENSES, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.tsx";
+import {
+	BLOG_TITLE,
+	IS_DEV,
+	LICENSES,
+	SITE_AUTHOR,
+	SITE_LANGUAGE,
+	SITE_TITLE,
+} from "../consts.tsx";
 import Header from "../components/nav/Header.astro";
 import { ClientRouter } from "astro:transitions";
 import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
-import FluentCalendarClock20Regular from "~icons/fluent/calendar-clock-20-regular";
-import NotoConstruction from "~icons/noto/construction";
+import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
+import ConstructionEmoji from "~icons/noto/construction";
+import DragonEmoji from "~icons/noto/dragon";
 import Banner from "../components/Banner.astro";
+import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
+import { SITE_VERSION } from "astro:env/client";
 
-interface Props extends Partial<
-	Omit<MarkdownLayoutProps<Record<string, unknown>>, "rawContent" | "compiledContent">
-> {
+interface CommonProps {
 	/** The title of the page. */
 	title?: string;
 
@@ -40,23 +48,31 @@ interface Props extends Partial<
 	isBlog?: boolean;
 
 	/** When this page was last updated. */
-	lastModified?: Date;
+	lastModified?: unknown;
+
+	/** A unique, persistent ID that is used to display a GitHub discussion using `giscus`. */
+	discussionId?: string;
 }
 
+type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
+	CommonProps;
+
 const {
-	title,
-	description,
-	image,
-	isBlog = false,
-	lastModified,
 	headings,
 	frontmatter,
+	title = frontmatter?.title,
+	description = frontmatter?.description,
+	image = frontmatter?.image,
+	isBlog = frontmatter?.isBlog,
+	lastModified = frontmatter?.lastModified,
+	discussionId,
 } = Astro.props;
 
-const siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
-let lastModifiedDate = lastModified;
-if (!lastModifiedDate && typeof frontmatter?.lastModified === "string") {
-	lastModifiedDate = new Date(frontmatter.lastModified);
+let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
+const url = new URL(Astro.url);
+if (IS_DEV) {
+	siteTitle += " [DEV BUILD]";
+	url.hostname = "dev.f78.be";
 }
 
 const contentLicense = LICENSES["CC-BY-SA-4.0"];
@@ -90,16 +106,17 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 		<meta name="theme-color" content="#f11325" />
 
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url} />
+		<meta property="og:url" content={url} />
+		<meta property="og:site_name" content={siteTitle} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		{image && <meta property="og:image" content={new URL(image.src, Astro.url)} />}
+		{image && <meta property="og:image" content={new URL(image.src, url)} />}
 
 		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
+		<meta property="twitter:url" content={url} />
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
-		{image && <meta property="twitter:image" content={new URL(image.src, Astro.url)} />}
+		{image && <meta property="twitter:image" content={new URL(image.src, url)} />}
 
 		{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
 		<Font cssVariable="--font-body" preload />
@@ -113,27 +130,77 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 	<body>
 		<div class="loading-bar" transition:persist></div>
 
-		<Header headings={headings} />
+		<Header
+			headings={headings}
+			showTopHeading={isBlog}
+			showDiscussHeading={discussionId !== undefined}
+		/>
 
-		<Banner id="under-construction">
-			<NotoConstruction />
-			<span>
-				This newly revamped version of the website is still being worked on. Report any bugs you
-				find on <Link href="https://github.com/f78doesthings/f78s-website/issues" external
-					>GitHub</Link
-				>.
-			</span>
-		</Banner>
+		{
+			/* prettier-ignore */
+			IS_DEV ? (
+				<Banner id={`dev-build+${SITE_VERSION}`}>
+					<DragonEmoji title="Here be dragons." />
+					<span>
+						This is a <Link href="/version">development build</Link> of the website.
+						Issues are to be expected, and should be reported on{" "}
+						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+					</span>
+				</Banner>
+			) : (
+				<Banner id="under-construction">
+					<ConstructionEmoji />
+					<span>
+						This newly revamped version of the website is still being worked on. Report any bugs you
+						find on{" "}
+						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+					</span>
+				</Banner>
+			)
+		}
 
 		<main>
 			<slot />
+			{
+				discussionId && (
+					<section id="comments">
+						<h2>Comments</h2>
+						<script
+							is:inline
+							data-astro-rerun
+							src="https://giscus.app/client.js"
+							data-repo="f78doesthings/f78s-website"
+							data-repo-id="R_kgDOSI1PSA"
+							data-category="Page discussions"
+							data-category-id="DIC_kwDOSI1PSM4DFNKN"
+							data-mapping="specific"
+							data-term={discussionId}
+							data-strict="1"
+							data-reactions-enabled="1"
+							data-emit-metadata="0"
+							data-input-position="top"
+							data-theme="preferred_color_scheme"
+							data-lang="en"
+							data-loading="lazy"
+							crossorigin="anonymous"
+							async
+						/>
+						<p class="discussion-id">
+							Discussion name: <b>{discussionId}</b> &bullet; Powered by{" "}
+							<Link href="https://giscus.app" external>
+								giscus
+							</Link>{" "}
+						</p>
+					</section>
+				)
+			}
 		</main>
 
 		<footer>
 			{
-				lastModifiedDate && (
-					<FormattedDate date={lastModifiedDate}>
-						<FluentCalendarClock20Regular slot="icon" />
+				lastModified && (
+					<FormattedDate date={lastModified}>
+						<LastUpdatedIcon slot="icon" />
 						<Fragment slot="before">Last updated:</Fragment>
 					</FormattedDate>
 				)
@@ -141,22 +208,20 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 			<slot name="footer" />
 			<p>
 				<small>
-					The content of this site is available under the
-					<Link href={LICENSES["CC-BY-SA-4.0"].url} external>
-						<LicenseIcons />
-						{contentLicense.title}
-					</Link>
-					licence.
+					The content of this site is available under the <Link
+						href={LICENSES["CC-BY-SA-4.0"].url}
+						external><LicenseIcons /> {contentLicense.title}</Link
+					> licence.
 				</small>
 			</p>
 			{/* TODO: can I add a link to the page's source code on GitHub here? */}
 		</footer>
 
-		<canvas class="immersive-background" transition:persist></canvas>
+		<ImmersiveBackground client:idle transition:persist />
 		<div class="debug-display" transition:persist></div>
 		<div id="media-viewer-root"></div>
+		<slot name="overlay" />
 	</body>
 </html>
 
 <script src="../scripts/client-init.ts"></script>
-<script src="../scripts/immersive-background/index.ts"></script>

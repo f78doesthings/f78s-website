@@ -31,6 +31,9 @@ interface Props {
 
 	/** Disables the mobile layout. */
 	noMobile?: boolean;
+
+	/** Always show this control, even if the preference has unmet dependencies. */
+	alwaysShow?: boolean;
 }
 
 const {
@@ -38,6 +41,7 @@ const {
 	showTitle,
 	showDescription = false,
 	showIcon = false,
+	alwaysShow = false,
 	noMobile,
 	...cid
 } = Astro.props;
@@ -114,16 +118,19 @@ function gridTemplate(areas: typeof gridAreas, columns: typeof gridColumns) {
 	return template;
 }
 
-const dependencyVars = getDependencyString(preference.dependencies);
 const PreferenceIcon = preference.icon ?? (() => undefined);
+const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
+// TODO: this probably needs refactoring at some point
 ---
 
 <label
 	{...cid}
-	hidden={dependencyVars !== undefined}
+	hidden={hasDependencies}
 	aria-label={preference.title}
 	data-preference-control={id}
-	data-preference-dependencies={dependencyVars}
+	data-preference-dependencies={hasDependencies
+		? getDependencyString(preference.dependencies)
+		: undefined}
 	style={{
 		"--grid": gridTemplate(gridAreas, gridColumns),
 		"--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
@@ -149,7 +156,7 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 		)
 	}
 
-	<InnerPreferenceControl client:load preference={id} {...cid} />
+	<InnerPreferenceControl client:idle preference={id} {...cid} />
 </label>
 
 <script>
@@ -157,7 +164,7 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 	import { dependenciesMet, type MapEntries } from "../../scripts/preferences/utils";
 	import type { NotUndefined } from "../../types";
 
-	document.addEventListener("custom:preferences-updated", () => {
+	function updateDependents() {
 		const dependents = document.querySelectorAll<HTMLElement>("[data-preference-dependencies]");
 		for (const dependent of dependents) {
 			const jsonDependencies = dependent.dataset.preferenceDependencies;
@@ -165,13 +172,31 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 				continue;
 			}
 
-			const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
-			const resolved = dependencies.map(
-				([id, expectedValues]) => [preferences[id], expectedValues] as const,
-			);
-			dependent.hidden = !dependenciesMet(resolved);
+			const ignoreAvailability = dependent.dataset.ignorePreferenceAvailability !== undefined;
+			console.debug(jsonDependencies, ignoreAvailability);
+			try {
+				const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
+				const resolved = dependencies.map(([id, expectedValues]) => {
+					if (!(id in preferences)) {
+						console.warn(
+							"Element",
+							dependent,
+							"depends on unknown preference",
+							`"${id}"`,
+							"and will be hidden.",
+						);
+					}
+					return [preferences[id], expectedValues] as const;
+				});
+				dependent.hidden = !dependenciesMet(resolved, ignoreAvailability);
+			} catch (e) {
+				console.error("Error updating dependency status for", dependent, "\n", e);
+			}
 		}
-	});
+	}
+
+	document.addEventListener("custom:preferences-updated", updateDependents);
+	updateDependents();
 </script>
 
 <style lang="scss">
@@ -189,6 +214,11 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 		cursor: pointer;
 
 		@include bounce-anim;
+
+		:not(.sidebar) > & > .title {
+			font-family: var(--font-heading), sans-serif;
+			font-size: size(17);
+		}
 
 		@media not (min-width: $breakpoint-desktop) {
 			&.mobile-rearrange {
@@ -211,8 +241,6 @@ const PreferenceIcon = preference.icon ?? (() => undefined);
 
 		.title {
 			grid-area: title;
-			font-family: var(--font-heading), sans-serif;
-			font-size: size(17);
 		}
 
 		.description {

@@ -1,12 +1,11 @@
 # [f78's website](https://www.f78.be)
 
-The third version of my website. It isn't quite finished yet, and may therefore contain some issues.
-This time around I'm using [Astro](https://astro.build), with the final site being deployed to
-Cloudflare Workers _(although that's subject to change because it breaks a few parts of the
-website)_.
-
-This website is loosely based on the
+The third version of my website, this time made using [Astro](https://astro.build) +
+[Preact](https://preactjs.com). It is loosely based on the
 [official Astro blog template](https://github.com/withastro/astro/tree/main/examples/blog).
+
+The final site is currently deployed to Cloudflare Workers, although that's subject to change
+because it breaks a few parts of the website.
 
 _Third time's the charm, right?_
 
@@ -17,7 +16,7 @@ Firefox or Safari**. A decently modern device is also recommended, particularly 
 
 I only test up-to-date versions of Vivaldi (based on **Chromium**) on both **Linux** and
 **Android**, and occasionally Safari on macOS, as well as Firefox. (I do not yet have a way of
-testing on iOS due to the official simulator taking up too much space.)
+testing on iOS due to the official simulator taking up too much disk space.)
 
 That could mean there is a chance an issue might pop up on an older browser, however I also mostly
 stick to features that are
@@ -60,19 +59,47 @@ strike a good balance between compression and quality for each file.
 
 ## Looking to clone this repository?
 
+> [!NOTE]
+> This section may be moved to dedicated contribution guidelines in the future.
+
 There are 2 things you need to keep in mind.
 
 - First, this repository uses
   [Git LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage)
-  to store media files. Make sure to install it properly to get those media files. _(and maybe
-  configure it as well? not sure)_
-- Second, **submodules** are also used for things like the serif font (Edwin).
+  to store media files. If not installed properly, these files will be cloned as Git LFS pointers
+  instead of actual files, which is bound to cause issues.
+  - If you forgot to install it before cloning, or the media files are still Git LFS pointers for
+    some reason, use `git lfs pull`.
+- Second, **submodules** are also used for things like the serif font (Edwin). If you don't clone
+  them, Astro will crash with a file system error.
   - Haven't cloned yet? Then make sure to use `git clone --recurse-submodules`.
   - If you already cloned it and forgot about the submodules, run
     `git submodule update --init --recursive` inside the repository.
 
-To run a local dev server, you can use `npm run dev` as you normally would with Astro. `npm start`
-has also been added as an alias. These scripts have been modified to suit my use case better.
+### Useful scripts
+
+- `npm run dev` (or `npm start`) to start a local dev server
+  - The dev server is exposed to your local network by default, and crashes if the port is in use.
+- `npm run preview` to preview the production site
+  - This now uses Wrangler for previewing, in order to match the production environment more
+    closely.
+- `npm run convert` to encode audio/video files for the website with FFmpeg (see the [Media](#media)
+  section above)
+  - Use `npm run convert -- --help` for syntax.
+- `npm run update-deps` to check for dependency updates (`npx ncu` should also work)
+
+### Branches
+
+> [!NOTE]
+> These branches may be subject to change in the future.
+
+- [`main`](../main) contains the production website that's available at
+  [f78.be](https://www.f78.be).
+- [`dev`](../dev) holds some unfinished changes that are not quite ready for production. While it'll
+  usually be available at [dev.f78.be](https://dev.f78.be), keep in mind that it is likely to have
+  some issues.
+- Other branches are for development purposes and aren't intended to be deployed. They should be merged
+  with one of the above branches when ready.
 
 ## Licence
 
@@ -80,9 +107,10 @@ The content of the website (i.e. the written text and most media I made) is avai
 [Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/)
 unless stated otherwise - see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
 
-Some less significant media is instead dedicated to the public domain. The licence of media files is
-always clearly labelled, either directly below the media or in its corresponding full-screen viewer.
+Some less significant media is instead dedicated to the public domain. The copyright information for
+each media file should be clearly labelled in its corresponding fullscreen viewer; please create an
+issue if this isn't the case.
 
-The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead fall under
-the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best due to
-my lack of Astro experience. You are welcome to make improvements, though.
+The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead falls
+under the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best
+due to my lack of Astro experience. You are welcome to make improvements, though.

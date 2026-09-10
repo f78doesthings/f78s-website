@@ -10,7 +10,7 @@
 // Logo for the site navigation
 
 import avatar from "../../assets/images/avatar.avif";
-import { SITE_TITLE } from "../../consts.tsx";
+import { IS_DEV } from "../../consts";
 import BaseImage from "../media/BaseImage.astro";
 
 const { ...cid } = Astro.props;
@@ -20,8 +20,9 @@ const { ...cid } = Astro.props;
 	<a href="/" {...cid}>
 		<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} priority {...cid} />
 		<span class="title">
-			{SITE_TITLE.split("").map((v) => <span>{v}</span>)}<span>!</span>
+			<span>f</span><span>7</span><span>8</span><span>!</span>
 		</span>
+		{IS_DEV && <span class="dev-badge">DEV</span>}
 	</a>
 </h1>
 
@@ -39,6 +40,12 @@ const { ...cid } = Astro.props;
 		$light-end: $zinc-950
 	) {
 		> :nth-child(#{$index}) {
+			color: $dark-start;
+
+			@include preferences("light") {
+				color: $light-start;
+			}
+
 			@include preferences("fx") {
 				background-image: linear-gradient($dark-start, $dark-end);
 
@@ -48,6 +55,7 @@ const { ...cid } = Astro.props;
 			}
 
 			@include preferences("fx", "light") {
+				color: transparent;
 				background-image: linear-gradient($light-start, $light-end);
 			}
 		}
@@ -57,17 +65,18 @@ const { ...cid } = Astro.props;
 		margin: 0;
 		line-height: 0;
 		font-size: size(30);
-		font-weight: 900;
 
 		picture {
+			margin-right: size(6);
 			border-radius: 100%;
 			overflow: hidden;
 			box-shadow: $glass-shadow;
 		}
 
 		a {
-			gap: size(12);
+			gap: size(6);
 			align-items: center;
+			font-weight: 900;
 		}
 
 		@include bounce-anim($selector: "picture");
@@ -80,13 +89,7 @@ const { ...cid } = Astro.props;
 			> * {
 				display: inline-block;
 				background-clip: text;
-				color: transparent;
-			}
-		}
-
-		@include preferences("no-fx") {
-			> :last-child {
-				display: none;
+				-webkit-text-fill-color: transparent;
 			}
 		}
 
@@ -94,5 +97,17 @@ const { ...cid } = Astro.props;
 		@include letter(2, 1deg);
 		@include letter(3, -1deg);
 		@include letter(4, 6deg, 2px, $red-500, $red-625, $red-600, $red-725);
+	}
+
+	.dev-badge {
+		align-self: flex-start;
+		line-height: normal;
+		font-weight: 400;
+		font-size: size(16);
+		color: $yellow-500;
+
+		@include preferences("light") {
+			color: $yellow-600;
+		}
 	}
 </style>

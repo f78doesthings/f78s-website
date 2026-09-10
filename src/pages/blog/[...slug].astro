@@ -12,9 +12,10 @@
 import type { GetStaticPaths } from "astro";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import { IS_DEV } from "../../consts";
 
 export const getStaticPaths = (async () => {
-	const posts = await getCollection("blog", (post) => import.meta.env.DEV || !post.data.draft);
+	const posts = await getCollection("blog", (post) => IS_DEV || !post.data.draft);
 	return posts.map((post) => ({
 		params: { slug: post.id },
 		props: post satisfies Props,
@@ -26,7 +27,7 @@ type Props = CollectionEntry<"blog">;
 const post = Astro.props;
 const {
 	Content,
-	remarkPluginFrontmatter: { lastModified, readingTime },
+	remarkPluginFrontmatter: { lastModified, minutesRead },
 	headings,
 } = await render(post);
 ---
@@ -34,7 +35,7 @@ const {
 <BlogPost
 	{...post.data}
 	lastModified={lastModified && new Date(lastModified)}
-	readingTime={readingTime}
+	minutesRead={minutesRead}
 	headings={headings}
 >
 	<Content />

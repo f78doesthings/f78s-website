@@ -7,7 +7,7 @@
  */
 
 import type { ComponentChildren, Ref } from "preact";
-import { useRef } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 
 import { wrapRefs } from "../../scripts/utils/preact";
 
@@ -16,6 +16,9 @@ import styles from "./OverlayContainer.module.scss";
 interface Props {
 	/** A reference to the root container. */
 	containerRef?: Ref<HTMLDivElement>; // Cannot be named "ref" due to conflicts
+
+	/** A reference to the content container. */
+	contentRef?: Ref<HTMLDivElement>;
 
 	/** The extra classes to apply to the root container. */
 	containerClass?: string;
@@ -35,6 +38,9 @@ interface Props {
 	/** Show the bottom overlay persistently below the content instead of overlaying. */
 	lockBottom?: boolean;
 
+	/** Called when the overlays are shown or hidden. */
+	onOverlayChange?: (overlaying: boolean) => void;
+
 	/** The content of the top overlay. */
 	top?: ComponentChildren;
 
@@ -52,12 +58,14 @@ interface Props {
 /** Helper component for displaying overlays over an element when the user hovers over it. */
 export function OverlayContainer({
 	containerRef,
+	contentRef,
 	containerClass = "",
 	contentClass = "",
 	focusable,
-	forceOverlays,
+	forceOverlays = false,
 	lockTop,
 	lockBottom,
+	onOverlayChange,
 	top,
 	center,
 	bottom,
@@ -74,13 +82,20 @@ export function OverlayContainer({
 			return;
 		}
 
+		onOverlayChange?.(true);
 		target.classList.add(styles.hovering);
+
 		intervalId.current = window.setTimeout(() => {
 			if (!forceOverlays) {
+				onOverlayChange?.(false);
 				target.classList.remove(styles.hovering);
 			}
 		}, 2750);
 	};
+
+	useEffect(() => {
+		onOverlayChange?.(forceOverlays);
+	}, [forceOverlays]);
 
 	return (
 		<div
@@ -92,9 +107,12 @@ export function OverlayContainer({
 			})}
 			tabindex={focusable ? 0 : undefined}
 			onPointerMove={(ev) => setHovering(ev.currentTarget)}
+			onPointerUp={(ev) => setHovering(ev.currentTarget)}
 		>
 			{top && <div class={`${styles.top} ${lockTop ? "" : styles.overlay}`}>{top}</div>}
-			<div class={`${styles.content} ${contentClass}`}>{children}</div>
+			<div class={`${styles.content} ${contentClass}`} ref={contentRef}>
+				{children}
+			</div>
 			{center && <div class={styles.center}>{center}</div>}
 			{bottom && <div class={`${styles.bottom} ${lockBottom ? "" : styles.overlay}`}>{bottom}</div>}
 		</div>

@@ -11,25 +11,52 @@
 
 import { SITE_LANGUAGE } from "../consts.tsx";
 import FluentCalendarEmpty20Regular from "~icons/fluent/calendar-empty-20-regular";
+import { asDate } from "../scripts/utils";
 
 interface Props {
-	date: Date;
+	/** The date to display. */
+	date?: unknown;
+
+	/** Allows you to override specific format options. */
 	format?: Intl.DateTimeFormatOptions;
+
+	/** Hides the default calendar icon. */
+	noIcon?: boolean;
+
+	/** Shows the time. Seconds are hidden by default; use {@linkcode format.dateStyle} to change this. */
+	showTime?: boolean;
+
+	/** Text to show on hover */
+	tooltip?: string;
 }
 
-const { date, format = { dateStyle: "medium" }, ...cid } = Astro.props;
-const isValidDate = isFinite(date.valueOf());
+const {
+	date: value,
+	tooltip,
+	showTime,
+	noIcon,
+	format = { timeStyle: showTime ? "short" : undefined },
+	...cid
+} = Astro.props;
+
+if (!("dateStyle" in format)) {
+	format.dateStyle = "medium";
+}
+
+const date = asDate(value);
+const isValidDate = date !== undefined && isFinite(date.valueOf());
 
 // TODO: add relative time on the client
 ---
 
-<p class="formatted-date" {...cid}>
+<p class="formatted-date" title={tooltip} {...cid}>
 	<slot name="icon">
-		<FluentCalendarEmpty20Regular />
+		{!noIcon && <FluentCalendarEmpty20Regular />}
 	</slot>
-	<slot name="before" />
+	{!noIcon && " "}
+	<slot name="before" />{" "}
 	<time datetime={isValidDate ? date.toISOString() : undefined}>
-		{date.toLocaleDateString(SITE_LANGUAGE, format)}
+		{date?.toLocaleString(SITE_LANGUAGE, format) ?? "Unknown"}
 	</time>
 	<slot name="after" />
 </p>

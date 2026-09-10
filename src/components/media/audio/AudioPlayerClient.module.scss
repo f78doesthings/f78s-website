@@ -10,6 +10,7 @@
 @use "../../../styles/colors" as *;
 
 .audio-player {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 
@@ -17,10 +18,15 @@
 		color: var(--color-text);
 	}
 
+	.content {
+		position: relative;
+		width: 100%;
+		min-height: 0;
+	}
+
 	.visualizer {
 		width: 100%;
-		height: 30svmin;
-		min-height: 0;
+		height: 100%;
 	}
 
 	.controls {
@@ -36,9 +42,8 @@
 			display: none;
 		}
 
-		.visualizer {
-			border-radius: size(16);
-			overflow: hidden;
+		.content {
+			height: 30svmin;
 		}
 	}
 
@@ -50,7 +55,7 @@
 			padding: $page-margin;
 		}
 
-		.visualizer {
+		.content {
 			height: auto;
 			flex-grow: 1;
 		}

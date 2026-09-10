@@ -6,37 +6,77 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { unified } from "@astrojs/markdown-remark";
+import * as child_process from "node:child_process";
+
+import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
-import { defineConfig, fontProviders, sharpImageService } from "astro/config";
-import { fromHtml } from "hast-util-from-html";
-import rehypeExternalLinks, {
-	type Options as RehypeExternalLinksOptions,
-} from "rehype-external-links";
+import { readingTime } from "@xsynaptic/satteri-reading-time";
+import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
+import consola from "consola";
+import simpleGit from "simple-git";
 import Icons from "unplugin-icons/vite";
 
-import { remarkLastModified } from "./plugins/remark-last-modified.ts";
-import { remarkReadingTime } from "./plugins/remark-reading-time.ts";
+import packageJSON from "./package.json";
+import { satteriHastExternalLinks } from "./plugins/satteri/hast/external-links.ts";
+import { satteriMdastLastModified } from "./plugins/satteri/mdast/last-modified.ts";
 
-/** Converts the string to a hast {@linkcode Element}. */
-function html(...params: Parameters<typeof String.raw>) {
-	const text = String.raw(...params).trim();
-	const tree = fromHtml(text, { fragment: true });
-	return tree.children.find((child) => child.type === "element");
+const git = simpleGit();
+
+function tryExec(command: string) {
+	try {
+		return child_process.execSync(command, { encoding: "utf-8" }).trim();
+	} catch (e) {
+		consola.warn(`Failed to execute "${command}":\n `, e);
+		return undefined;
+	}
 }
+
+const gitBranch = (await git.branch()).current;
+const gitCommit = await git.revparse(["--short", "HEAD"]);
+const gitDate = tryExec("git log -1 --format=%cI HEAD") ?? new Date().toISOString();
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://www.f78.be",
 	redirects: {
+		// Compatibility for the old Jekyll site
+		// (might need to handle this through Cloudflare instead...)
 		"/feed.xml": "/rss.xml",
+
+		// Add `latest` as an alias for the current version
+		"/version/latest": `/version/${packageJSON.version}`,
 	},
 	experimental: {
 		contentIntellisense: true,
 	},
+	prefetch: {
+		defaultStrategy: "tap",
+	},
 	integrations: [mdx(), sitemap(), preact()],
+	env: {
+		schema: {
+			GIT_BRANCH: envField.string({ context: "client", access: "public", default: gitBranch }),
+			GIT_COMMIT: envField.string({ context: "client", access: "public", default: gitCommit }),
+			GIT_COMMIT_DATE: envField.string({ context: "client", access: "public", default: gitDate }),
+			SITE_LICENSE: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.license,
+			}),
+			SITE_REPOSITORY: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.repository,
+			}),
+			SITE_VERSION: envField.string({
+				context: "client",
+				access: "public",
+				default: packageJSON.version,
+			}),
+		},
+	},
 	image: {
 		service: sharpImageService({
 			kernel: "mks2021",
@@ -79,35 +119,16 @@ export default defineConfig({
 		],
 	},
 	markdown: {
-		processor: unified({
-			smartypants: {
-				dashes: "oldschool",
+		processor: satteri({
+			features: {
+				directive: true,
+				headingAttributes: true,
+				smartPunctuation: true,
+				superscript: true,
+				subscript: true,
 			},
-			remarkPlugins: [remarkReadingTime, remarkLastModified],
-			rehypePlugins: [
-				[
-					rehypeExternalLinks,
-					{
-						contentProperties: { class: "external-icon" },
-						rel: ["nofollow", "noopener", "noreferrer"],
-						content: html`
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 16 16"
-								data-icon="fluent:open-16-regular"
-							>
-								<rect width="16" height="16" fill="none" />
-								<path
-									fill="currentColor"
-									d="M4.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5V9.27a.5.5 0 0 1 1 0v2.23a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 11.5v-7A2.5 2.5 0 0 1 4.5 2h2.23a.5.5 0 0 1 0 1zm4.27-.5a.5.5 0 0 1 .5-.5h4.23a.5.5 0 0 1 .5.5v4.23a.5.5 0 0 1-1 0V3.708L9.623 7.084a.5.5 0 1 1-.707-.707L12.293 3H9.269a.5.5 0 0 1-.5-.5"
-								/>
-							</svg>
-						`,
-					} satisfies RehypeExternalLinksOptions,
-				],
-			],
+			hastPlugins: [satteriHastExternalLinks()],
+			mdastPlugins: [readingTime(), satteriMdastLastModified()],
 		}),
 		shikiConfig: {
 			themes: {

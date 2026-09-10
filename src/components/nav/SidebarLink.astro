@@ -15,11 +15,17 @@ interface Props extends HTMLAttributes<"a"> {
 	aliases?: string[];
 }
 
-const { href, aliases = [], ...props } = Astro.props;
-const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
+const { href, aliases = [], class: className, ...props } = Astro.props;
+const isActive = isOnPage(Astro.url, href, ...aliases);
 ---
 
-<a href={href} tabindex="0" {...props} class:list={{ active: isActive }}>
+<a
+	href={href ?? "javascript:;"}
+	tabindex="0"
+	data-hide-sidebar
+	class:list={[className, { active: isActive }]}
+	{...props}
+>
 	<slot />
 	<div class="highlight"></div>
 </a>
@@ -31,10 +37,11 @@ const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
 
 	a {
 		gap: size(14);
-		font-family: var(--font-heading), sans-serif;
-		font-size: size(17);
+		font-weight: 400;
 
-		@include bounce-anim;
+		:global(:not(body > header > nav)) > & {
+			@include bounce-anim;
+		}
 	}
 
 	.highlight {
@@ -47,6 +54,16 @@ const isActive = isOnPage(Astro.url, href ?? "/preferences", ...aliases);
 
 		opacity: 0;
 		transition: opacity $anim-ease;
+
+		:global(body > header > nav) & {
+			width: 100%;
+			height: size(3);
+		}
+
+		:global(body > .sidebar.right) & {
+			right: unset;
+			left: 0;
+		}
 
 		a.active > & {
 			opacity: 1;

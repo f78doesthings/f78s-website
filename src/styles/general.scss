@@ -67,19 +67,16 @@
 	}
 
 	// Make sure the target we're scrolling to is in view (does not account for banners yet)
-	scroll-padding-top: size(80);
-
-	@media (min-width: $breakpoint-desktop) {
-		scroll-padding-top: $page-margin;
-	}
+	scroll-padding-top: calc($header-height + $page-margin);
 
 	// Prevent scrolling when a pop-up is open (for browsers that support :has)
-	&:has(> body > .open, > body > #media-viewer-root > .open) {
+	&:has(> body > #media-viewer-root > .open),
+	&.is-fullscreen {
 		overflow: hidden;
+		scrollbar-gutter: auto;
 	}
 
-	// TODO: this leaves a rather ugly gap on the right (including in fullscreen mode),
-	//       is there a better solution for this?
+	// TODO: this leaves a rather ugly gap on the right, is there a better solution for this?
 	scrollbar-gutter: stable;
 
 	// For older Safari versions
@@ -134,28 +131,31 @@ body {
 		}
 	}
 
-	@media screen and (min-width: $breakpoint-desktop) {
+	// Use grid layout on larger screens
+	@media screen and (min-width: $breakpoint-tablet) {
 		display: grid;
 		place-items: start center;
 		grid-template:
-			"sidebar main"
-			"sidebar footer"
-			/ auto 1fr;
-
-		&:has(> [data-banner].visible) {
-			grid-template:
-				"sidebar banner"
-				"sidebar main"
-				"sidebar footer"
-				/ auto 1fr;
-		}
+			"header header header" auto
+			"nav    banner toc   " auto
+			"nav    main   toc   " 1fr
+			"nav    footer toc   " auto
+			/ auto 1fr auto;
 
 		[data-banner] {
 			grid-area: banner;
 		}
 
-		.sidebar {
-			grid-area: sidebar;
+		#navigation-menu {
+			grid-area: nav;
+		}
+
+		#headings-menu {
+			grid-area: toc;
+		}
+
+		> header {
+			grid-area: header;
 		}
 
 		> main {
@@ -230,23 +230,6 @@ body {
 	}
 }
 
-.immersive-background {
-	display: none;
-	position: fixed;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	z-index: -999;
-
-	@include preferences("light") {
-		filter: invert(1) brightness(110%);
-	}
-
-	@include preferences("bg") {
-		display: block;
-	}
-}
-
 // Common styles
 h1,
 h2,
@@ -257,6 +240,17 @@ h6 {
 	font-family: var(--font-heading), sans-serif;
 	color: var(--color-heading);
 	line-height: 1;
+}
+
+abbr[title] {
+	text-decoration-color: color-mix(in srgb, currentcolor, transparent 30%);
+	text-underline-offset: size(3, true);
+}
+
+.text-icon {
+	font-size: size(24, true);
+	line-height: 0;
+	vertical-align: middle;
 }
 
 small,
@@ -270,9 +264,18 @@ small small,
 	color: var(--color-dimmer);
 }
 
-code {
+code,
+kbd {
 	font-family: var(--font-mono), monospace;
 	font-size: size(14, true);
+
+	:where(main > &, main :not(.astro-code) > &) {
+		background-color: var(--color-component);
+		border: 1px solid var(--color-border);
+		border-radius: size(16);
+		padding: size(3) size(8);
+		font-weight: 400;
+	}
 }
 
 .astro-code {
@@ -290,15 +293,17 @@ code {
 	}
 }
 
-p [data-icon] {
-	margin-top: size(-2, true);
-	vertical-align: middle;
-	font-size: 1.25em;
+[data-icon] {
+	font-size: size(20, true);
+
+	p &,
+	li & {
+		margin-top: size(-2, true);
+		vertical-align: middle;
+	}
 }
 
-p a,
-small a,
-[data-banner] a {
+:where(a:any-link) {
 	color: $red-450;
 	font-weight: 500;
 	text-underline-offset: size(3, true);
@@ -307,7 +312,7 @@ small a,
 		color $anim-ease,
 		text-decoration-color $anim-ease;
 
-	.external-icon [data-icon] {
+	.external-icon {
 		margin-left: size(3, true);
 		margin-top: size(-3, true);
 		margin-right: 0;
@@ -342,123 +347,6 @@ small a,
 	}
 }
 
-// Media elements (note: pretty scuffed)
-$media-button-size: size(44);
-
-.btn-media,
-.btn-media-group {
-	background-color: var(--color-component);
-	color: var(--color-text);
-
-	border: 1px solid var(--color-border);
-	border-radius: $radius-full;
-
-	// BUG: this annoyingly creates a backdrop root, preventing popup menus
-	// from having any background blur
-	@include glass;
-
-	@media not (prefers-contrast: more) {
-		@include preferences("fx") {
-			background-color: color-mix(in srgb, var(--color-component), transparent 35%);
-		}
-	}
-}
-
-.btn-media,
-.btn-media-group {
-	display: flex;
-	flex-shrink: 0;
-	height: $media-button-size;
-
-	main & {
-		box-shadow: none;
-	}
-
-	[data-icon] {
-		font-size: size(24);
-	}
-}
-
-.btn-media {
-	align-items: center;
-	justify-content: center;
-	width: $media-button-size;
-
-	@include btn-transparent;
-}
-
-.btn-media-group {
-	a,
-	button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-
-		width: $media-button-size;
-		height: 100%;
-		padding: 0;
-
-		background-color: transparent;
-		border: none;
-		color: inherit;
-		text-decoration: none;
-
-		@include btn-transparent;
-	}
-
-	.btn-media-close {
-		color: $red-450;
-
-		@include preferences("light") {
-			color: $red-500;
-		}
-	}
-
-	> :not(.slider) {
-		&:not(.popup-container):first-child,
-		&.popup-container:first-child > button {
-			width: size(43);
-			padding-left: size(2);
-			border-top-left-radius: $radius-full;
-			border-bottom-left-radius: $radius-full;
-
-			@include bounce-anim($selector: "> [data-icon]");
-		}
-
-		&:nth-last-child(n + 3) {
-			@include bounce-anim($selector: "> [data-icon]");
-		}
-
-		&:nth-last-child(2) {
-			@include bounce-anim(0, "> [data-icon]");
-		}
-
-		&:not(.popup-container):last-child,
-		&.popup-container:last-child > button {
-			width: size(43);
-			padding-right: size(2);
-			border-top-right-radius: $radius-full;
-			border-bottom-right-radius: $radius-full;
-
-			@include bounce-anim(1, "> [data-icon]");
-		}
-
-		&:not(.popup-container):first-child:last-child,
-		&.popup-container:first-child:last-child > button {
-			width: size(42);
-		}
-
-		&:not(:first-child) {
-			border-left: inherit;
-		}
-	}
-
-	> .slider {
-		height: 100%;
-		margin-right: size(14);
-	}
-}
-
 // Input elements
 // TODO: turn checkboxes into toggle switches at some point
 input[type="checkbox"] {
@@ -474,36 +362,47 @@ option {
 	background-color: var(--color-component);
 }
 
-.btn {
+.btn,
+.btn-secondary {
 	display: inline-flex;
 	align-items: center;
 	gap: size(8);
 	padding: size(8) size(16);
 
-	background: linear-gradient($red-650, $red-800);
 	border-radius: $radius-full;
-
 	font-weight: 500;
-	color: var(--color-heading);
 	text-decoration: none;
+	cursor: pointer;
+}
 
+.btn {
+	background: linear-gradient($red-650, $red-800);
+	color: var(--color-heading);
 	transition:
 		filter $anim-ease,
 		transform $anim-back;
 
 	@include hover {
-		filter: brightness(115%);
-		transform: scale(104%) rotate(-1deg);
+		filter: brightness(110%);
+		transform: scale(103%) rotate(-0.8deg);
 	}
 
 	@include active {
-		filter: brightness(90%);
-		transform: scale(98%) rotate(0.5deg);
+		filter: brightness(93%);
+		transform: scale(98%) rotate(0.44deg);
 	}
 
 	@include preferences("light") {
+		color: var(--color-heading);
 		background: linear-gradient($red-250, $red-350);
 	}
+}
+
+.btn-secondary {
+	background: none;
+	border: none;
+
+	@include btn-transparent;
 }
 
 // Page content
@@ -512,6 +411,21 @@ main {
 	max-width: $page-width;
 	padding: 0 $page-margin;
 	line-height: 1.25;
+	container: main / inline-size;
+
+	.side-by-side {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(size(288), 1fr));
+		gap: size(12);
+
+		figure {
+			margin: 0;
+		}
+
+		> * > :is(h1, h2, h3, h4, h5, h6):first-child {
+			margin-top: size(4);
+		}
+	}
 
 	@media print {
 		padding: 0;
@@ -519,10 +433,16 @@ main {
 
 	@include preferences("bg") {
 		background-color: color-mix(in srgb, var(--color-page), transparent 35%);
+
+		@media (prefers-contrast: more) {
+			background-color: var(--color-page);
+		}
 	}
 
-	@include preferences("fx", "bg") {
-		backdrop-filter: blur(size(2));
+	@media not (prefers-contrast: more) {
+		@include preferences("fx", "bg") {
+			backdrop-filter: blur(size(2));
+		}
 	}
 
 	@media (min-width: $breakpoint-desktop) {
@@ -613,18 +533,26 @@ main {
 	blockquote {
 		width: 100%;
 
-		border-left: size(3) solid var(--color-border);
+		border: 0 solid var(--color-border);
+		border-left-width: size(3);
 		border-radius: size(4) size(16) size(16) size(4);
 		background: var(--color-component);
 
 		margin-left: 0;
 		padding: size(14) size(16);
 
+		@media (prefers-contrast: more) {
+			border-width: size(1) size(1) size(1) size(4);
+			border-top-left-radius: size(5);
+			border-bottom-left-radius: size(5);
+		}
+
 		> :first-child {
 			margin-top: 0;
 		}
 
-		> :last-child {
+		> :last-child,
+		> :nth-last-child(2):has(+ :empty) {
 			margin-bottom: 0;
 		}
 
@@ -662,15 +590,37 @@ main {
 		}
 	}
 
-	// Text styles
-	p code {
-		background-color: var(--color-component);
-		border: 1px solid var(--color-border);
+	details {
+		--shadow-color: var(--color-page);
+
+		padding-inline: $page-margin;
 		border-radius: size(16);
-		padding: size(3) size(8);
-		font-weight: 400;
+		margin-bottom: $page-margin;
+
+		background-color: color-mix(in srgb, var(--color-component), transparent 50%);
+		box-shadow: 0 0 size(16) var(--shadow-color) inset;
+		border: 1px solid var(--color-border);
+
+		@include preferences("light") {
+			--shadow-color: var(--color-component);
+		}
+
+		summary {
+			font-weight: 500;
+			padding: size(18) $page-margin;
+			margin-inline: -$page-margin;
+
+			&::marker {
+				color: var(--color-dimmer);
+			}
+		}
 	}
 
+	.media-player > figcaption {
+		padding-top: size(6);
+	}
+
+	// Text styles
 	figcaption {
 		font-style: italic;
 		margin-top: size(6);
@@ -746,6 +696,24 @@ main {
 	}
 }
 
+#comments {
+	> .discussion-id {
+		font-size: size(12.25);
+		color: var(--color-dimmer);
+		font-style: italic;
+
+		@media not (prefers-contrast: more) {
+			a {
+				opacity: 0.75;
+			}
+		}
+
+		b {
+			font-weight: 550;
+		}
+	}
+}
+
 body > footer {
 	display: flex;
 	flex-direction: column;
@@ -757,16 +725,43 @@ body > footer {
 	padding: $page-margin;
 
 	background-color: hsl(0deg 0% 0% / 75%);
-	box-shadow: $glass-shadow;
 	border-top: 1px solid var(--color-border);
 	color: var(--color-dim);
+
+	&::before {
+		content: "";
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: size(20);
+		background: linear-gradient(transparent, hsl(0deg 0% 0% / 5%));
+	}
 
 	@include preferences("light") {
 		background-color: hsl(0deg 0% 100% / 75%);
 	}
 
-	@include preferences("bg", "fx") {
-		backdrop-filter: blur(size(2));
+	@media not (prefers-contrast: more) {
+		border-image: linear-gradient(
+				90deg,
+				transparent -50%,
+				var(--color-border) 50%,
+				transparent 150%
+			)
+			1;
+
+		@include preferences("bg", "fx") {
+			backdrop-filter: blur(size(2));
+		}
+	}
+
+	@media (prefers-color-scheme: more) {
+		background-color: black;
+
+		@include preferences("light") {
+			background-color: white;
+		}
 	}
 
 	@media print {
@@ -797,7 +792,9 @@ body > footer {
 
 	pointer-events: none;
 	visibility: collapse;
-	transition: all $anim-fade allow-discrete;
+	transition:
+		all $anim-fade allow-discrete,
+		display 0s;
 
 	:not(.backdrop).open + &,
 	&.open {

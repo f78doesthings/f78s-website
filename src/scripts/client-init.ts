@@ -11,6 +11,7 @@ import { preferences } from "./preferences/index.tsx";
 import { EnumPreference } from "./preferences/types/EnumPreference.tsx";
 import { TogglePreference } from "./preferences/types/TogglePreference.tsx";
 import { isOnPage } from "./utils";
+import { defineDevTool } from "./utils/dev-tools.ts";
 
 function updatePageData() {
 	const enabled = [];
@@ -32,7 +33,7 @@ document.addEventListener("astro:before-preparation", (ev) => {
 		}
 
 		// BUG: The loading bar disappears sometimes. Cloudflare also throws 503 Service Unavailable
-		//      errors when prefetching.
+		//      errors when prefetching (possible cache miss I need to configure?)
 		const loadingBar = document.querySelector<HTMLElement>(".loading-bar");
 		let loaded = false;
 		if (loadingBar && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -78,4 +79,12 @@ document.addEventListener("astro:after-swap", () =>
 	document.dispatchEvent(new Event("custom:preferences-updated")),
 );
 document.addEventListener("custom:preferences-updated", updatePageData);
+document.addEventListener("fullscreenchange", () => {
+	document.documentElement.classList.toggle("is-fullscreen", document.fullscreenElement !== null);
+});
 loadPreferences();
+
+defineDevTool("resetPreferences", () => {
+	loadPreferences(true);
+	console.info("Successfully reset preferences.");
+});

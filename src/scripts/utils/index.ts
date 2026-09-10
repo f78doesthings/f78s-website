@@ -8,23 +8,23 @@
 
 // A bunch of miscellaneous utilities.
 
-import { DurationFormat } from "@formatjs/intl-durationformat";
+import "@formatjs/intl-durationformat/polyfill.js";
 import type { CollectionEntry } from "astro:content";
 
 import { BADGES, SITE_LANGUAGE } from "../../consts.tsx";
 
-const shortMinutesFormatter = new DurationFormat(SITE_LANGUAGE, {
+const shortMinutesFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hours: "narrow",
 	hoursDisplay: "auto",
 });
 
-const longMinutesFormatter = new DurationFormat(SITE_LANGUAGE, {
+const longMinutesFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hoursDisplay: "auto",
 });
 
-const hoursFormatter = new DurationFormat(SITE_LANGUAGE, {
+const hoursFormatter = new Intl.DurationFormat(SITE_LANGUAGE, {
 	style: "digital",
 	hoursDisplay: "always",
 });
@@ -37,9 +37,15 @@ export function clamp(value: number, min: number, max: number, step = 0) {
 	return Math.min(Math.max(value, min), max);
 }
 
-export function truncate(value: number, digits = 0, config: Intl.NumberFormatOptions = {}) {
+export function truncate(
+	value: number,
+	maxDigits = 0,
+	alwaysShowDigits = false,
+	config: Intl.NumberFormatOptions = {},
+) {
 	return value.toLocaleString(SITE_LANGUAGE, {
-		maximumFractionDigits: digits,
+		minimumFractionDigits: alwaysShowDigits ? maxDigits : 0,
+		maximumFractionDigits: maxDigits,
 		...config,
 	});
 }
@@ -103,4 +109,8 @@ export function isOnPage(url: URL, ...aliases: (string | URL | null | undefined)
 	}
 
 	return false;
+}
+
+export function joinURL(base: string, ...paths: string[]) {
+	return new URL(`${base}${base.endsWith("/") ? "" : "/"}${paths.join("/")}`).href;
 }

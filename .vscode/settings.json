@@ -2,6 +2,7 @@
 	// Linting
 	"astro.content-intellisense": true,
 	"markdown.validate.enabled": true,
+	"markdown.validate.ignoredLinks": ["../main", "../dev"],
 	"stylelint.validate": ["css", "postcss", "scss", "astro"],
 	"css.validate": false,
 	"scss.validate": false,
@@ -13,14 +14,19 @@
 	"[astro]": {
 		"editor.defaultFormatter": "astro-build.astro-vscode"
 	},
+	// TODO: Oxfmt seems to have some troubles with MDX files, is there maybe a better alternative?
 	"[mdx]": {
 		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
 
-	// Spellcheck (optional, for Code Spell Checker w/ British English dictionary)
+	// Spellcheck (optional, requires Code Spell Checker w/ British English dictionary and/or LTeX+)
 	"cSpell.language": "en-GB",
+	"ltex.language": "en-GB",
+	// Don't bother using this extension's spell check,
+	// because it creates too many false positives in MDX files
+	"ltex.disabledRules": { "en-GB": ["MORFOLOGIK_RULE_EN_GB"] },
 
-	// Copyright (WIP)
+	// Copyright (WIP, requires psioniq File Header)
 	"psi-header.config": {
 		"forceToTop": true,
 		"blankLinesAfter": 1,
@@ -30,7 +36,14 @@
 	"psi-header.changes-tracking": {
 		"isActive": true,
 		"enforceHeader": true,
-		"excludeGlob": ["**/settings.json", "**/.gitignore", "**/.gitattributes", "**/.gitmodules"],
+		"excludeGlob": [
+			"**/settings.json",
+			"**/.gitignore",
+			"**/.gitattributes",
+			"**/.gitmodules",
+			"**/*.config.*",
+			"**/.ncurc.*"
+		],
 		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx"]
 	},
 	"psi-header.templates": [
@@ -52,6 +65,7 @@
 			"beforeHeader": ["---"]
 		},
 		{
+			// Mimic WebStorm's behaviour
 			"language": "scss",
 			"begin": "/*!"
 		}

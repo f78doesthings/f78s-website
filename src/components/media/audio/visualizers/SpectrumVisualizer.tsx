@@ -7,12 +7,19 @@
  */
 
 import { clamp } from "../../../../scripts/utils";
-import { createGradient, drawLine } from "../../../../scripts/utils/canvas";
-import { AudioVisualizer, visualizerGradients, type VisualizerProps } from "./AudioVisualizer";
+import { createGradient, drawLine } from "../../../../scripts/utils/canvas/2d";
+import { AudioVisualizer, type VisualizerProps } from "./AudioVisualizer";
 
 /** A visualizer that displays the audio spectrum. */
 export function SpectrumVisualizer(props: VisualizerProps) {
-	//#region Spectrum settings
+	//#region Spectrum settings (to be moved to preferences)
+
+	/**
+	 * Window size in samples. Must be a power of 2 between 32 and 32768.
+	 *
+	 * Increasing this improves frequency details at the cost of performance and time information.
+	 */
+	const windowSize = 8192;
 
 	// Slope settings derived from the default in Voxengo SPAN
 	/** Slope amount per octave (dB) */
@@ -24,10 +31,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	/** Lowest displayed frequency (Hz) */
 	const minFreq = 10;
 
-	// Not much point in going higher because of the filter cutoff from the 128kbps AAC files
-	// that this website uses
 	/** Highest displayed frequency (Hz) */
-	const maxFreq = 16000;
+	const maxFreq = 22050;
 
 	/** Highest displayed volume (dBFS) */
 	const maxVol = 0;
@@ -35,24 +40,30 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	/** Lowest displayed volume (dBFS) */
 	const minVol = -144;
 
+	/** How much the spectrum is lowered per second (dB) */
+	const reductionRate = 54;
+
 	//#endregion
 
 	return (
 		<AudioVisualizer
 			{...props}
-			init={({ analyser }) => {
-				analyser.fftSize = 8192;
-				analyser.smoothingTimeConstant = 0.875;
-				return new Float32Array(analyser.frequencyBinCount);
+			init={({ analysers: [analyser] }) => {
+				analyser.fftSize = windowSize;
+				analyser.smoothingTimeConstant = 0;
+				return {
+					current: new Float32Array(analyser.frequencyBinCount),
+					previous: new Float32Array(analyser.frequencyBinCount).fill(-Infinity),
+				};
 			}}
-			draw={({ analyser, ctx, data }) => {
+			draw={({ analysers: [analyser], ctx, data, deltaTime, running, theme }) => {
 				const width = ctx.canvas.width;
 				const height = ctx.canvas.height;
 				const renderScale = Number(ctx.canvas.dataset.renderScale ?? 1) || 1;
-				const bufferLength = data.length;
-				analyser.getFloatFrequencyData(data);
+				const bufferLength = data.current.length;
+				analyser.getFloatFrequencyData(data.current);
 
-				const fontSize = Math.ceil(renderScale * 10 + height / 200);
+				const fontSize = Math.ceil(renderScale * 9 + ((width + height) / 400) ** 0.875);
 				const textPadding = Math.ceil(fontSize / 5);
 				const textMargin = Math.floor(fontSize / 2);
 				const minX = Math.log10(minFreq + 1);
@@ -110,7 +121,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				}
 
 				// Draw volume lines
-				const volumeLineSpacing = 48 * 2 ** -Math.round(height / renderScale / 360);
+				const volumeLineSpacing = 48 * 2 ** -Math.round(height / renderScale / 320);
 				ctx.textAlign = "left";
 				ctx.textBaseline = "middle";
 
@@ -128,8 +139,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				}
 
 				// Spectrum gradient
-				const strokeGradient = createGradient(ctx, visualizerGradients.Lit);
-				const fillGradient = createGradient(ctx, visualizerGradients.Lit, {
+				const strokeGradient = createGradient(ctx, theme.gradientPrimary);
+				const fillGradient = createGradient(ctx, theme.gradientPrimary, {
 					setAlpha: (offset) => 24 + 30 * offset ** 0.9,
 				});
 
@@ -138,7 +149,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				let prevY = 0;
 				let prevCurveX = 0;
 				let prevCurveY = 0;
-				const maxThickness = renderScale + (width + height) / 640;
+				const maxThickness = renderScale + (width + height) / 720;
 				let prevThickness = maxThickness;
 
 				const path = new Path2D();
@@ -146,11 +157,18 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				ctx.lineWidth = maxThickness;
 				ctx.beginPath();
 
+				const volumeReduction = reductionRate * (deltaTime / 1000);
 				const halfSampleRate = analyser.context.sampleRate / 2;
 				const floor = height - getX(0);
 				for (let i = 0; i < bufferLength; i++) {
 					const frequency = (i / bufferLength) * halfSampleRate;
-					const decibels = data[i] + slope * Math.log2(frequency / slopeCenter);
+					const currentDecibels = Math.max(
+						running ? data.current[i] : -Infinity,
+						data.previous[i] - volumeReduction,
+					);
+					const decibels = currentDecibels + slope * Math.log2(frequency / slopeCenter);
+					data.previous[i] = currentDecibels;
+
 					const x = getX(frequency);
 					const y = isFinite(decibels) ? getY(decibels) : floor;
 
@@ -167,12 +185,12 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 
 						// Make the line progressively thinner as the frequencies get closer together,
 						// in order to improve detail (the formula could probably be improved though)
-						const thickness =
-							clamp(((x - prevX) * (1.9 / renderScale)) ** 0.38 / 1.9, 0.05, 1) * maxThickness;
+						const distance = (x - prevX) ** 1 / (0.6 + height / renderScale / 320);
+						const thickness = (distance * (1.8 / renderScale)) ** 0.35 / 1.4;
+						const finalThickness = clamp(thickness, 0.1, 1) * maxThickness;
 						if (prevThickness - thickness > 0.05 + prevThickness / 40) {
 							ctx.stroke();
-							ctx.lineWidth = thickness;
-							prevThickness = thickness;
+							ctx.lineWidth = prevThickness = finalThickness;
 
 							// Start a new curve where the previous one ended off
 							ctx.beginPath();
@@ -200,6 +218,7 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				path.closePath();
 				ctx.fillStyle = fillGradient;
 				ctx.stroke();
+				// oxlint-disable-next-line unicorn/no-array-fill-with-reference-type - false positive
 				ctx.fill(path);
 			}}
 		></AudioVisualizer>

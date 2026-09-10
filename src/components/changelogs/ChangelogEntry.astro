@@ -1,0 +1,177 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { DefaultLogFields } from "simple-git";
+import { SITE_REPOSITORY } from "astro:env/client";
+
+import Markdown from "../utils/Markdown.astro";
+import FormattedDate from "../FormattedDate.astro";
+import Link from "../nav/Link";
+
+import TimestampIcon from "~icons/octicon/clock-16";
+import CommitIcon from "~icons/octicon/git-commit-16";
+import TagIcon from "~icons/octicon/tag-16";
+import { joinURL } from "../../scripts/utils";
+
+interface Props {
+	commit: DefaultLogFields;
+}
+
+const { commit } = Astro.props;
+const tag = /tag: ([a-z\d.\-/]+)/.exec(commit.refs)?.[1];
+
+const match =
+	/^(?:(?<type>[a-z]+)(?:\((?<scope>[a-z]+)(?:\/(?<subScope>[a-z]+))?\))?: )?(?<description>.*)\n?\n?(?<body>(?:.+\n?)*)(?:\n\n(?<footer>[\s\S]*))?$/.exec(
+		commit.body,
+	);
+const type = match?.groups?.type ?? "";
+const scope = match?.groups?.scope ?? "";
+const subScope = match?.groups?.subScope ?? "";
+const description = match?.groups?.description ?? `Commit \`${commit.hash}\``;
+const body = match?.groups?.body ?? commit.body;
+const footer = match?.groups?.footer ?? "";
+
+const typeTexts: Record<string, string | undefined> = {
+	feat: "New features or changes to website content",
+	fix: "Fixes to existing features or content",
+	refactor: "Code rewrites/restructures (minimal UI impact)",
+	perf: "Special type of 'refactor' for performance improvements",
+	docs: "Exclusively for changes to the repository's documentation (no UI impact)",
+	style: "Changes to code style (no UI impact)",
+	build: "Affects the project's build process (minimal UI impact)",
+};
+
+const scopeTexts: Record<string, string | undefined> = {
+	pages: "New pages or edits to existing ones",
+	posts: "New blog posts or edits to existing ones",
+	nav: "Affects the site's navigation bars",
+	media: "Corresponds to image, video and audio features",
+	prefs: "Governs the preferences feature",
+	blog: "Exclusively for the blog's functional features",
+	version: "The version/changelog features (you're using this right now!)",
+};
+---
+
+<article class="commit">
+	<header>
+		<Markdown
+			content={`### ${
+				type && `<abbr class="type" title="${typeTexts[type] ?? ""}">${type}</abbr>`
+			}${
+				scope &&
+				`(<abbr class="scope" title="${scopeTexts[scope] ?? ""}">${scope}</abbr>${subScope && `<span class="sub-scope">/${subScope}</span>`})`
+			}${type && ": "}${description}`}
+		/>
+
+		<ul class="details">
+			<li>
+				<FormattedDate date={commit.date} showTime tooltip="Commit timestamp">
+					<TimestampIcon slot="icon" />
+				</FormattedDate>
+			</li>
+			<li title="Commit hash">
+				<CommitIcon />{" "}
+				<Link href={joinURL(SITE_REPOSITORY, "commit", commit.hash)} external
+					><code>{commit.hash.substring(0, 7)}</code></Link
+				>
+			</li>
+			{
+				/* prettier-ignore */
+				tag && (
+					<li title="Assigned tag">
+						<TagIcon />{" "}
+						<Link href={joinURL(SITE_REPOSITORY, "tree", tag)} external><code>{tag}</code></Link>
+					</li>
+				)
+			}
+		</ul>
+	</header>
+	{body && <Markdown content={body} />}
+	{
+		footer && (
+			<footer>
+				<Markdown content={footer} />
+			</footer>
+		)
+	}
+</article>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+
+	.commit {
+		padding-bottom: $page-margin;
+		margin-bottom: $page-margin;
+		border-bottom: 1px solid var(--color-border);
+
+		&:last-of-type {
+			border-bottom: none;
+			padding-bottom: 0;
+			margin-bottom: size(18);
+		}
+	}
+
+	header {
+		&:last-child .details {
+			margin-bottom: 0;
+		}
+
+		.details {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			list-style: none;
+			gap: size(6) size(12);
+			padding: 0;
+			margin-block: size(12);
+
+			color: var(--color-dim);
+			font-size: size(14);
+
+			[data-icon] {
+				font-size: size(16);
+				margin-right: size(2);
+			}
+
+			> li,
+			> li > p {
+				margin: 0;
+			}
+		}
+
+		+ :global(*) {
+			margin: 0;
+		}
+
+		> :global(h3) {
+			margin: 0;
+			color: var(--color-text);
+			font-size: size(18);
+			font-weight: 400;
+
+			> :global(.type) {
+				font-weight: 600;
+			}
+
+			> :global(.scope) {
+				color: var(--color-dim);
+				font-style: normal;
+			}
+
+			> :global(.sub-scope) {
+				color: var(--color-dimmer);
+			}
+		}
+	}
+
+	footer {
+		color: var(--color-dim);
+		font-size: size(14);
+	}
+</style>

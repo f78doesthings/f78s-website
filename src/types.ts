@@ -8,6 +8,7 @@
 
 import type { CollectionEntry } from "astro:content";
 import type { JSX, SVGAttributes } from "preact";
+import type { DefaultLogFields } from "simple-git";
 
 import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
 
@@ -80,6 +81,67 @@ export interface MediaInfo extends CopyrightInfo {
 
 //#endregion
 
+//#region Site versioning
+
+export type PrereleaseType = "dev" | "alpha" | "beta" | "rc";
+
+export interface PrereleaseInfo {
+	title: string;
+	description: string;
+	icon: IconComponent;
+	iconSmall: IconComponent;
+}
+
+export interface VersionInfo {
+	/** The semantic version string. */
+	id: string; // Named `id` for use with content collections
+
+	/** The tag message, if it has one. */
+	message?: string;
+
+	/** Indicates what kind of pre-release version this is. `undefined` means it's a stable version. */
+	prerelease?: PrereleaseType;
+
+	/** The stable version that preceded this one. */
+	prevStable?: string;
+
+	/** The pre-release version that preceded this one. */
+	prevPrerelease?: string;
+
+	/** The stable version that follows this one. */
+	nextStable?: string;
+
+	/** The pre-release version that follows this one. */
+	nextPrerelease?: string;
+
+	/** The date of the version's most recent commit, in strict ISO format. */
+	date?: string;
+
+	/** The commits made since the last stable version. */
+	stableCommits: DefaultLogFields[];
+
+	/** The commits made since the last pre-release version. */
+	prereleaseCommits?: DefaultLogFields[];
+}
+
+//#endregion
+
+//#region Preferences
+
+export enum ImageRotation {
+	never,
+	preferNo,
+	preferYes,
+}
+
+export enum PreferenceLevel {
+	basic,
+	advanced,
+	expert,
+}
+
+//#endregion
+
 //#region Miscellaneous
 
 export type IconComponent = (props: SVGAttributes<SVGSVGElement>) => JSX.Element;
@@ -88,12 +150,6 @@ export type Replace<T, U> = Omit<T, keyof U> & U;
 
 /** All values including `null` but not `undefined`. */
 export type NotUndefined = {} | null;
-
-export enum ImageRotation {
-	never,
-	preferNo,
-	preferYes,
-}
 
 export type LinkData = CollectionEntry<"links">["data"] & {
 	id: string;

@@ -7,74 +7,73 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Site navigation (top bar and sidebar)
+// Site navigation (top bar and sidebars)
 
-import type { MarkdownHeading } from "astro";
-import FluentLineHorizontal320Regular from "~icons/fluent/line-horizontal-3-20-regular";
-import FluentHome20Regular from "~icons/fluent/home-20-regular";
-import FluentRss20Regular from "~icons/fluent/rss-20-regular";
-import FluentSettings20Regular from "~icons/fluent/settings-20-regular";
-import FluentDismiss20Regular from "~icons/fluent/dismiss-20-regular";
+import { SITE_VERSION } from "astro:env/client";
+
+import NavigationIcon from "~icons/fluent/navigation-20-regular";
+import TableOfContentsIcon from "~icons/fluent/panel-left-text-20-regular";
+import HomeIcon from "~icons/fluent/home-20-regular";
+import BlogIcon from "~icons/fluent/rss-20-regular";
+import MusicIcon from "~icons/fluent/music-note-2-20-regular";
+import GamesIcon from "~icons/fluent/games-20-regular";
+import CodeIcon from "~icons/fluent/code-20-regular";
+import SettingsIcon from "~icons/fluent/settings-20-regular";
+
 import Badge from "../Badge";
 import PreferenceControl from "../preferences/PreferenceControl.astro";
 import SiteLogo from "./SiteLogo.astro";
 import SidebarLink from "./SidebarLink.astro";
+import Sidebar from "./Sidebar.astro";
+import TableOfContents, { type Props as TableOfContentsProps } from "./TableOfContents.astro";
 
-interface Props {
-	headings?: MarkdownHeading[];
-}
+type Props = Partial<TableOfContentsProps>;
 
-const { headings } = Astro.props;
+const { headings, ...props } = Astro.props;
 
-// TODO: add Skip Navigation and re-add close button
+// TODO: add Skip Navigation button (although keyboard navigation is kind of screwed anyway)
 ---
 
 <header>
 	<nav>
-		<button title="Open navigation menu" aria-label="Open navigation menu" class="show-sidebar">
-			<FluentLineHorizontal320Regular />
-		</button>
+		<SidebarLink
+			title="Open navigation menu"
+			aria-label="Open navigation menu"
+			data-show-sidebar="navigation-menu"
+		>
+			<NavigationIcon />
+		</SidebarLink>
 		<SiteLogo />
-	</nav>
-</header>
-
-<aside class="sidebar">
-	<button title="Close" aria-label="Close navigation menu" class="hide-sidebar">
-		<FluentDismiss20Regular />
-	</button>
-
-	<SiteLogo />
-	<SidebarLink href="/">
-		<FluentHome20Regular />
-		Home
-	</SidebarLink>
-	<SidebarLink href="/blog">
-		<FluentRss20Regular />
-		Blog
-	</SidebarLink>
-
-	{headings && <h2>Table of Contents</h2>}
-	<div class="table-of-contents">
 		{
 			headings && (
-				<SidebarLink href="#top" class="depth-1">
-					(Top)
+				<SidebarLink
+					title="Open table of contents"
+					aria-label="Open table of contents"
+					data-show-sidebar="headings-menu"
+				>
+					<TableOfContentsIcon style="transform: rotate(180deg)" />
 				</SidebarLink>
 			)
 		}
+	</nav>
+</header>
 
-		{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
-		{
-			headings?.map(({ depth, slug, text }) => {
-				return (
-					<SidebarLink href={`#${slug}`} class={`hide-sidebar depth-${depth}`} data-slug={slug}>
-						{text}
-					</SidebarLink>
-				);
-			})
-		}
+<Sidebar id="navigation-menu">
+	<h2>Places</h2>
+	<SidebarLink href="/"><HomeIcon /> Home</SidebarLink>
+	<SidebarLink href="/blog"><BlogIcon /> Blog</SidebarLink>
+
+	<h2>My hobbies</h2>
+	<div class="future-topics">
+		<div class="placeholder">
+			<SidebarLink href="/hobbies/gaming"><GamesIcon /> Gaming</SidebarLink>
+			<SidebarLink href="/hobbies/music"><MusicIcon /> Music</SidebarLink>
+			<SidebarLink href="/hobbies/programming"><CodeIcon /> Programming</SidebarLink>
+		</div>
+		<div class="coming-soon">Coming soon...</div>
 	</div>
 
+	<div class="separator"></div>
 	<h2>
 		Preferences
 		<Badge type="beta" />
@@ -82,142 +81,36 @@ const { headings } = Astro.props;
 	<PreferenceControl preference="immersiveMode" showIcon showTitle="Immersive Mode" noMobile />
 	<PreferenceControl preference="theme" showIcon showTitle noMobile />
 	<SidebarLink href="/preferences">
-		<FluentSettings20Regular />
+		<SettingsIcon />
 		More Settings
 	</SidebarLink>
-</aside>
-<div class="backdrop hide-sidebar"></div>
+	<SidebarLink href="/version" class="version">version {SITE_VERSION}</SidebarLink>
+</Sidebar>
 
-<script>
-	const TIME_BETWEEN_HEADING_UPDATES = 500;
-
-	let tableOfContents: HTMLElement | null;
-	let headings: [HTMLAnchorElement, HTMLElement][] = [];
-	let currentHeading = "";
-	let lastHeadingUpdate = 0;
-	let justNavigated = true;
-	let handle: number | undefined;
-
-	// TODO: add a button to scroll the active link into view when it's offscreen
-
-	document.addEventListener("astro:page-load", () => {
-		const menu = document.querySelector(".sidebar");
-		if (!menu) {
-			return;
-		}
-
-		const openButtons = document.querySelectorAll<HTMLElement>(".show-sidebar");
-		for (const openButton of openButtons) {
-			openButton.addEventListener("click", () => {
-				menu.classList.add("open");
-			});
-		}
-
-		const closeButtons = document.querySelectorAll<HTMLElement>(".hide-sidebar");
-		for (const closeButton of closeButtons) {
-			closeButton.addEventListener("click", () => {
-				menu.classList.remove("open");
-			});
-		}
-
-		tableOfContents = menu.querySelector(".table-of-contents");
-		if (!tableOfContents) {
-			return;
-		}
-
-		const contents = tableOfContents.querySelectorAll<HTMLAnchorElement>("a");
-		headings = [];
-		for (const item of contents) {
-			const slug = item.dataset.slug;
-			const heading = document.querySelector<HTMLElement>(
-				slug ? `main #${slug}` : "main > article > header",
-			);
-			if (heading) {
-				headings.push([item, heading]);
-			}
-		}
-
-		currentHeading = location.hash.substring(1);
-		justNavigated = true;
-		updateHeadings();
-		justNavigated = false;
-	});
-
-	function updateHeadings() {
-		// Find the last link that hasn't gone off the top of the screen
-		const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
-		const activeIndex =
-			headings.findIndex(
-				([, heading]) => heading.getBoundingClientRect().top >= scrollPadding + 100,
-			) - 1;
-		const [activeLink, activeHeading] = headings[activeIndex] ?? [];
-
-		// Update the sidebar links
-		for (const [link, heading] of headings) {
-			const rect = heading.getBoundingClientRect();
-			const isOnScreen = rect.bottom >= 0 && rect.top <= document.documentElement.clientHeight;
-			link.classList.toggle("active", link === activeLink || isOnScreen);
-
-			// If the browser didn't feel like scrolling the heading into view, then do so manually
-			if (justNavigated && currentHeading && heading.id === currentHeading && window.scrollY < 1) {
-				console.info(`Forcefully scrolling heading "${link.hash}" into view`);
-				heading.scrollIntoView();
-			}
-		}
-
-		if (justNavigated || activeHeading === undefined || currentHeading === activeHeading.id) {
-			return;
-		}
-
-		// Update the address bar hash
-		// Browsers don't like it when we spam the History API, so we need to throttle it here
-		// TODO: make a throttle utility for stuff like this (including logging)
-		const now = Date.now();
-		const timeSinceUpdate = now - lastHeadingUpdate;
-		currentHeading = activeHeading.id;
-		clearTimeout(handle);
-
-		if (timeSinceUpdate >= TIME_BETWEEN_HEADING_UPDATES) {
-			setHeading(activeHeading.id);
-		} else {
-			handle = window.setTimeout(
-				() => setHeading(activeHeading.id),
-				TIME_BETWEEN_HEADING_UPDATES - timeSinceUpdate,
-			);
-		}
-	}
-
-	function setHeading(id: string) {
-		const hash = `#${id}`;
-		if (location.hash !== hash) {
-			lastHeadingUpdate = Date.now();
-			history.replaceState(null, "", hash);
-		}
-	}
-
-	document.addEventListener("scroll", updateHeadings);
-</script>
+{
+	headings && (
+		<Sidebar id="headings-menu" right>
+			<h2>Table of Contents</h2>
+			<TableOfContents headings={headings} {...props} />
+		</Sidebar>
+	)
+}
 
 <style lang="scss">
 	@use "../../styles/colors" as *;
 	@use "../../styles/utils" as *;
-	@use "sass:color";
-	@use "sass:map";
-	@use "sass:list";
 
 	// Top bar
 	header {
 		position: sticky;
 		top: 0;
 		width: 100%;
+		height: $header-height;
 		z-index: 1000;
 		background-color: var(--color-component);
+		box-shadow: $glass-shadow;
 
 		@media print {
-			display: none;
-		}
-
-		@media (min-width: $breakpoint-desktop) {
 			display: none;
 		}
 
@@ -225,16 +118,33 @@ const { headings } = Astro.props;
 			border-bottom: 1px solid var(--color-border);
 		}
 
-		@include glass;
+		@media not (prefers-contrast: more) {
+			@include preferences("fx") {
+				background-color: transparent;
 
-		@include preferences("fx") {
-			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
+				&::before {
+					content: "";
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: calc($header-height + size(16));
+					background: linear-gradient(var(--color-page), transparent);
+					backdrop-filter: contrast(88%) brightness(33%) blur(size(8));
+					mask: linear-gradient(black, hsl(0deg 0% 0% / 99.2%) $header-height, transparent);
+				}
+			}
+
+			@include preferences("fx", "light") {
+				&::before {
+					backdrop-filter: contrast(30%) brightness(160%) blur(size(8));
+				}
+			}
 		}
 
 		nav {
 			display: flex;
 			width: 100%;
-			max-width: $page-width;
 			margin: auto;
 			padding: 0 size(12);
 		}
@@ -242,6 +152,10 @@ const { headings } = Astro.props;
 		a,
 		button {
 			padding: size(10);
+		}
+
+		.site-logo {
+			margin-right: auto;
 		}
 
 		[data-icon] {
@@ -263,72 +177,19 @@ const { headings } = Astro.props;
 		cursor: pointer;
 
 		@include btn-transparent;
+
+		@include preferences("light") {
+			color: var(--color-heading);
+		}
 	}
 
 	// Sidebar
-	@mixin toc-depth($depth) {
-		$font-weight: list.nth(400 385 360 335 315 300, $depth);
-		$color-step: list.nth(50 100 200 250 300 325, $depth);
-
-		&.depth-#{$depth} {
-			padding: size(6) $page-margin size(6) calc($page-margin * ($depth + 1) / 2);
-			font-weight: $font-weight;
-			color: map.get($colors-taupe, $color-step);
-
-			@include preferences("light") {
-				color: map.get($colors-zinc, 1000 - $color-step);
-			}
-
-			@media (prefers-contrast: more) {
-				color: var(--color-text);
-			}
-
-			@if $depth > 1 {
-				@for $upper-depth from 1 through $depth - 1 {
-					+ .depth-#{$upper-depth} {
-						$margin: size(6);
-						margin-top: $margin;
-
-						& :global(.highlight) {
-							height: calc(100% + $margin);
-						}
-					}
-				}
-			}
-		}
-	}
-
 	.sidebar {
-		$sidebar-width: size(280);
-
-		position: fixed;
-		left: size(-384);
-		width: calc(100% - #{size(64)});
-		max-width: $sidebar-width;
-		height: 100%;
-
-		display: flex;
-		flex-direction: column;
-		padding: size(8) 0;
-		visibility: collapse;
-		z-index: 2100;
-
-		background-color: var(--color-component);
-		box-shadow: $glass-shadow;
-		transition:
-			left 350ms ease,
-			visibility 350ms allow-discrete;
-
-		&.open {
-			left: 0;
-			visibility: visible;
-		}
-
 		:where(h2, a, label) {
 			padding: size(10) $page-margin;
 		}
 
-		[data-icon] {
+		:not(.badge) > [data-icon] {
 			font-size: size(30);
 		}
 
@@ -338,92 +199,98 @@ const { headings } = Astro.props;
 			gap: size(8);
 
 			margin: 0;
-			padding-top: size(12);
-			padding-bottom: 0;
-			font-weight: 500;
-			font-size: size(16);
-			color: var(--color-dimmer);
+			padding-block: 0;
+			min-height: $badge-height;
 
-			.badge {
+			font-weight: 400;
+			font-size: size(16);
+			color: color-mix(in oklch, var(--color-dim), var(--color-dimmer));
+
+			:global(.badge) {
 				color: var(--color-text);
 			}
-		}
 
-		.table-of-contents {
-			position: relative;
-			margin-top: size(8);
-			flex-grow: 1;
-			overflow-y: auto;
-
-			a {
-				padding-block: size(6);
-
-				@for $depth from 1 through 6 {
-					@include toc-depth($depth);
-				}
-			}
-		}
-
-		> .hide-sidebar {
-			position: absolute;
-			left: 100%;
-			margin: size(2) 0 size(2) size(6);
-			padding: 0;
-
-			width: size(48);
-			height: size(48);
-			border-radius: $radius-full;
-
-			display: flex;
-			align-items: center;
-			justify-content: center;
-
-			color: $red-500;
-
-			@include preferences("light") {
-				color: $red-400;
-			}
-
-			@include btn-transparent(true);
-		}
-
-		@media print {
-			display: none;
-		}
-
-		@media (prefers-contrast: more) {
-			border-right: 1px solid var(--color-border);
-		}
-
-		@media (min-width: $breakpoint-desktop) {
-			background-color: color-mix(in srgb, var(--color-component), transparent 12%);
-
-			position: sticky;
-			top: 0;
-			left: 0;
-			visibility: visible;
-			width: $sidebar-width;
-			height: 100dvh;
-
-			> .hide-sidebar {
-				display: none;
-			}
-
-			@include preferences("fx") {
-				backdrop-filter: blur(size(2));
-			}
-		}
-
-		@media not (min-width: $breakpoint-desktop) {
-			.site-logo {
-				display: none;
+			&:not(:first-of-type) {
+				margin-top: size(8);
 			}
 		}
 	}
 
-	.backdrop {
-		@media (min-width: $breakpoint-desktop) {
-			display: none;
+	#navigation-menu {
+		> :global(nav) {
+			overflow: hidden auto;
+		}
+
+		.separator {
+			flex-grow: 1;
+		}
+
+		.future-topics {
+			position: relative;
+			user-select: none;
+
+			.placeholder {
+				pointer-events: none;
+				color: var(--color-dimmer);
+				filter: blur(size(1.2));
+
+				> * {
+					color: inherit;
+				}
+			}
+
+			.coming-soon {
+				position: absolute;
+				inset: 0;
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				text-shadow: 0 size(1) size(8) var(--color-page);
+			}
+
+			@include preferences("fx") {
+				.placeholder,
+				.coming-soon {
+					transition: all 375ms $ease-out-cubic;
+				}
+
+				.placeholder {
+					color: var(--color-text);
+					filter: blur(size(8));
+					opacity: 1;
+				}
+
+				.coming-soon {
+					color: var(--color-heading);
+					opacity: 0.9;
+				}
+
+				@include hover-or-active {
+					.placeholder {
+						filter: blur(size(1.1));
+						opacity: 0.65;
+					}
+
+					.coming-soon {
+						filter: blur(size(6));
+						opacity: 0.75;
+					}
+				}
+			}
+		}
+
+		.version {
+			font-size: size(14);
+			color: var(--color-dimmer);
+			padding-block: size(5);
+		}
+	}
+
+	#headings-menu {
+		> :global(nav) {
+			padding-bottom: 0;
 		}
 	}
 </style>

@@ -13,6 +13,12 @@ heroSource: https://github.com/withastro/astro/blob/main/examples/blog/src/asset
 
 import Alert from "../../components/Alert.astro";
 import MainImage from "../../components/media/MainImage.astro";
+import AudioPlayer from "../../components/media/audio/AudioPlayer.astro";
+import VideoPlayer from "../../components/media/video/VideoPlayer.astro";
+
+This is an example post to ensure the blog and its styling is all up to snuff. It only shows up in
+the development server, as well as on the beta version of the website. If you find an issue here,
+report it on [GitHub](https://github.com/f78doesthings/f78s-website/issues).
 
 # Heading 1
 
@@ -26,8 +32,12 @@ import MainImage from "../../components/media/MainImage.astro";
 
 ###### Heading 6
 
-But realistically, _who_ in their right mind would be willing to use a **heading** that <small {
-...{/* dummy */}}>small</small>[^1]?
+_Italicized_, **bold**, **_both at once_**, ~~strikethrough~~, footnote references[^1], you name it.
+Even en-dashes (--), em-dashes (---), smart 'single-' and "double-quotes", as well as triple dots...
+_All things that LLMs tend to overuse._
+
+With Astro v7's new default Sätteri Markdown processor, we also get the option for ^superscript^ and
+~subscript~, along with some other things. _Neat!_
 
 ## Media
 
@@ -38,12 +48,28 @@ But realistically, _who_ in their right mind would be willing to use a **heading
 	createdBy="Astro contributors"
 	license="MIT"
 >
-	This is a caption. How exciting.
+	This is an image, obviously. You can click (or tap) it to open an unfinished fullscreen viewer.
 </MainImage>
+
+<AudioPlayer
+	src={import("./gaze-upon-the-stars/assets/audio/gaze-upon-the-stars.m4a")}
+	createdIn="2026"
+>
+	Shown above is the audio player. If you want to play around with the visualizer, check out [the
+	visualizer playground](/misc/visualizer)!
+</AudioPlayer>
+
+<VideoPlayer src={import("./gaze-upon-the-stars/assets/video/arp-demo.mp4")} createdIn="2026">
+	And here we have the video player. By the way, you can fullscreen the video to show the same audio
+	visualizer as the audio player.
+</VideoPlayer>
 
 ## Alerts
 
-> This isn't actually an alert. It's just a `<blockquote>`.<br /><small>Small text example</small>
+> This isn't actually an alert. It's just a `<blockquote>`. It is styled pretty much the same
+> though, so it still counts.
+>
+> <small>Small text example, but different</small>
 
 <Alert type="note">
 	Useful information that users should know, even when skimming content.\
@@ -72,7 +98,7 @@ But realistically, _who_ in their right mind would be willing to use a **heading
 
 ## Code
 
-Anyway, here's some `code`[^2]:
+Anyway, here's a little bit of random `code`[^2]:
 
 ```astro
 ---

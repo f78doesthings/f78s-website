@@ -57,7 +57,9 @@ export function PopupMenu({ children, content = <MoreIcon />, ...props }: Props)
 			>
 				{content}
 			</button>
-			<menu class={`popup-menu ${styles["popup-menu"]} ${isOpen ? styles["open"] : ""}`}>
+			<menu
+				class={`media-style-blur popup-menu ${styles["popup-menu"]} ${isOpen ? styles["open"] : ""}`}
+			>
 				{menuItems}
 			</menu>
 		</div>

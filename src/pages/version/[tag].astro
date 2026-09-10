@@ -1,0 +1,251 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import type { GetStaticPaths } from "astro";
+
+import { IS_DEV, PRERELEASE_TYPES } from "../../consts";
+import { getVersions } from "../../server-utils";
+import type { VersionInfo } from "../../types";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
+
+import BackIcon from "~icons/fluent/arrow-left-24-regular";
+import PrevStableIcon from "~icons/fluent/chevron-left-24-regular";
+import NextStableIcon from "~icons/fluent/chevron-right-24-regular";
+import PrevPrereleaseIcon from "~icons/fluent/chevron-circle-left-24-regular";
+import NextPrereleaseIcon from "~icons/fluent/chevron-circle-right-24-regular";
+import Alert from "../../components/Alert.astro";
+import { render } from "astro:content";
+import { getEntry } from "astro:content";
+
+export const getStaticPaths = (async () => {
+	const versions = await getVersions();
+	return versions
+		.filter((v) => !v.prerelease || IS_DEV)
+		.map((v) => ({
+			params: { tag: v.id },
+			props: v satisfies Props,
+		}));
+}) satisfies GetStaticPaths;
+
+type Props = VersionInfo;
+
+const {
+	id: version,
+	message,
+	prerelease,
+	date,
+	prevStable,
+	nextStable,
+	prevPrerelease,
+	nextPrerelease,
+	stableCommits,
+	prereleaseCommits,
+} = Astro.props;
+const commits = prereleaseCommits ?? stableCommits;
+const olderCommits =
+	prereleaseCommits &&
+	stableCommits.slice(
+		stableCommits.findLastIndex((commit) => commits.some((other) => other.hash === commit.hash)) +
+			1,
+	);
+
+const changelogs = await getEntry("changelogs", version);
+const { Content } = changelogs ? await render(changelogs) : {};
+---
+
+<BaseLayout title={`Changelog for v${version}`}>
+	<nav>
+		<a href="/version#version-list"><BackIcon /> Back to version list</a>
+	</nav>
+
+	<h1>Version {version}</h1>
+	<ul class="details">
+		<li>
+			<FormattedDate date={date} showTime>
+				<Fragment slot="before">Dated</Fragment>
+			</FormattedDate>
+		</li>
+	</ul>
+
+	{prerelease && <Alert type={prerelease}>{PRERELEASE_TYPES[prerelease].description}</Alert>}
+	{
+		Content ? (
+			<section>
+				<h2>Release notes</h2>
+				<Content />
+			</section>
+		) : (
+			message
+		)
+	}
+
+	<h2>Commits</h2>
+	<details open={changelogs === undefined}>
+		<summary>View commit history</summary>
+		{commits.map((commit) => <ChangelogEntry commit={commit} />)}
+		{
+			olderCommits && olderCommits.length > 0 && (
+				<details>
+					<summary>
+						View older commits <span class="older-since">(since {prevStable})</span>
+					</summary>
+					{olderCommits.map((commit) => (
+						<ChangelogEntry commit={commit} />
+					))}
+				</details>
+			)
+		}
+	</details>
+
+	<nav>
+		{
+			prevStable && (
+				<a href={`/version/${prevStable}`} class="prev-stable">
+					<PrevStableIcon /> {prevStable}
+				</a>
+			)
+		}
+		{
+			prevPrerelease && (
+				<a
+					href={`/version/${prevPrerelease}`}
+					data-preference-dependencies={'[["showPrerelease",[true]]]'}
+					data-ignore-preference-availability
+					class="prev-prerelease"
+				>
+					<PrevPrereleaseIcon /> {prevPrerelease}
+				</a>
+			)
+		}
+		{
+			nextPrerelease && (
+				<a
+					href={`/version/${nextPrerelease}`}
+					data-preference-dependencies={'[["showPrerelease",[true]]]'}
+					data-ignore-preference-availability
+					class="next-prerelease"
+				>
+					{nextPrerelease} <NextPrereleaseIcon />
+				</a>
+			)
+		}
+		{
+			nextStable && (
+				<a href={`/version/${nextStable}`} class="next-stable">
+					{nextStable} <NextStableIcon />
+				</a>
+			)
+		}
+	</nav>
+</BaseLayout>
+
+<style lang="scss">
+	@use "../../styles/utils" as *;
+	@use "../../styles/colors" as *;
+
+	.details {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: size(6);
+		padding: 0;
+		list-style: none;
+
+		> li,
+		> li > p {
+			margin: 0;
+		}
+
+		[data-icon] {
+			font-size: size(20);
+		}
+
+		.separator {
+			color: var(--color-dimmer);
+		}
+
+		.prerelease {
+			color: $amber-300;
+
+			@include preferences("light") {
+				color: $yellow-700;
+			}
+		}
+	}
+
+	.older-since {
+		font-weight: 400;
+		color: var(--color-dim);
+	}
+
+	nav {
+		display: grid;
+		grid-template:
+			"prev-stable     next-stable"
+			"prev-prerelease next-prerelease";
+		justify-content: space-between;
+		flex-wrap: wrap;
+		margin-block: size(16);
+
+		&:first-child {
+			margin-bottom: 0;
+		}
+
+		&:last-child {
+			margin-top: 0;
+		}
+
+		a {
+			display: flex;
+			align-items: center;
+			gap: size(6);
+			padding-block: size(6);
+
+			[data-icon] {
+				font-size: size(24);
+			}
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.prev-stable {
+			grid-area: prev-stable;
+		}
+
+		.next-stable {
+			grid-area: next-stable;
+		}
+
+		.prev-prerelease {
+			grid-area: prev-prerelease;
+		}
+
+		.next-prerelease {
+			grid-area: next-prerelease;
+		}
+
+		.prev-prerelease,
+		.next-prerelease {
+			opacity: 0.78;
+
+			@media (prefers-contrast: more) {
+				opacity: 0.88;
+			}
+		}
+
+		.next-stable,
+		.next-prerelease {
+			justify-self: flex-end;
+		}
+	}
+</style>
