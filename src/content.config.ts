@@ -6,11 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import * as path from "node:path";
-
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
+import { compareVersions } from "compare-versions";
 import consola from "consola";
 import type { DefaultLogFields, LogOptions } from "simple-git";
 
@@ -116,11 +115,12 @@ function extractVersion(tag?: string) {
 	return tag?.replace(/^v/, "").replace(/ +.*$/, "");
 }
 
-const baseLogOptions: LogOptions = {
+const baseLogOptions = {
 	strictDate: true,
 	symmetric: false,
 	multiLine: true,
-};
+	"--no-show-signature": true,
+} as LogOptions;
 
 // TODO: this collection can take a while to load (good thing it's only at build time)
 const versions = defineCollection({
@@ -129,7 +129,8 @@ const versions = defineCollection({
 
 		const result: VersionInfo[] = [];
 		const firstCommit = await git.firstCommit();
-		const { all: tags } = await git.tags(["-n", "--sort=v:refname"]);
+		const { all: tags } = await git.tags(["-n"]);
+		tags.sort((a, b) => compareVersions(extractVersion(a), extractVersion(b)));
 
 		for (let i = 0; i < tags.length; i++) {
 			const [tag, ...message] = tags[i].split(/ +/);
@@ -179,11 +180,11 @@ const versions = defineCollection({
 const changelogs = defineCollection({
 	loader: glob({
 		base: "./src/content/changelogs",
-		pattern: "*.{md,mdx}",
+		pattern: "**/*.{md,mdx}",
 
 		// The default generateId strips dots (and possibly other characters) from the name.
 		// This isn't ideal, so we implement it ourselves here to avoid that.
-		generateId: ({ entry }) => entry.replace(path.extname(entry), ""),
+		generateId: ({ entry }) => entry.replace(/(\/index)?\.mdx?$/, ""),
 	}),
 });
 

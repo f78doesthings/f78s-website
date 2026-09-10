@@ -39,7 +39,7 @@ const gitDate = tryExec("git log -1 --format=%cI HEAD") ?? new Date().toISOStrin
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://www.f78.be",
+	site: "https://f78.be",
 	redirects: {
 		// Compatibility for the old Jekyll site
 		// (might need to handle this through Cloudflare instead...)

@@ -640,6 +640,7 @@ export function MediaControls({
 								onDrag={({ newValue }) => {
 									if (media.value) {
 										media.value.playbackRate = newValue;
+										media.value.defaultPlaybackRate = newValue;
 										setPlaybackRate(newValue);
 									}
 								}}

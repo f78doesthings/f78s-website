@@ -1,0 +1,133 @@
+import MainImage from "../../../components/media/MainImage.astro";
+import AudioPlayer from "../../../components/media/audio/AudioPlayer.astro";
+
+It took me nearly 4 months, but at last, a new major version of the website is out! This is probably
+the largest update up until now, mainly because I got sidetracked a lot. Sorry about that.
+
+### The Blog Grows
+
+<MainImage
+	src={import("../../blog/gaze-upon-the-stars/music-video/assets/images/hero.avif")}
+	alt="Paige lining up a cinematic camera"
+	createdIn="2026"
+/>
+
+The biggest thing in this big update is the long-awaited release of
+[part 2 of the "gaze upon the stars" blog post](/blog/gaze-upon-the-stars/music-video)! And when I
+say biggest, I really mean it, as it clocks in at a whopping **37 minutes** of reading time. That
+equates to about **7,400 words** <small>(though I haven't checked the exact word count)</small>. On
+top of that, [part 1](/blog/gaze-upon-the-stars) has been revised and expanded a bit.
+
+And if that's not enough, blog posts now feature a built-in **comment section**! This is done by
+displaying
+[GitHub discussions](https://github.com/f78doesthings/f78s-website/discussions/categories/page-comments)
+through [giscus](https://giscus.app). As such, you will need a **GitHub account** to comment on
+them. Both "gaze upon the stars" blog posts should have an example comment from me in there, as
+pictured below:
+
+<MainImage
+	src={import("./assets/images/comment-section.avif")}
+	alt="The comment section of part 1"
+	createdIn="2026"
+>
+	Don't ask me why it defaults to this horrible font on Linux...
+</MainImage>
+
+### Visualizer Frenzy
+
+<MainImage
+	src={import("./assets/images/visualizer-showcase.avif")}
+	alt="The website's visualizers"
+	createdIn="2026"
+/>
+
+The website's custom audio visualizer has been updated quite a bit. The most important changes have
+been listed below. Not only that, you can now **try out this visualizer with ANY audio file\*** by
+heading to the new [visualizer playground](/misc/visualizer) page!<br /><small>\*: Assuming your
+browser supports said audio file.</small>
+
+#### Oscilloscope
+
+- The oscilloscope now **automatically zooms in and out** depending on the volume of the incoming
+  audio. If it's quiet, it zooms in, and if it's loud, it zooms out. Pretty self-explanatory. The
+  exact zoom level is displayed in the top left, by the way.
+- On top of that, it now tries to **align the waveform with the last zero crossing**. You don't need
+  to know what that means, only that it should make the waveform display a bit **smoother** and more
+  meaningful. This is not finished yet, so it will still flicker depending on the audio.
+
+#### Spectrum
+
+- The spectrum analyser's behaviour should now be **framerate independent**.
+- Said **framerate** has also been **improved**, by reducing the detail in the upper frequencies.
+- The highest displayed frequency has been upped to **22,050 Hz** (it was previously 16,000 Hz).
+
+#### Volume meter
+
+This is a new addition to the visualizer! It gives you plenty of information about the audio volume,
+such as:
+
+- The **current volume**, of course. These are the big coloured bars. They also briefly turn yellow
+  if the audio signal is clipping.
+- The [RMS](https://en.wikipedia.org/wiki/Root_mean_square#Audio_engineering), if I implemented it
+  correctly. This is currently displayed as a cutout between the current volume
+  bars.<br /><small>This one is handy for the obnoxiously loud mixes of today that constantly hit
+  the limiter, as it should still give you information in those cases.</small>
+- The **recent peak volume**, displayed as a line above the current volume bars, in the same colour
+  as them. They drop down after a few seconds.
+- The **all-time peak volume**, shown both as a darker line, as well as an exact value inside the
+  meter itself. This only resets if you pause the media player.
+
+<MainImage src={import("./assets/images/meter-breakdown.avif")} alt="" createdIn="2026">
+	The volume meter and its parts.
+</MainImage>
+
+### Enhanced Media Players
+
+Of course, the audio and video players that display those visualizers have been updated, too. For
+instance, the pop-up menu now contains a slider that lets you **change the playback speed**.
+
+You can also use **keyboard shortcuts** to adjust said playback speed. Speaking of which, when you
+use one of these shortcuts, a little **indicator** will now pop up to let you know what you just
+did. This also applies to mouse and touch actions.
+
+<small>
+	I know, I still need to add a help menu displaying the various shortcuts. You can reference a
+	[list of YouTube's shortcuts](https://www.mrfdev.com/youtube-keyboard-shortcuts) for now, since
+	they should be mostly the same. This website doesn't use all of them, obviously.
+</small>
+
+Try out these changes here:
+
+<AudioPlayer
+	src={import("../../blog/gaze-upon-the-stars/assets/audio/gaze-upon-the-stars.m4a")}
+	createdIn="2026"
+/>
+
+The **default volume** has been increased to **100%** for now. <small>_In an upcoming version, I'll
+add a preference that lets you change this._</small> I also fixed various bugs related to these
+players, such as media refusing to load after a page transition. I have no clue what caused this, it
+just seemingly started happening some time between the last version and this one.
+
+### What's that version?
+
+The website now features a [list of versions](/version) and their changes, which can be accessed at
+any time by clicking the version number at the bottom of the left sidebar. But who am I kidding, you
+already knew that, because you're browsing them right now. Or maybe you clicked that banner up top.
+
+Anyway, these version pages are generated automatically based on Git tags and commit history. It
+also allows for custom release notes, which you're currently reading!
+
+### The Little Things
+
+There have been a lot more smaller changes. For instance, the **table of contents** has also been
+moved to its own **dedicated sidebar** on the right, and on large enough screens, you can now
+**toggle** these sidebars. Their state will be remembered as well!
+
+Next up, **style changes**. One of these is that the various navigation bars have been given a new
+look in Immersive Mode, although said look is still subject to change. Horizontal rulers have also
+been stylized. And the last thing I want to mention, the immersive background has **coloured stars**
+now! _Can you even tell?_
+
+Of course, there are many more of these changes that are not worth mentioning here, such as
+**improved page load times**. Check out the **commit history** below if you want to dive into the
+nitty-gritty.

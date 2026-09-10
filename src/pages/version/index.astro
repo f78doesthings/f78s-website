@@ -44,17 +44,14 @@ const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 			<VersionIcon />
 			<span class="title">Version</span>
 			<span>
-				<a
-					title={hasChangelogs ? "Go to changelogs" : ""}
-					href={hasChangelogs ? `/version/${SITE_VERSION}` : undefined}
-				>
-					{SITE_VERSION}
-				</a>
+				<b>{SITE_VERSION}</b>
+				<span class="text-dim"> &bullet; </span>
+				<Link href={hasChangelogs ? `/version/${SITE_VERSION}` : undefined}>Release notes</Link>
 			</span>
 		</div>
 		<FormattedDate date={new Date(GIT_COMMIT_DATE)} showTime>
 			<DateIcon slot="icon" />
-			<span class="title" slot="before">Dated</span>
+			<span class="title" slot="before">Released</span>
 		</FormattedDate>
 		<div>
 			<BranchIcon />
@@ -130,7 +127,7 @@ const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 	</p>
 
 	<section id="version-list">
-		<h2>Changelogs <Badge type="alpha" /></h2>
+		<h2>Changelogs <Badge type="beta" /></h2>
 		<p>
 			These have been automatically generated based on Git tags and commit history, and are still a
 			work-in-progress.

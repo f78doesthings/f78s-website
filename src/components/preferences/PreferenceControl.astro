@@ -173,7 +173,6 @@ const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 			}
 
 			const ignoreAvailability = dependent.dataset.ignorePreferenceAvailability !== undefined;
-			console.debug(jsonDependencies, ignoreAvailability);
 			try {
 				const dependencies: MapEntries<PreferenceID, NotUndefined[]> = JSON.parse(jsonDependencies);
 				const resolved = dependencies.map(([id, expectedValues]) => {

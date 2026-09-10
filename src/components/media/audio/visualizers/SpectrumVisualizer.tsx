@@ -43,6 +43,14 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	/** How much the spectrum is lowered per second (dB) */
 	const reductionRate = 54;
 
+	/**
+	 * The minimum distance between points, in octaves.
+	 *
+	 * Increasing this will reduce detail in the higher frequencies, but will also significantly
+	 * improve performance.
+	 */
+	const smoothing = 1 / 192;
+
 	//#endregion
 
 	return (
@@ -89,6 +97,9 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 					ctx.lineWidth = textPadding;
 					ctx.fillText(text, x, y);
 				};
+
+				// TODO: this formula could probably be simplified
+				const minDst = getX(slopeCenter * 2 ** smoothing) - getX(slopeCenter);
 
 				// Clear canvas
 				ctx.clearRect(0, 0, width, height);
@@ -149,6 +160,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 				let prevY = 0;
 				let prevCurveX = 0;
 				let prevCurveY = 0;
+				let totalDecibels = 0;
+				let samplesSincePlot = 0;
 				const maxThickness = renderScale + (width + height) / 720;
 				let prevThickness = maxThickness;
 
@@ -166,11 +179,16 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 						running ? data.current[i] : -Infinity,
 						data.previous[i] - volumeReduction,
 					);
-					const decibels = currentDecibels + slope * Math.log2(frequency / slopeCenter);
+					const adjustedDecibels = currentDecibels + slope * Math.log2(frequency / slopeCenter);
 					data.previous[i] = currentDecibels;
+					totalDecibels += adjustedDecibels;
+					samplesSincePlot++;
 
+					// We take the average of the samples we skipped and plot that instead of only this sample.
+					// This smoothens out the spectrum and makes it more meaningful.
+					const finalDecibels = totalDecibels / samplesSincePlot;
 					const x = getX(frequency);
-					const y = isFinite(decibels) ? getY(decibels) : floor;
+					const y = isFinite(finalDecibels) ? getY(finalDecibels) : floor;
 
 					if (i === 0) {
 						ctx.moveTo(x, y);
@@ -178,6 +196,10 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 						prevCurveX = x;
 						prevCurveY = y;
 					} else {
+						if (x - prevX < minDst) {
+							continue;
+						}
+
 						// Crudely approximate a smooth curve, probably should be replaced at some point
 						// Adapted from https://stackoverflow.com/questions/7054272/how-to-draw-smooth-curve-through-n-points-using-javascript-html5-canvas#7058606
 						const cx = (prevX + x) / 2;
@@ -210,6 +232,8 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 
 					prevX = x;
 					prevY = y;
+					totalDecibels = 0;
+					samplesSincePlot = 0;
 				}
 
 				// Finish the path and fill in the spectrum

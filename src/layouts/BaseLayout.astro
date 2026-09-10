@@ -24,7 +24,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
 import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
-import ConstructionEmoji from "~icons/noto/construction";
+import RocketEmoji from "~icons/noto/rocket";
 import DragonEmoji from "~icons/noto/dragon";
 import Banner from "../components/Banner.astro";
 import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
@@ -70,6 +70,7 @@ const {
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
 const url = new URL(Astro.url);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 if (IS_DEV) {
 	siteTitle += " [DEV BUILD]";
 	url.hostname = "dev.f78.be";
@@ -93,7 +94,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 			title={BLOG_TITLE}
 			href={new URL("rss.xml", Astro.site)}
 		/>
-		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+		<link rel="canonical" href={canonicalURL} />
 
 		<!-- Meta -->
 		<title>{(title ? `${title} · ` : "") + siteTitle}</title>
@@ -104,6 +105,9 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 
 		{/* Mainly for Discord embeds */}
 		<meta name="theme-color" content="#f11325" />
+
+		{/* Ensure discussions created by giscus always point to the main website */}
+		{discussionId && <meta name="giscus:backlink" content={canonicalURL} />}
 
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content={url} />
@@ -148,12 +152,11 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 					</span>
 				</Banner>
 			) : (
-				<Banner id="under-construction">
-					<ConstructionEmoji />
+				<Banner id={`new-release/${SITE_VERSION}`}>
+					<RocketEmoji />
 					<span>
-						This newly revamped version of the website is still being worked on. Report any bugs you
-						find on{" "}
-						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+						Version <strong>{SITE_VERSION}</strong> of the website just dropped!{" "}
+						<Link href={`/version/${SITE_VERSION}`}>Read the release notes</Link>
 					</span>
 				</Banner>
 			)
@@ -171,7 +174,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 							src="https://giscus.app/client.js"
 							data-repo="f78doesthings/f78s-website"
 							data-repo-id="R_kgDOSI1PSA"
-							data-category="Page discussions"
+							data-category="Page comments"
 							data-category-id="DIC_kwDOSI1PSM4DFNKN"
 							data-mapping="specific"
 							data-term={discussionId}
@@ -186,10 +189,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 							async
 						/>
 						<p class="discussion-id">
-							Discussion name: <b>{discussionId}</b> &bullet; Powered by{" "}
-							<Link href="https://giscus.app" external>
-								giscus
-							</Link>{" "}
+							Discussion title: <b>{discussionId}</b>
 						</p>
 					</section>
 				)
