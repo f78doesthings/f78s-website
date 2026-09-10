@@ -35,7 +35,8 @@ function tryExec(command: string) {
 
 const gitBranch = (await git.branch()).current;
 const gitCommit = await git.revparse(["--short", "HEAD"]);
-const gitDate = tryExec("git log -1 --format=%cI HEAD") ?? new Date().toISOString();
+const gitDate =
+	tryExec("git log -1 --no-show-signature --format=%cI HEAD") ?? new Date().toISOString();
 
 // https://astro.build/config
 export default defineConfig({
