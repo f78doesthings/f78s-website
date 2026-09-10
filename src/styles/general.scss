@@ -225,8 +225,8 @@ body {
 	@include glass;
 
 	@media (min-width: $breakpoint-desktop) {
-		// TODO: having an exact pixel count here is not ideal...
-		left: size(302);
+		// TODO: having an exact pixel count here clashes with the collapsible sidebars...
+		left: size(294);
 	}
 }
 
@@ -591,11 +591,13 @@ main {
 	}
 
 	details {
+		$details-margin: size(18);
+
 		--shadow-color: var(--color-page);
 
-		padding-inline: $page-margin;
-		border-radius: size(16);
-		margin-bottom: $page-margin;
+		padding-inline: $details-margin;
+		border-radius: $details-margin;
+		margin: 0 (-$details-margin) $page-margin;
 
 		background-color: color-mix(in srgb, var(--color-component), transparent 50%);
 		box-shadow: 0 0 size(16) var(--shadow-color) inset;
@@ -605,10 +607,19 @@ main {
 			--shadow-color: var(--color-component);
 		}
 
-		summary {
+		> details {
+			background-color: var(--color-component);
+			margin-inline: size(-14);
+
+			&:last-child {
+				margin-bottom: size(4);
+			}
+		}
+
+		> summary {
 			font-weight: 500;
-			padding: size(18) $page-margin;
-			margin-inline: -$page-margin;
+			padding: size(16) $details-margin;
+			margin-inline: -$details-margin;
 
 			&::marker {
 				color: var(--color-dimmer);

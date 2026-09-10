@@ -1,0 +1,14 @@
+import Alert from "../../components/Alert.astro";
+
+<Alert type="important">
+	This is a hotfix for the previous major version. To see the many changes that were introduced
+	there, please refer to the [release notes for version 0.4.0](/version/0.4.0).
+</Alert>
+
+This version fixes a handful of dates not showing up properly, which I accidentally caused by
+changing my Git config. It also adds the missing pre-release version pages to stable builds.
+
+Some styling issues were additionally addressed. For instance, the horizontal rulers between commits
+in the commit history now match the gradient style I've been going for. An alignment issue with the
+blog post header on mobile was also corrected. Finally, collapsibles had their margins adjusted to
+better suit narrow screens.

@@ -98,7 +98,7 @@ const semverRegex =
 	/^v?(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(?<message> +.*)?$/;
 
 const prereleaseTypes: PrereleaseType[] = ["dev", "alpha", "beta", "rc"];
-const getPrerelease = (version: string) => {
+const getPrereleaseType = (version: string) => {
 	const result = semverRegex.exec(version);
 	const prerelease = result?.groups?.["prerelease"];
 	return prereleaseTypes.find((type) => prerelease?.startsWith(type));
@@ -108,11 +108,23 @@ const jsonifyCommit = (commit: DefaultLogFields) => {
 	return { ...commit };
 };
 
-/** Removes the `v` prefix and any annotations from the tag. */
-function extractVersion(tag: string): string;
-function extractVersion(tag?: string): string | undefined;
-function extractVersion(tag?: string) {
-	return tag?.replace(/^v/, "").replace(/ +.*$/, "");
+/** Removes only the `v` prefix from the given tag. */
+function stripTagPrefix(tag: string): string;
+function stripTagPrefix(tag?: string): string | undefined;
+function stripTagPrefix(tag?: string) {
+	return tag?.replace(/^v/, "");
+}
+
+/** Removes only annotations from the given tag. */
+function stripTagAnnotation(tag: string): string;
+function stripTagAnnotation(tag?: string): string | undefined;
+function stripTagAnnotation(tag?: string) {
+	return tag?.replace(/ +.*$/, "");
+}
+
+/** Removes both the `v` prefix and any annotations from the given tag. */
+function extractVersion(tag: string) {
+	return stripTagPrefix(stripTagAnnotation(tag));
 }
 
 const baseLogOptions = {
@@ -134,16 +146,24 @@ const versions = defineCollection({
 
 		for (let i = 0; i < tags.length; i++) {
 			const [tag, ...message] = tags[i].split(/ +/);
-			const prerelease = getPrerelease(tag);
-			const prevStable = tags.findLast((version, index) => index < i && !getPrerelease(version));
-			const prevPrerelease = tags.findLast((version, index) => index < i && getPrerelease(version));
-			const nextStableIndex = tags.findIndex(
-				(version, index) => index > i && !getPrerelease(version),
+			const prerelease = getPrereleaseType(tag);
+			const prevStable = stripTagAnnotation(
+				tags.findLast((version, index) => index < i && !getPrereleaseType(version)),
 			);
-			const nextStable = tags[nextStableIndex];
-			const nextPrerelease = tags.find(
-				(version, index) =>
-					index > i && (nextStableIndex < 0 || index < nextStableIndex) && getPrerelease(version),
+			const prevPrerelease = stripTagAnnotation(
+				tags.findLast((version, index) => index < i && getPrereleaseType(version)),
+			);
+			const nextStableIndex = tags.findIndex(
+				(version, index) => index > i && !getPrereleaseType(version),
+			);
+			const nextStable = stripTagAnnotation(tags[nextStableIndex]);
+			const nextPrerelease = stripTagAnnotation(
+				tags.find(
+					(version, index) =>
+						index > i &&
+						(nextStableIndex < 0 || index < nextStableIndex) &&
+						getPrereleaseType(version),
+				),
 			);
 
 			const commits = await git.log({
@@ -160,13 +180,13 @@ const versions = defineCollection({
 				: undefined;
 
 			result.push({
-				id: extractVersion(tag),
+				id: stripTagPrefix(tag),
 				message: message.join(" "),
 				prerelease,
-				prevStable: extractVersion(prevStable),
-				prevPrerelease: extractVersion(prevPrerelease),
-				nextStable: extractVersion(nextStable),
-				nextPrerelease: extractVersion(nextPrerelease),
+				prevStable: stripTagPrefix(prevStable),
+				prevPrerelease: stripTagPrefix(prevPrerelease),
+				nextStable: stripTagPrefix(nextStable),
+				nextPrerelease: stripTagPrefix(nextPrerelease),
 				date: devCommits?.latest?.date ?? commits.latest?.date,
 				stableCommits: commits.all.map(jsonifyCommit),
 				prereleaseCommits: devCommits?.all.map(jsonifyCommit),

@@ -110,6 +110,16 @@ const scopeTexts: Record<string, string | undefined> = {
 		margin-bottom: $page-margin;
 		border-bottom: 1px solid var(--color-border);
 
+		@media not (prefers-contrast: more) {
+			border-image: linear-gradient(
+					90deg,
+					transparent -50%,
+					var(--color-border) 50%,
+					transparent 150%
+				)
+				1;
+		}
+
 		&:last-of-type {
 			border-bottom: none;
 			padding-bottom: 0;

@@ -39,9 +39,12 @@ export function getModifiedTime(filePath: string | URL) {
 			filePath = fileURLToPath(filePath);
 		}
 
-		const result = child_process.execSync(`git log -1 --pretty="format:%cI" "${filePath}"`, {
-			encoding: "utf-8",
-		});
+		const result = child_process.execSync(
+			`git log -1 --no-show-signature --pretty="format:%cI" "${filePath}"`,
+			{
+				encoding: "utf-8",
+			},
+		);
 		return result || new Date().toISOString();
 	} catch (e) {
 		console.warn("Failed to get last modified time:\n ", e);
