@@ -27,12 +27,10 @@ import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async () => {
 	const versions = await getVersions();
-	return versions
-		.filter((v) => !v.prerelease || IS_DEV)
-		.map((v) => ({
-			params: { tag: v.id },
-			props: v satisfies Props,
-		}));
+	return versions.map((v) => ({
+		params: { tag: v.id },
+		props: v satisfies Props,
+	}));
 }) satisfies GetStaticPaths;
 
 type Props = VersionInfo;
