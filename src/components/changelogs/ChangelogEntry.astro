@@ -106,8 +106,8 @@ const scopeTexts: Record<string, string | undefined> = {
 	@use "../../styles/utils" as *;
 
 	.commit {
-		padding-bottom: $page-margin;
-		margin-bottom: $page-margin;
+		padding-bottom: size(18);
+		margin-bottom: size(18);
 		border-bottom: 1px solid var(--color-border);
 
 		@media not (prefers-contrast: more) {
@@ -123,7 +123,6 @@ const scopeTexts: Record<string, string | undefined> = {
 		&:last-of-type {
 			border-bottom: none;
 			padding-bottom: 0;
-			margin-bottom: size(18);
 		}
 	}
 

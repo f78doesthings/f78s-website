@@ -16,8 +16,8 @@ import BetaIconSmall from "~icons/fluent/beaker-16-regular";
 import BetaIcon from "~icons/fluent/beaker-20-regular";
 import AlphaIconSmall from "~icons/fluent/bug-16-regular";
 import AlphaIcon from "~icons/fluent/bug-20-regular";
-import ReleaseCandidateIconSmall from "~icons/fluent/checkmark-16-regular";
-import ReleaseCandidateIcon from "~icons/fluent/checkmark-20-regular";
+import ReleaseCandidateIconSmall from "~icons/fluent/multiselect-16-regular";
+import ReleaseCandidateIcon from "~icons/fluent/multiselect-20-regular";
 import NewIcon from "~icons/fluent/new-20-regular";
 import PauseIcon from "~icons/fluent/pause-circle-20-regular";
 import DevIconSmall from "~icons/fluent/warning-16-regular";
@@ -78,16 +78,16 @@ export const BADGES: Record<BadgeType, Badge> = {
 
 export const PRERELEASE_TYPES: Record<PrereleaseType, PrereleaseInfo> = {
 	dev: {
-		title: "Experimental test build",
+		title: "Early development version",
 		description:
-			"Anything goes in these versions. Nothing is guaranteed to make it to the final website.",
+			"Anything goes in these very early builds. You shouldn't expect too much from them.",
 		icon: DevIcon,
 		iconSmall: DevIconSmall,
 	},
 	alpha: {
 		title: "Alpha version",
 		description:
-			"In this early phase, new features are constantly being worked on. These can be unstable.",
+			"In this early phase, new features are constantly being worked on. These can be unstable at times, so beware.",
 		icon: AlphaIcon,
 		iconSmall: AlphaIconSmall,
 	},
@@ -101,7 +101,7 @@ export const PRERELEASE_TYPES: Record<PrereleaseType, PrereleaseInfo> = {
 	rc: {
 		title: "Release candidate build",
 		description:
-			"This is the final stretch! If no major bugs arise, the version gets pushed to the main website.",
+			"This is the final stretch! Assuming no major bugs arise, the version will soon make its way to the main website.",
 		icon: ReleaseCandidateIcon,
 		iconSmall: ReleaseCandidateIconSmall,
 	},

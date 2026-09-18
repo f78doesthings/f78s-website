@@ -13,6 +13,7 @@ import FormattedDate from "../FormattedDate.astro";
 import LatestIcon from "~icons/fluent/new-16-regular";
 import Markdown from "../utils/Markdown.astro";
 import { PRERELEASE_TYPES } from "../../consts";
+import { getChangelogs } from "../../server-utils";
 
 type Props = {
 	versions: VersionInfo[];
@@ -27,6 +28,7 @@ let firstStable = true;
 	{
 		versions.map((v) => {
 			const latest = v.prerelease ? firstPrerelease && firstStable : firstStable;
+			const changelogs = getChangelogs(v.id);
 			if (v.prerelease) {
 				firstPrerelease = false;
 			} else {
@@ -43,6 +45,15 @@ let firstStable = true;
 				>
 					<a href={`/version/${v.id}`} class="version">
 						{v.id}
+						{changelogs.then(
+							(v) =>
+								v?.data.title && (
+									<>
+										{" "}
+										<small>&OpenCurlyDoubleQuote;{v.data.title}&CloseCurlyDoubleQuote;</small>
+									</>
+								),
+						)}
 					</a>
 					{latest && (
 						<span class="badge badge-latest" title="Latest version">
@@ -115,12 +126,18 @@ let firstStable = true;
 				}
 			}
 
+			> a > small {
+				color: inherit;
+				font-weight: 350;
+				font-style: italic;
+			}
+
 			.badge {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				width: size(24);
-				height: size(24);
+				width: size(26);
+				height: size(26);
 
 				background-color: color-mix(in srgb, var(--badge-background), transparent 80%);
 				border: 1px solid transparent;

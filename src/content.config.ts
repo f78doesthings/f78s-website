@@ -9,6 +9,7 @@
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
+import { SITE_VERSION } from "astro:env/client";
 import { compareVersions } from "compare-versions";
 import consola from "consola";
 import type { DefaultLogFields, LogOptions } from "simple-git";
@@ -135,6 +136,7 @@ const baseLogOptions = {
 } as LogOptions;
 
 // TODO: this collection can take a while to load (good thing it's only at build time)
+//       also this code is turning into a mess
 const versions = defineCollection({
 	loader: async () => {
 		consola.info("Reloading the version content collection. This may take a bit...");
@@ -147,24 +149,29 @@ const versions = defineCollection({
 		for (let i = 0; i < tags.length; i++) {
 			const [tag, ...message] = tags[i].split(/ +/);
 			const prerelease = getPrereleaseType(tag);
-			const prevStable = stripTagAnnotation(
-				tags.findLast((version, index) => index < i && !getPrereleaseType(version)),
+
+			const prevStableIndex = tags.findLastIndex(
+				(version, index) => index < i && !getPrereleaseType(version),
 			);
-			const prevPrerelease = stripTagAnnotation(
-				tags.findLast((version, index) => index < i && getPrereleaseType(version)),
+			const prevStable = stripTagAnnotation(tags[prevStableIndex]);
+
+			const prevPrereleaseIndex = tags.findLastIndex(
+				(version, index) => index < i && getPrereleaseType(version),
 			);
+			const prevPrerelease = stripTagAnnotation(tags[prevPrereleaseIndex]);
+
 			const nextStableIndex = tags.findIndex(
 				(version, index) => index > i && !getPrereleaseType(version),
 			);
 			const nextStable = stripTagAnnotation(tags[nextStableIndex]);
-			const nextPrerelease = stripTagAnnotation(
-				tags.find(
-					(version, index) =>
-						index > i &&
-						(nextStableIndex < 0 || index < nextStableIndex) &&
-						getPrereleaseType(version),
-				),
+
+			const nextPrereleaseIndex = tags.findIndex(
+				(version, index) =>
+					index > i &&
+					(nextStableIndex < 0 || index < nextStableIndex) &&
+					getPrereleaseType(version),
 			);
+			const nextPrerelease = stripTagAnnotation(tags[nextPrereleaseIndex]);
 
 			const commits = await git.log({
 				...baseLogOptions,
@@ -174,7 +181,8 @@ const versions = defineCollection({
 			const devCommits = prerelease
 				? await git.log({
 						...baseLogOptions,
-						from: prevPrerelease ?? prevStable ?? firstCommit,
+						from:
+							(prevPrereleaseIndex > prevStableIndex ? prevPrerelease : prevStable) ?? firstCommit,
 						to: tag,
 					})
 				: undefined;
@@ -193,6 +201,15 @@ const versions = defineCollection({
 			});
 		}
 
+		if (result.every((v) => v.id !== SITE_VERSION)) {
+			result.push({
+				id: SITE_VERSION,
+				prerelease: getPrereleaseType(SITE_VERSION),
+				prevStable: result.findLast((v) => !v.prerelease)?.id,
+				prevPrerelease: result.findLast((v) => v.prerelease)?.id,
+			});
+		}
+
 		return result;
 	},
 });
@@ -206,6 +223,11 @@ const changelogs = defineCollection({
 		// This isn't ideal, so we implement it ourselves here to avoid that.
 		generateId: ({ entry }) => entry.replace(/(\/index)?\.mdx?$/, ""),
 	}),
+	schema: () =>
+		z.object({
+			/** A short codename for this version. */
+			title: z.string().optional(),
+		}),
 });
 
 //#endregion

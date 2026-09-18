@@ -9,8 +9,8 @@
 
 import type { GetStaticPaths } from "astro";
 
-import { IS_DEV, PRERELEASE_TYPES } from "../../consts";
-import { getVersions } from "../../server-utils";
+import { PRERELEASE_TYPES } from "../../consts";
+import { getChangelogs, getVersions } from "../../server-utils";
 import type { VersionInfo } from "../../types";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
@@ -23,7 +23,6 @@ import PrevPrereleaseIcon from "~icons/fluent/chevron-circle-left-24-regular";
 import NextPrereleaseIcon from "~icons/fluent/chevron-circle-right-24-regular";
 import Alert from "../../components/Alert.astro";
 import { render } from "astro:content";
-import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async () => {
 	const versions = await getVersions();
@@ -50,12 +49,14 @@ const {
 const commits = prereleaseCommits ?? stableCommits;
 const olderCommits =
 	prereleaseCommits &&
+	stableCommits &&
+	commits &&
 	stableCommits.slice(
 		stableCommits.findLastIndex((commit) => commits.some((other) => other.hash === commit.hash)) +
 			1,
 	);
 
-const changelogs = await getEntry("changelogs", version);
+const changelogs = await getChangelogs(version);
 const { Content } = changelogs ? await render(changelogs) : {};
 ---
 
@@ -64,7 +65,16 @@ const { Content } = changelogs ? await render(changelogs) : {};
 		<a href="/version#version-list"><BackIcon /> Back to version list</a>
 	</nav>
 
-	<h1>Version {version}</h1>
+	<h1>
+		Version {version}{
+			changelogs?.data.title && (
+				<>
+					{" "}
+					<small>&OpenCurlyDoubleQuote;{changelogs.data.title}&CloseCurlyDoubleQuote;</small>
+				</>
+			)
+		}
+	</h1>
 	<ul class="details">
 		<li>
 			<FormattedDate date={date} showTime>
@@ -86,22 +96,35 @@ const { Content } = changelogs ? await render(changelogs) : {};
 	}
 
 	<h2>Commits</h2>
-	<details open={changelogs === undefined}>
-		<summary>View commit history</summary>
-		{commits.map((commit) => <ChangelogEntry commit={commit} />)}
-		{
-			olderCommits && olderCommits.length > 0 && (
-				<details>
-					<summary>
-						View older commits <span class="older-since">(since {prevStable})</span>
-					</summary>
-					{olderCommits.map((commit) => (
-						<ChangelogEntry commit={commit} />
-					))}
-				</details>
-			)
-		}
-	</details>
+	{
+		commits && commits.length > 0 ? (
+			<details open={changelogs === undefined}>
+				<summary>View commit history</summary>
+				{commits.map((commit) => (
+					<ChangelogEntry commit={commit} />
+				))}
+				{olderCommits && olderCommits.length > 0 && (
+					<details>
+						<summary>
+							View older commits <span class="older-since">(since {prevStable})</span>
+						</summary>
+						{olderCommits.map((commit) => (
+							<ChangelogEntry commit={commit} />
+						))}
+					</details>
+				)}
+			</details>
+		) : (
+			<Alert type="warning">
+				This version does not have any commits associated with it.
+				<br />
+				<small>
+					If you see this on an actual production website (development build or not), something
+					must've gone very wrong!
+				</small>
+			</Alert>
+		)
+	}
 
 	<nav>
 		{
@@ -148,6 +171,15 @@ const { Content } = changelogs ? await render(changelogs) : {};
 <style lang="scss">
 	@use "../../styles/utils" as *;
 	@use "../../styles/colors" as *;
+
+	h1 > small {
+		color: var(--color-text);
+		font-size: size(24);
+		font-weight: 400;
+		font-style: italic;
+		display: inline-block;
+		line-height: 1.15;
+	}
 
 	.details {
 		display: flex;

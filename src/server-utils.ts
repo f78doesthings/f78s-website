@@ -9,7 +9,7 @@
 // A bunch of miscellaneous server-side utilities.
 
 import type { UnresolvedImageTransform } from "astro";
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import simpleGit from "simple-git";
 
 import type { MediaSource, VersionInfo } from "./types.ts";
@@ -21,16 +21,22 @@ export async function getVersions() {
 	const versions: (VersionInfo & Record<string, never>)[] = collection.map((v) => v.data);
 
 	versions.sort((a, b) => {
-		// Handle undefined
+		// Move versions with no date to the front
 		if (!a.date && !b.date) return 0;
-		if (!a.date) return 1;
-		if (!b.date) return -1;
+		if (!a.date) return -1;
+		if (!b.date) return 1;
 
 		// Sort by date, newest first (this works because the ISO 8601 format is sortable)
 		return b.date.localeCompare(a.date);
 	});
 
 	return versions;
+}
+
+export async function getChangelogs(
+	version: string,
+): Promise<CollectionEntry<"changelogs"> | undefined> {
+	return (await getCollection("changelogs", ({ id }) => version === id))[0];
 }
 
 export async function getImageMetadata(src: UnresolvedImageTransform["src"]) {

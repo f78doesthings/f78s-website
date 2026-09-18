@@ -782,16 +782,8 @@ body > footer {
 
 	> * {
 		width: 100%;
-		max-width: $page-width;
+		max-width: calc($page-width - $page-margin * 2);
 		margin: 0;
-
-		@media (min-width: $breakpoint-desktop) {
-			padding: 0 $page-margin;
-
-			@include preferences("loaded", "no-bg") {
-				padding: 0;
-			}
-		}
 	}
 }
 

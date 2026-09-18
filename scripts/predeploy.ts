@@ -16,6 +16,8 @@ import a from "ansis";
 import { consola } from "consola";
 import ignore from "ignore";
 
+import packageJSON from "../package.json" with { type: "json" };
+
 async function confirmExit() {
 	const shouldContinue = await consola.prompt("Do you want to continue anyway?", {
 		type: "confirm",
@@ -38,7 +40,7 @@ if (gitBranch !== deployBranch) {
 	);
 	await confirmExit();
 } else {
-	consola.success("Deploy script matches the current Git branch.");
+	consola.success("The deploy script is correct for the current Git branch.");
 }
 
 // Check for uncommitted changes
@@ -52,6 +54,18 @@ if (gitStatus) {
 	await confirmExit();
 } else {
 	consola.success("All changes are committed.");
+}
+
+// Ensure this version has a tag associated with it, for good measure
+const gitTag = child_process.execSync(`git tag -l v${packageJSON.version}`, { encoding: "utf-8" });
+if (!gitTag) {
+	consola.error(
+		`There is no Git tag for the version specified in ${a.white("package.json")}: ${a.red(packageJSON.version)}`,
+		"\nThe website will show incorrect version information.",
+	);
+	await confirmExit();
+} else {
+	consola.success(`A tag is present for the version specified in ${a.white("package.json")}.`);
 }
 
 // Look for missing copyright headers

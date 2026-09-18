@@ -33,7 +33,6 @@ import { SITE_LICENSE } from "astro:env/client";
 import PreferenceControl from "../../components/preferences/PreferenceControl.astro";
 
 const versions = await getVersions();
-const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 ---
 
 <BaseLayout title={"Version information"}>
@@ -46,7 +45,7 @@ const hasChangelogs = versions.some((v) => v.id === SITE_VERSION);
 			<span>
 				<b>{SITE_VERSION}</b>
 				<span class="text-dim"> &bullet; </span>
-				<Link href={hasChangelogs ? `/version/${SITE_VERSION}` : undefined}>Release notes</Link>
+				<Link href={`/version/${SITE_VERSION}`}>Release notes</Link>
 			</span>
 		</div>
 		<FormattedDate date={new Date(GIT_COMMIT_DATE)} showTime>

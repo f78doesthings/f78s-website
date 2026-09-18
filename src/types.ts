@@ -118,7 +118,7 @@ export interface VersionInfo {
 	date?: string;
 
 	/** The commits made since the last stable version. */
-	stableCommits: DefaultLogFields[];
+	stableCommits?: DefaultLogFields[];
 
 	/** The commits made since the last pre-release version. */
 	prereleaseCommits?: DefaultLogFields[];
