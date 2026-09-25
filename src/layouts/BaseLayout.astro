@@ -20,14 +20,14 @@ import {
 } from "../consts.tsx";
 import Header from "../components/nav/Header.astro";
 import { ClientRouter } from "astro:transitions";
-import FormattedDate from "../components/FormattedDate.astro";
+import FormattedDate from "../components/utils/FormattedDate.astro";
 import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
 import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
 import RocketEmoji from "~icons/noto/rocket";
 import DragonEmoji from "~icons/noto/dragon";
-import Banner from "../components/Banner.astro";
-import { ImmersiveBackground } from "../components/background/ImmersiveBackground";
+import Banner from "../components/ui/Banner.astro";
+import { ImmersiveBackground } from "../components/fx/ImmersiveBackground.tsx";
 import { SITE_VERSION } from "astro:env/client";
 
 interface CommonProps {

@@ -33,8 +33,8 @@ const { id } = Astro.props;
 </div>
 
 <script>
-	import { defineDevTool } from "../scripts/utils/dev-tools";
-	import { getStorageItem } from "../scripts/utils/storage-utils";
+	import { defineDevTool } from "../../scripts/utils/dev-tools";
+	import { getStorageItem } from "../../scripts/utils/storage-utils";
 
 	const DISMISSED_BANNERS_KEY = "dismissedBanners";
 
@@ -78,8 +78,8 @@ const { id } = Astro.props;
 </script>
 
 <style lang="scss">
-	@use "../styles/utils" as *;
-	@use "../styles/colors" as *;
+	@use "../../styles/utils" as *;
+	@use "../../styles/colors" as *;
 	@use "sass:color";
 
 	[data-banner] {

@@ -13,14 +13,14 @@ import { getCollection } from "astro:content";
 import LinkTree from "../components/nav/LinkTree.astro";
 import Link from "../components/nav/Link.tsx";
 import avatar from "../assets/images/avatar.avif";
-import Badge from "../components/Badge.tsx";
+import Badge from "../components/ui/Badge";
 import type { LinkData } from "../types";
 import MainImage from "../components/media/MainImage.astro";
 import CircleFlagsBe from "~icons/circle-flags/be";
 import SimpleIconsSoundcloud from "~icons/simple-icons/soundcloud";
 import SimpleIconsYoutube from "~icons/simple-icons/youtube";
 import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
-import TextEffects from "../components/utils/TextEffects.astro";
+import TextEffects from "../components/fx/TextEffects.astro";
 
 const links = await getCollection("links");
 

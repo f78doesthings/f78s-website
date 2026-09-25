@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { BADGES } from "../consts.tsx";
-import type { BadgeType } from "../types.ts";
+import { BADGES } from "../../consts.tsx";
+import type { BadgeType } from "../../types.js";
 
 import styles from "./Badge.module.scss";
 

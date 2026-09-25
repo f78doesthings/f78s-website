@@ -13,10 +13,10 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { BLOG_TITLE, IS_DEV } from "../../consts.tsx";
 import Link from "../../components/nav/Link.tsx";
-import Badge from "../../components/Badge.tsx";
+import Badge from "../../components/ui/Badge";
 import { type CollectionEntry, getCollection } from "astro:content";
 import BaseImage from "../../components/media/BaseImage.astro";
-import FormattedDate from "../../components/FormattedDate.astro";
+import FormattedDate from "../../components/utils/FormattedDate.astro";
 import fallbackImage from "../../assets/images/blog-fallback.jpg";
 import type { Props as PictureProps } from "astro/components/Picture.astro";
 import FluentEdit20Regular from "~icons/fluent/edit-20-regular";

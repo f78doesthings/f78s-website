@@ -27,8 +27,8 @@ import PlayIcon from "~icons/ri/play-large-fill";
 import { clamp, formatDuration, getFileName, truncate } from "../../../scripts/utils";
 import type { MediaContext } from "../../../scripts/utils/audio";
 import { useEventTarget } from "../../../scripts/utils/preact";
-import { PopupMenu } from "../../utils/PopupMenu";
-import { Slider } from "../../utils/Slider";
+import { PopupMenu } from "../../ui/PopupMenu";
+import { Slider } from "../../ui/Slider";
 import type { MediaShortcutAnimation } from "./MediaShortcutResponse";
 
 import styles from "./MediaControls.module.scss";

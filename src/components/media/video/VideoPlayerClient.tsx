@@ -15,7 +15,7 @@ import ErrorIcon from "~icons/fluent/error-circle-48-regular";
 import { createMediaContext, type MediaContext } from "../../../scripts/utils/audio";
 import { useEventTarget } from "../../../scripts/utils/preact";
 import type { Replace, CopyrightInfo } from "../../../types";
-import { OverlayContainer } from "../../utils/OverlayContainer";
+import { OverlayContainer } from "../../ui/OverlayContainer";
 import { VisualizerSelector } from "../audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../utils/MediaControls";
 

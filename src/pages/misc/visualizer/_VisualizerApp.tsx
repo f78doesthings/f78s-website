@@ -11,7 +11,7 @@ import { useRef } from "preact/hooks";
 
 import { AudioPlayerClient } from "../../../components/media/audio/AudioPlayerClient";
 import Link from "../../../components/nav/Link";
-import { FilePicker } from "../../../components/utils/FilePicker";
+import { FilePicker } from "../../../components/ui/FilePicker";
 import { useEventTarget } from "../../../scripts/utils/preact";
 
 interface Props {

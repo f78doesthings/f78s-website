@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../styles/utils" as *;
-@use "../styles/colors" as *;
+@use "../../styles/utils" as *;
+@use "../../styles/colors" as *;
 @use "sass:color";
 
 :is(h1, h2, h3, h4, h5, h6):has(.badge) {

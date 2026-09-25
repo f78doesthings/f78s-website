@@ -7,7 +7,7 @@
  */
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
-import { Slider } from "../../../components/utils/Slider.tsx";
+import { Slider } from "../../../components/ui/Slider.tsx";
 import { SITE_LANGUAGE } from "../../../consts.tsx";
 import { clamp } from "../../utils";
 import { Preference, type PreferenceConfig } from "./Preference.ts";

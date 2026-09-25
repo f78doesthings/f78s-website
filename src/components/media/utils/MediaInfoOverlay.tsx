@@ -8,7 +8,7 @@
 
 import { getFileName } from "../../../scripts/utils";
 import type { CopyrightInfo } from "../../../types";
-import Badge from "../../Badge";
+import Badge from "../../ui/Badge";
 import LicenseNotice from "./LicenseNotice";
 
 import styles from "./MediaInfoOverlay.module.scss";

@@ -14,14 +14,14 @@ import { getChangelogs, getVersions } from "../../server-utils";
 import type { VersionInfo } from "../../types";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
-import FormattedDate from "../../components/FormattedDate.astro";
+import FormattedDate from "../../components/utils/FormattedDate.astro";
 
 import BackIcon from "~icons/fluent/arrow-left-24-regular";
 import PrevStableIcon from "~icons/fluent/chevron-left-24-regular";
 import NextStableIcon from "~icons/fluent/chevron-right-24-regular";
 import PrevPrereleaseIcon from "~icons/fluent/chevron-circle-left-24-regular";
 import NextPrereleaseIcon from "~icons/fluent/chevron-circle-right-24-regular";
-import Alert from "../../components/Alert.astro";
+import Alert from "../../components/ui/Alert.astro";
 import { render } from "astro:content";
 
 export const getStaticPaths = (async () => {

@@ -14,7 +14,7 @@ import FluentDismiss24Regular from "~icons/fluent/dismiss-24-regular";
 
 import { getFileName } from "../../../scripts/utils";
 import type { CopyrightInfo } from "../../../types";
-import { OverlayContainer } from "../../utils/OverlayContainer";
+import { OverlayContainer } from "../../ui/OverlayContainer";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay";
 
 import "../../../styles/media.scss";

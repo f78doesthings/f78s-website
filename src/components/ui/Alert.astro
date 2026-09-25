@@ -14,8 +14,8 @@ import FluentLightbulb24Regular from "~icons/fluent/lightbulb-24-regular";
 import FluentChatWarning24Regular from "~icons/fluent/chat-warning-24-regular";
 import FluentWarning24Regular from "~icons/fluent/warning-24-regular";
 import FluentErrorCircle24Regular from "~icons/fluent/error-circle-24-regular";
-import type { IconComponent, PrereleaseType } from "../types";
-import { PRERELEASE_TYPES } from "../consts";
+import type { IconComponent, PrereleaseType } from "../../types";
+import { PRERELEASE_TYPES } from "../../consts";
 
 interface Props {
 	type: PrereleaseType | keyof typeof alertTypes;
@@ -63,8 +63,8 @@ const { icon: Icon, title } =
 </blockquote>
 
 <style lang="scss">
-	@use "../styles/colors" as *;
-	@use "../styles/utils" as *;
+	@use "../../styles/colors" as *;
+	@use "../../styles/utils" as *;
 	@use "sass:map";
 	@use "sass:color";
 

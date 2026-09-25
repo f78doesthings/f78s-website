@@ -15,8 +15,8 @@ import ErrorIcon from "~icons/fluent/error-circle-48-regular";
 import { createMediaContext, type MediaContext } from "../../../scripts/utils/audio.js";
 import { useEventTarget, wrapRefs } from "../../../scripts/utils/preact.js";
 import type { CopyrightInfo, Replace } from "../../../types.js";
-import { MediaControls } from "../utils/MediaControls.jsx";
-import { MediaInfoOverlay } from "../utils/MediaInfoOverlay.jsx";
+import { MediaControls } from "../utils/MediaControls.tsx";
+import { MediaInfoOverlay } from "../utils/MediaInfoOverlay.tsx";
 import {
 	MediaShortcutResponse,
 	type MediaShortcutAnimation,
