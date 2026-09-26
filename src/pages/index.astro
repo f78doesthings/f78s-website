@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import BaseLayout from "../layouts/BaseLayout.astro";
+import Page from "../layouts/Page.astro";
 import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.tsx";
 import { getCollection } from "astro:content";
 import LinkTree from "../components/nav/LinkTree.astro";
@@ -47,7 +47,7 @@ const miscLinks: Omit<LinkData, "order">[] = [
 // TODO: consider converting this to MDX for table of contents and such
 ---
 
-<BaseLayout title="Home" description={SITE_DESCRIPTION}>
+<Page title="Home" description={SITE_DESCRIPTION}>
 	<section class="section-with-image">
 		<div>
 			<h1>Hi there!</h1>
@@ -135,7 +135,7 @@ const miscLinks: Omit<LinkData, "order">[] = [
 			})
 		}
 	</dl>
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../styles/colors" as *;

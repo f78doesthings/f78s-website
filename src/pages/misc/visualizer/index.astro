@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Page from "../../../layouts/Page.astro";
 import { resolveMedia } from "../../../server-utils";
 import { VisualizerApp } from "./_VisualizerApp";
 import AudioFileIcon from "~icons/material-symbols-light/audio-file-outline-rounded";
@@ -34,7 +34,7 @@ for (const [name, media] of demos) {
 }
 ---
 
-<BaseLayout title="Visualizer Playground">
+<Page title="Visualizer Playground">
 	<h1>The Visualizer Playground</h1>
 	<p>
 		Here you can choose any audio file you want <small>(so long as your browser supports it)</small
@@ -52,7 +52,7 @@ for (const [name, media] of demos) {
 			Drop an audio file here to load it
 		</div>
 	</div>
-</BaseLayout>
+</Page>
 
 <style lang="scss" is:global>
 	@use "../../../styles/utils" as *;

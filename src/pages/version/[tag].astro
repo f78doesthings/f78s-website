@@ -12,7 +12,7 @@ import type { GetStaticPaths } from "astro";
 import { PRERELEASE_TYPES } from "../../consts";
 import { getChangelogs, getVersions } from "../../server-utils";
 import type { VersionInfo } from "../../types";
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import Page from "../../layouts/Page.astro";
 import ChangelogEntry from "../../components/changelogs/ChangelogEntry.astro";
 import FormattedDate from "../../components/utils/FormattedDate.astro";
 
@@ -60,7 +60,7 @@ const changelogs = await getChangelogs(version);
 const { Content } = changelogs ? await render(changelogs) : {};
 ---
 
-<BaseLayout title={`Changelog for v${version}`}>
+<Page title={`Changelog for v${version}`}>
 	<nav>
 		<a href="/version#version-list"><BackIcon /> Back to version list</a>
 	</nav>
@@ -166,7 +166,7 @@ const { Content } = changelogs ? await render(changelogs) : {};
 			)
 		}
 	</nav>
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../../styles/utils" as *;

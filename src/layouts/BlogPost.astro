@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import BaseLayout from "./BaseLayout.astro";
+import Page from "./Page.astro";
 import type { CollectionEntry } from "astro:content";
 import MainImage from "../components/media/MainImage.astro";
 import FormattedDate from "../components/utils/FormattedDate.astro";
@@ -44,7 +44,7 @@ const {
 } = Astro.props;
 ---
 
-<BaseLayout
+<Page
 	title={title}
 	description={description}
 	image={heroImage}
@@ -98,7 +98,7 @@ const {
 
 		<slot />
 	</article>
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../styles/utils" as *;

@@ -7,28 +7,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import Font from "astro/components/Font.astro";
 import "modern-normalize/modern-normalize.css";
-import "../styles/general.scss";
-import {
-	BLOG_TITLE,
-	IS_DEV,
-	LICENSES,
-	SITE_AUTHOR,
-	SITE_LANGUAGE,
-	SITE_TITLE,
-} from "../consts.tsx";
-import Header from "../components/nav/Header.astro";
+
+import Font from "astro/components/Font.astro";
 import { ClientRouter } from "astro:transitions";
-import FormattedDate from "../components/utils/FormattedDate.astro";
-import Link from "../components/nav/Link.tsx";
 import type { ImageMetadata, MarkdownLayoutProps } from "astro";
-import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
-import RocketEmoji from "~icons/noto/rocket";
-import DragonEmoji from "~icons/noto/dragon";
-import Banner from "../components/ui/Banner.astro";
-import { ImmersiveBackground } from "../components/fx/ImmersiveBackground.tsx";
-import { SITE_VERSION } from "astro:env/client";
+
+import { BLOG_TITLE, IS_DEV, SITE_AUTHOR, SITE_LANGUAGE, SITE_TITLE } from "../consts.tsx";
 
 interface CommonProps {
 	/** The title of the page. */
@@ -57,15 +42,15 @@ interface CommonProps {
 type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
 	CommonProps;
 
+export type { Props };
+
 const {
-	headings,
 	frontmatter,
 	title = frontmatter?.title,
 	description = frontmatter?.description,
 	image = frontmatter?.image,
 	isBlog = frontmatter?.isBlog,
-	lastModified = frontmatter?.lastModified,
-	discussionId,
+	discussionId = frontmatter?.discussionId,
 } = Astro.props;
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
@@ -75,9 +60,6 @@ if (IS_DEV) {
 	siteTitle += " [DEV BUILD]";
 	url.hostname = "dev.f78.be";
 }
-
-const contentLicense = LICENSES["CC-BY-SA-4.0"];
-const LicenseIcons = contentLicense.icons ?? (() => undefined);
 ---
 
 <!doctype html>
@@ -133,91 +115,7 @@ const LicenseIcons = contentLicense.icons ?? (() => undefined);
 	</head>
 	<body>
 		<div class="loading-bar" transition:persist></div>
-
-		<Header
-			headings={headings}
-			showTopHeading={isBlog}
-			showDiscussHeading={discussionId !== undefined}
-		/>
-
-		{
-			/* prettier-ignore */
-			IS_DEV ? (
-				<Banner id={`dev-build+${SITE_VERSION}`}>
-					<DragonEmoji title="Here be dragons." />
-					<span>
-						This is a <Link href="/version">development build</Link> of the website.
-						Issues are to be expected, and should be reported on{" "}
-						<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
-					</span>
-				</Banner>
-			) : (
-				<Banner id={`new-release/${SITE_VERSION}`}>
-					<RocketEmoji />
-					<span>
-						Version <strong>{SITE_VERSION}</strong> of the website just dropped!{" "}
-						<Link href={`/version/${SITE_VERSION}`}>Read the release notes</Link>
-					</span>
-				</Banner>
-			)
-		}
-
-		<main>
-			<slot />
-			{
-				discussionId && (
-					<section id="comments">
-						<h2>Comments</h2>
-						<script
-							is:inline
-							data-astro-rerun
-							src="https://giscus.app/client.js"
-							data-repo="f78doesthings/f78s-website"
-							data-repo-id="R_kgDOSI1PSA"
-							data-category="Page comments"
-							data-category-id="DIC_kwDOSI1PSM4DFNKN"
-							data-mapping="specific"
-							data-term={discussionId}
-							data-strict="1"
-							data-reactions-enabled="1"
-							data-emit-metadata="0"
-							data-input-position="top"
-							data-theme="preferred_color_scheme"
-							data-lang="en"
-							data-loading="lazy"
-							crossorigin="anonymous"
-							async
-						/>
-						<p class="discussion-id">
-							Discussion title: <b>{discussionId}</b>
-						</p>
-					</section>
-				)
-			}
-		</main>
-
-		<footer>
-			{
-				lastModified && (
-					<FormattedDate date={lastModified}>
-						<LastUpdatedIcon slot="icon" />
-						<Fragment slot="before">Last updated:</Fragment>
-					</FormattedDate>
-				)
-			}
-			<slot name="footer" />
-			<p>
-				<small>
-					The content of this site is available under the <Link
-						href={LICENSES["CC-BY-SA-4.0"].url}
-						external><LicenseIcons /> {contentLicense.title}</Link
-					> licence.
-				</small>
-			</p>
-			{/* TODO: can I add a link to the page's source code on GitHub here? */}
-		</footer>
-
-		<ImmersiveBackground client:idle transition:persist />
+		<slot />
 		<div class="debug-display" transition:persist></div>
 		<div id="media-viewer-root"></div>
 		<slot name="overlay" />

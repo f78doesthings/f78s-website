@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import Page from "../../layouts/Page.astro";
 import Link from "../../components/nav/Link";
 import {
 	GIT_BRANCH,
@@ -35,7 +35,7 @@ import PreferenceControl from "../../components/preferences/PreferenceControl.as
 const versions = await getVersions();
 ---
 
-<BaseLayout title={"Version information"}>
+<Page title={"Version information"}>
 	<h1>Version</h1>
 	<p>Below is a table with some version information for this build of the website.</p>
 	<div class="version-table">
@@ -139,7 +139,7 @@ const versions = await getVersions();
 		/>
 		<VersionList versions={versions} />
 	</section>
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../../styles/utils" as *;

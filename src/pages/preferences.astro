@@ -7,7 +7,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import BaseLayout from "../layouts/BaseLayout.astro";
+import Page from "../layouts/Page.astro";
 import Badge from "../components/ui/Badge";
 import PreferencesDisplay from "../components/preferences/PreferencesDisplay.astro";
 import { PreferencesButtons } from "../components/preferences/PreferencesButtons";
@@ -16,7 +16,7 @@ import { IS_DEV } from "../consts";
 // TODO: this should really be a pop-up
 ---
 
-<BaseLayout title="Preferences">
+<Page title="Preferences">
 	<h1>
 		Preferences
 		<Badge type="beta" />
@@ -38,7 +38,7 @@ import { IS_DEV } from "../consts";
 	<PreferencesButtons client:load />
 	<PreferencesDisplay />
 	<PreferencesButtons client:load />
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../styles/utils" as *;

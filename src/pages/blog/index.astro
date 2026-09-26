@@ -10,7 +10,7 @@
 // Displays a list of all blog posts.
 // TODO: pagination?
 
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import Page from "../../layouts/Page.astro";
 import { BLOG_TITLE, IS_DEV } from "../../consts.tsx";
 import Link from "../../components/nav/Link.tsx";
 import Badge from "../../components/ui/Badge";
@@ -65,7 +65,7 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 }
 ---
 
-<BaseLayout isBlog>
+<Page isBlog>
 	<h1>
 		{BLOG_TITLE}
 		<Badge type="beta" />
@@ -134,7 +134,7 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 			</section>
 		)
 	}
-</BaseLayout>
+</Page>
 
 <style lang="scss">
 	@use "../../styles/utils" as *;

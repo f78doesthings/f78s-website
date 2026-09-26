@@ -1,0 +1,129 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import "../styles/general.scss";
+import { BLOG_TITLE, IS_DEV, LICENSES, SITE_TITLE } from "../consts.tsx";
+import Header from "../components/nav/Header.astro";
+import FormattedDate from "../components/utils/FormattedDate.astro";
+import Link from "../components/nav/Link.tsx";
+import LastUpdatedIcon from "~icons/fluent/calendar-clock-20-regular";
+import RocketEmoji from "~icons/noto/rocket";
+import DragonEmoji from "~icons/noto/dragon";
+import Banner from "../components/ui/Banner.astro";
+import { ImmersiveBackground } from "../components/fx/ImmersiveBackground.tsx";
+import { SITE_VERSION } from "astro:env/client";
+import BaseLayout, { type Props } from "./BaseLayout.astro";
+
+const {
+	headings,
+	frontmatter,
+	isBlog = frontmatter?.isBlog,
+	lastModified = frontmatter?.lastModified,
+	discussionId = frontmatter?.discussionId,
+	...props
+} = Astro.props;
+
+let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
+const url = new URL(Astro.url);
+if (IS_DEV) {
+	siteTitle += " [DEV BUILD]";
+	url.hostname = "dev.f78.be";
+}
+
+const contentLicense = LICENSES["CC-BY-SA-4.0"];
+const LicenseIcons = contentLicense.icons ?? (() => undefined);
+---
+
+<BaseLayout isBlog={isBlog} frontmatter={frontmatter} discussionId={discussionId} {...props}>
+	<Header
+		headings={headings}
+		showTopHeading={isBlog}
+		showDiscussHeading={discussionId !== undefined}
+	/>
+
+	{
+		/* prettier-ignore */
+		IS_DEV ? (
+			<Banner id={`dev-build/${SITE_VERSION}`}>
+				<DragonEmoji title="Here be dragons." />
+				<span>
+					This is a <Link href="/version">development build</Link> of the website.
+					Issues are to be expected, and should be reported on{" "}
+					<Link href="https://github.com/f78doesthings/f78s-website/issues" external>GitHub</Link>.
+				</span>
+			</Banner>
+		) : (
+			<Banner id={`new-release/${SITE_VERSION}`}>
+				<RocketEmoji />
+				<span>
+					Version <strong>{SITE_VERSION}</strong> of the website just dropped!{" "}
+					<Link href={`/version/${SITE_VERSION}`}>Read the release notes</Link>
+				</span>
+			</Banner>
+		)
+	}
+
+	<main>
+		<slot />
+		{
+			discussionId && (
+				<section id="comments">
+					<h2>Comments</h2>
+					<script
+						is:inline
+						data-astro-rerun
+						src="https://giscus.app/client.js"
+						data-repo="f78doesthings/f78s-website"
+						data-repo-id="R_kgDOSI1PSA"
+						data-category="Page comments"
+						data-category-id="DIC_kwDOSI1PSM4DFNKN"
+						data-mapping="specific"
+						data-term={discussionId}
+						data-strict="1"
+						data-reactions-enabled="1"
+						data-emit-metadata="0"
+						data-input-position="top"
+						data-theme="preferred_color_scheme"
+						data-lang="en"
+						data-loading="lazy"
+						crossorigin="anonymous"
+						async
+					/>
+					<p class="discussion-id">
+						Discussion title: <b>{discussionId}</b>
+					</p>
+				</section>
+			)
+		}
+	</main>
+
+	<footer>
+		{
+			lastModified && (
+				<FormattedDate date={lastModified}>
+					<LastUpdatedIcon slot="icon" />
+					<Fragment slot="before">Last updated:</Fragment>
+				</FormattedDate>
+			)
+		}
+		<slot name="footer" />
+		<p>
+			<small>
+				The content of this site is available under the <Link
+					href={LICENSES["CC-BY-SA-4.0"].url}
+					external><LicenseIcons /> {contentLicense.title}</Link
+				> licence.
+			</small>
+		</p>
+		{/* TODO: can I add a link to the page's source code on GitHub here? */}
+	</footer>
+
+	<ImmersiveBackground client:idle transition:persist />
+	<slot name="overlay" slot="overlay" />
+</BaseLayout>
