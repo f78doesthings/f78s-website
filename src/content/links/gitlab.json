@@ -1,0 +1,8 @@
+{
+	"title": "GitLab",
+	"description": "This is where I currently store programming projects that make heavy use of Git LFS, so I don't have to deal with GitHub's stupid bandwidth limits.",
+	"url": "https://gitlab.com/f78doesthings",
+	"icon": "simple-icons:gitlab",
+	"tags": ["new"],
+	"aliases": ["gl", "glab", "lfs", "gitlfs", "git-lfs", "git_lfs"]
+}

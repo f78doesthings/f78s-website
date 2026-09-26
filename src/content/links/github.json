@@ -1,7 +1,7 @@
 {
 	"title": "GitHub",
-	"description": "Ponder at some of my programming projects here. You can find the source code for this website under the \"f78s-website\" repository.",
+	"description": "Ponder at some of my programming projects here. You can find the source code for this website under the “f78s-website” repository, but it may be moved to GitLab in the future.",
 	"url": "https://github.com/f78doesthings",
 	"icon": "simple-icons:github",
-	"aliases": ["gh", "code"]
+	"aliases": ["gh", "code", "git"]
 }

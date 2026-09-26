@@ -1,0 +1,78 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../../styles/utils" as *;
+@use "../common" as *;
+
+.select-wrapper {
+	position: relative;
+	display: block;
+	border: spacing() inset var(--color-3d);
+	background-color: var(--color-background);
+
+	> select {
+		grid-column: 1 / -1;
+		appearance: none;
+		background: none;
+		border: none;
+
+		padding: spacing();
+		padding-right: size(24);
+
+		@media (pointer: coarse) {
+			padding-block: spacing(2);
+		}
+
+		&:focus-visible {
+			outline: none;
+
+			+ .overlay > .select-outline {
+				border: spacing(0.5) dotted currentcolor;
+			}
+		}
+
+		&:active + .overlay > :global(.button:not(.disabled)) {
+			border-style: solid;
+
+			> svg {
+				transform: translate(1px, 1px);
+			}
+		}
+	}
+
+	> .overlay {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		pointer-events: none;
+
+		> .select-outline {
+			z-index: 1;
+		}
+
+		> :global(.button) {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			height: 100%;
+			padding: spacing(1.5);
+
+			> svg {
+				width: size(8);
+				height: size(8);
+
+				@media (pointer: coarse) {
+					width: size(10);
+					height: size(10);
+				}
+			}
+		}
+	}
+}

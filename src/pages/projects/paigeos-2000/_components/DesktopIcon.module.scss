@@ -1,0 +1,44 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../styles/utils" as *;
+@use "common" as *;
+
+.desktop-icon {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	color: white;
+	background-color: transparent;
+	border-width: 0;
+
+	width: size(80);
+
+	.icon {
+		width: size(32);
+		height: size(32);
+		margin: spacing(2);
+		object-fit: none;
+	}
+
+	&:focus {
+		.icon {
+			filter: opacity(50%) drop-shadow(0 0 0 $color-gradient-start);
+		}
+
+		.title {
+			background-color: $color-gradient-start;
+		}
+	}
+
+	.title {
+		background-color: $color-desktop;
+		padding-inline: spacing();
+	}
+}

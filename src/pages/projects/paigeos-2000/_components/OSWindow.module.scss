@@ -1,0 +1,127 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../styles/utils" as *;
+@use "common" as *;
+
+.window {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+
+	overflow: hidden;
+	min-width: size(128);
+	min-height: size(128);
+	max-width: 100%;
+	max-height: 100%;
+
+	border: spacing() outset var(--color-3d);
+	background-color: var(--color-3d);
+	padding: spacing(0.5);
+
+	&.resizable {
+		resize: both;
+	}
+
+	&.maximized {
+		inset: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		resize: none;
+		border: none;
+		padding: 0;
+	}
+
+	&.minimized {
+		display: none;
+	}
+
+	&.loading {
+		visibility: collapse;
+	}
+
+	&.focused {
+		> .titlebar {
+			color: white;
+			background: linear-gradient(to right, $color-gradient-start, $color-gradient-end);
+		}
+	}
+}
+
+.titlebar {
+	display: flex;
+	align-items: center;
+	gap: spacing();
+	padding: spacing();
+
+	background: linear-gradient(to right, $color-3d-shadow, var(--color-3d));
+	color: $color-3d-light;
+	font-weight: 700;
+
+	user-select: none;
+	touch-action: none;
+
+	@media (prefers-color-scheme: dark) {
+		background: linear-gradient(to right, var(--color-3d), $color-3d-highlight);
+	}
+
+	@media (prefers-contrast: more) {
+		color: white;
+	}
+
+	.icon {
+		width: size(16);
+		height: size(16);
+	}
+
+	.title {
+		flex-grow: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		padding-right: size(4);
+	}
+
+	.buttons {
+		line-height: 0;
+		flex-shrink: 0;
+	}
+
+	button {
+		padding: 0 spacing(0.5);
+		line-height: 0;
+		font-size: size(12);
+		color: black;
+
+		@media (prefers-color-scheme: dark) {
+			color: white;
+		}
+	}
+
+	@media (pointer: coarse) {
+		.icon {
+			width: size(24);
+			height: size(24);
+		}
+
+		button {
+			font-size: size(24);
+		}
+	}
+}
+
+.content {
+	flex-grow: 1;
+
+	iframe {
+		background-color: var(--color-background);
+		border: none;
+		width: 100%;
+		height: 100%;
+	}
+}

@@ -15,7 +15,7 @@ import sitemap from "@astrojs/sitemap";
 import { readingTime } from "@xsynaptic/satteri-reading-time";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
 import consola from "consola";
-import simpleGit from "simple-git";
+import { simpleGit } from "simple-git";
 import Icons from "unplugin-icons/vite";
 
 import packageJSON from "./package.json";

@@ -1,0 +1,26 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "sass:color";
+
+$color-desktop: rgb(64 0 48);
+$color-gradient-start: rgb(128 16 112);
+$color-gradient-end: rgb(240 110 196);
+
+$color-3d-light: rgb(212 208 200);
+$color-3d-dark: rgb(64 62 60);
+
+$color-background-light: white;
+$color-background-dark: rgb(32 31 30);
+
+$color-3d-highlight: color-mix(in srgb, var(--color-3d), white 40%);
+$color-3d-shadow: color-mix(in srgb, var(--color-3d), black 40%);
+
+@function spacing($size: 1) {
+	@return calc(var(--spacing) * $size);
+}

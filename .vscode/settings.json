@@ -44,7 +44,7 @@
 			"**/*.config.*",
 			"**/.ncurc.*"
 		],
-		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx"]
+		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx", "svg"]
 	},
 	"psi-header.templates": [
 		{

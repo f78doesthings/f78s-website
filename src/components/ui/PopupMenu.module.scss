@@ -17,89 +17,109 @@
 	position: absolute;
 	width: max-content;
 	bottom: 100%;
-	right: 0;
 
 	display: flex;
 	flex-direction: column;
-	padding: size(5) 0;
-	margin: size(12) 0;
+	padding: 0;
+	margin: 0;
 	overflow-y: auto;
 
-	color: var(--color-text);
-	border-radius: size(16);
 	list-style-type: none;
-
-	opacity: 0;
 	user-select: none;
 	pointer-events: none;
 	visibility: collapse;
-	transform-origin: bottom right;
-	transform: scale(95%);
-	transition: all $anim-back allow-discrete;
 
 	&.open {
-		opacity: 1;
 		pointer-events: auto;
 		visibility: visible;
-		transform: scale(100%);
+	}
+
+	&.align-left {
+		left: 0;
+	}
+
+	&.align-right {
+		right: 0;
 	}
 
 	a,
 	button,
 	label {
-		display: flex;
-		align-items: center;
-		justify-content: start;
-		gap: size(14);
-		width: 100%;
-		padding: size(10) size(20) size(10) size(16);
-
 		background: none;
 		border: none;
-		color: inherit !important;
 		text-decoration: none;
-		text-shadow: none;
-		font-weight: 400;
-
-		input {
-			margin-left: auto;
-		}
-
-		[data-icon] {
-			font-size: size(24);
-			margin: 0;
-		}
-
-		@include btn-transparent;
-		@include bounce-anim;
 	}
 
-	// Use subgrids on supported browsers
-	@supports (grid-template-columns: subgrid) {
-		display: grid;
-		grid-template-columns: auto 1fr auto;
+	&.themed {
+		color: var(--color-text);
+		padding-block: size(5);
+		margin-block: size(12);
+		border-radius: size(16);
 
-		li {
-			display: contents;
+		opacity: 0;
+		transform: scale(95%);
+		transform-origin: bottom right;
+		transition: all $anim-back allow-discrete;
+
+		&.open {
+			opacity: 1;
+			transform: scale(100%);
 		}
 
 		a,
 		button,
 		label {
+			display: flex;
+			align-items: center;
+			justify-content: start;
+			gap: size(14);
+			width: 100%;
+			padding: size(10) size(20) size(10) size(16);
+
+			text-shadow: none;
+			font-weight: 400;
+			color: inherit !important;
+
+			input {
+				margin-left: auto;
+			}
+
+			[data-icon] {
+				font-size: size(24);
+				margin: 0;
+			}
+
+			@include btn-transparent;
+			@include bounce-anim;
+		}
+
+		// Use subgrids on supported browsers
+		@supports (grid-template-columns: subgrid) {
 			display: grid;
-			grid-template-columns: subgrid;
-			grid-column: 1 / -1;
-		}
+			grid-template-columns: auto 1fr auto;
 
-		label:has(> :global(.slider)) > :global(.title) {
-			display: block;
-			grid-column: span 2;
-		}
+			li {
+				display: contents;
+			}
 
-		label > :global(.slider) {
-			grid-row: 2;
-			grid-column: 1 / -1;
-			padding-block: 0 size(2);
+			a,
+			button,
+			label {
+				display: grid;
+				grid-template-columns: subgrid;
+				grid-column: 1 / -1;
+			}
+
+			label:has(> :global(.slider)) > :global(.title) {
+				display: block;
+				grid-column: span 2;
+			}
+
+			label > :global(.slider) {
+				grid-row: 2;
+				grid-column: 1 / -1;
+				padding-block: 0 size(2);
+			}
 		}
 	}
 }

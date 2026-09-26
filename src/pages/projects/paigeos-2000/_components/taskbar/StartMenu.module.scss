@@ -1,0 +1,129 @@
+/*!
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../../styles/utils" as *;
+@use "../common" as *;
+
+.start-button {
+	display: flex;
+	align-items: center;
+	gap: spacing();
+	padding: 0 spacing(1.5);
+
+	height: 100%;
+	font-weight: 700;
+	border-style: outset !important;
+
+	&:global(.open) {
+		border-style: inset !important;
+	}
+
+	img {
+		@media (pointer: coarse) {
+			width: size(24);
+			height: size(24);
+		}
+	}
+
+	+ menu {
+		background-color: var(--color-3d);
+		border: spacing() outset var(--color-3d);
+		opacity: 0;
+		padding: spacing(0.5);
+
+		// Leave room for the banner (hacky)
+		padding-left: size(22);
+		min-height: size(239);
+
+		&:global(.open) {
+			opacity: 1;
+			transition: opacity 200ms linear;
+		}
+
+		hr {
+			grid-column: 1 / -1;
+			margin: spacing();
+		}
+
+		a,
+		button,
+		label {
+			display: flex;
+			place-items: center start;
+			gap: size(8);
+			padding: spacing();
+			width: 100%;
+
+			border-width: 0;
+			color: inherit;
+			cursor: default;
+
+			&:disabled {
+				opacity: 0.6;
+
+				@media (prefers-contrast: more) {
+					opacity: 0.75;
+				}
+
+				> img:first-child {
+					filter: grayscale(100%);
+					opacity: 0.9;
+				}
+			}
+
+			&:not(:disabled) {
+				@include hover-or-active {
+					background-color: $color-gradient-start;
+					color: white !important;
+				}
+			}
+
+			> svg:last-child {
+				width: size(12);
+				height: size(12);
+				margin-left: auto;
+				padding: spacing();
+
+				@media (pointer: coarse) {
+					width: size(16);
+					height: size(16);
+				}
+			}
+		}
+
+		.start-menu-banner {
+			position: absolute;
+			top: spacing(0.5);
+			left: spacing(0.5);
+			height: calc(100% - var(--spacing));
+
+			background-color: black;
+			object-fit: contain;
+			object-position: bottom;
+		}
+
+		// Use subgrids on supported browsers
+		@supports (grid-template-columns: subgrid) {
+			display: grid;
+			grid-template-columns: auto 1fr auto;
+			align-content: end;
+
+			li {
+				display: contents;
+			}
+
+			a,
+			button,
+			label {
+				display: grid;
+				grid-template-columns: subgrid;
+				grid-column: 1 / -1;
+			}
+		}
+	}
+}

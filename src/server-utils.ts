@@ -10,7 +10,7 @@
 
 import type { UnresolvedImageTransform } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import simpleGit from "simple-git";
+import { simpleGit } from "simple-git";
 
 import type { MediaSource, VersionInfo } from "./types.ts";
 

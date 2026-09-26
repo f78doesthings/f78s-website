@@ -1,0 +1,55 @@
+---
+/*
+ * Copyright (c) 2026 f78.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import BaseLayout, { type Props } from "../../../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout {...Astro.props}>
+	<slot />
+</BaseLayout>
+
+<style lang="scss">
+	@use "../../../../styles/utils" as *;
+	@use "../_components/common" as *;
+
+	:root {
+		color-scheme: light dark;
+		font-family: "Times New Roman", Times, serif;
+		padding-inline: 0.5rem;
+
+		@media (prefers-color-scheme: dark) {
+			background-color: $color-background-dark;
+			color: white;
+		}
+	}
+
+	:global(a > .external-icon) {
+		margin-left: size(4, true);
+		margin-top: size(2, true);
+		margin-right: 0;
+		vertical-align: top;
+
+		font-size: size(12);
+		shape-rendering: crispedges;
+	}
+
+	img {
+		image-rendering: pixelated;
+	}
+</style>
+
+<script>
+	if (parent !== window) {
+		window.addEventListener("pointerdown", (ev) => {
+			if (ev.button === 0) {
+				parent.postMessage("clicked", parent.location.origin);
+			}
+		});
+	}
+</script>
