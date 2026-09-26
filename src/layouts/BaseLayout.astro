@@ -7,7 +7,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import "modern-normalize/modern-normalize.css";
+// HACK: why is this now messing up styles in production builds?
+//import "modern-normalize/modern-normalize.css";
 
 import Font from "astro/components/Font.astro";
 import { ClientRouter } from "astro:transitions";
@@ -103,6 +104,12 @@ if (IS_DEV) {
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
 		{image && <meta property="twitter:image" content={new URL(image.src, url)} />}
+
+		{/* HACK: see above */}
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/modern-normalize@3.0.1/modern-normalize.min.css"
+		/>
 
 		{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
 		<Font cssVariable="--font-body" preload />
