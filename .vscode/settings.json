@@ -63,11 +63,6 @@
 			// BUG: this likes to insert a bogus --- after the header
 			"language": "astro",
 			"beforeHeader": ["---"]
-		},
-		{
-			// Mimic WebStorm's behaviour
-			"language": "scss",
-			"begin": "/*!"
 		}
 	]
 }
