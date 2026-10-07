@@ -143,19 +143,29 @@ export default defineConfig({
 			provider: fontProviders.fontsource(),
 			name: "Albert Sans",
 			cssVariable: "--font-body",
+			fallbacks: ["system-ui", "sans-serif"],
 			weights: ["300 700"],
 		},
 		{
 			provider: fontProviders.fontsource(),
 			name: "Outfit",
 			cssVariable: "--font-heading",
+			fallbacks: ["system-ui", "sans-serif"],
 			weights: ["400 800"],
 		},
 		{
 			provider: fontProviders.fontsource(),
 			name: "Cascadia Code",
 			cssVariable: "--font-mono",
+			fallbacks: ["monospace"],
 			weights: ["300 700"],
+		},
+		{
+			provider: fontProviders.fontsource(),
+			name: "STIX Two Text",
+			cssVariable: "--font-os-serif",
+			fallbacks: ["serif"],
+			weights: [400, 700],
 		},
 		{
 			// This is the default font in MuseScore, an open source notation app. It's used
@@ -166,6 +176,7 @@ export default defineConfig({
 			provider: fontProviders.local(),
 			name: "Edwin",
 			cssVariable: "--font-serif",
+			fallbacks: ["serif"],
 			options: {
 				variants: [
 					{

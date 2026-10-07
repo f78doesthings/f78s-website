@@ -38,6 +38,9 @@ interface CommonProps {
 
 	/** A unique, persistent ID that is used to display a GitHub discussion using `giscus`. */
 	discussionId?: string;
+
+	/** The set of fonts to include in the page. */
+	fonts?: "default" | "os";
 }
 
 type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
@@ -52,6 +55,7 @@ const {
 	image = frontmatter?.image,
 	isBlog = frontmatter?.isBlog,
 	discussionId = frontmatter?.discussionId,
+	fonts = "default",
 } = Astro.props;
 
 let siteTitle = isBlog ? BLOG_TITLE : SITE_TITLE;
@@ -112,10 +116,21 @@ if (IS_DEV) {
 		/>
 
 		{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
-		<Font cssVariable="--font-body" preload />
-		<Font cssVariable="--font-heading" preload />
-		<Font cssVariable="--font-mono" />
-		<Font cssVariable="--font-serif" />
+		{
+			fonts === "os" ? (
+				<>
+					<Font cssVariable="--font-heading" preload />
+					<Font cssVariable="--font-os-serif" preload />
+				</>
+			) : (
+				<>
+					<Font cssVariable="--font-body" preload />
+					<Font cssVariable="--font-heading" preload />
+					<Font cssVariable="--font-mono" />
+					<Font cssVariable="--font-serif" />
+				</>
+			)
+		}
 		<ClientRouter />
 
 		<slot name="head" />

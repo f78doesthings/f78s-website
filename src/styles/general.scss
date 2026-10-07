@@ -767,7 +767,7 @@ body > footer {
 		}
 	}
 
-	@media (prefers-color-scheme: more) {
+	@media (prefers-contrast: more) {
 		background-color: black;
 
 		@include preferences("light") {

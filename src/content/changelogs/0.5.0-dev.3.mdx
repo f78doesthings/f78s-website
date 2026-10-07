@@ -1,0 +1,37 @@
+---
+title: "PaigeOS 2000 + 1"
+---
+
+import MainImage from "../../components/media/MainImage.astro";
+import Alert from "../../components/ui/Alert.astro";
+import { PaigePage } from "../../pages/projects/paigeos-2000/_components/ui/PaigePage.tsx";
+
+<MainImage
+	src={import("../../pages/projects/paigeos-2000/assets/images/preview.avif")}
+	alt="Paige lining up a cinematic camera"
+	createdIn="2026"
+/>
+
+This version makes plenty of improvements to the
+[PaigeOS 2000 project <PaigePage client:idle />](/projects/paigeos-2000), including:
+
+- A brand-new wallpaper and startup sound!
+- An enhanced Recycling Bin/Explorer window (it also acts as a very rudimentary web browser)
+- Better borders\* and title bar buttons
+- Custom scrollbars (note: very unfinished and a bit broken, and also Chromium only for now)
+- A proper social media embed (which uses the image above)
+- Some populated Start Menu items and power options
+- Many behind-the-scenes changes
+- And probably more things that I forgot. <small><small>Possibly even a little secret that may or
+  may not be on this exact <PaigePage client:idle /> as well...</small></small>
+
+<small>
+	*: Borders do not look correct in Firefox due to [a
+	bug](https://bugzilla.mozilla.org/show_bug.cgi?id=50699) that has been unresolved for **26
+	years**. Sorry. Use Chromium or Safari until I get around to fixing this.
+</small>
+
+<Alert type="tip">
+	At the time of release, the project <PaigePage client:idle /> features things that are not
+	actually in PaigeOS 2000 itself yet. They will make it there very soon, though!
+</Alert>

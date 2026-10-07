@@ -12,7 +12,8 @@ _Third time's the charm, right?_
 ## Browser support
 
 This website is best experienced with a **fairly recent version** of a browser based on **Chromium,
-Firefox or Safari**. A decently modern device is also recommended, particularly for Immersive Mode.
+Firefox or Safari**. A somewhat powerful device is also recommended, particularly if you want to
+enable the various fancy visual effects.
 
 I only test up-to-date versions of Vivaldi (based on **Chromium**) on both **Linux** and
 **Android**, and occasionally Safari on macOS, as well as Firefox. (I do not yet have a way of
@@ -34,12 +35,13 @@ strike a good balance between compression and quality for each file.
   bandwidth. These will have a **lower quality**, so make sure to use the image viewer to download
   them.
   - The **image viewer** always displays (and downloads) the **source image**, which is typically in
-    **WebP** or **AVIF** format. As such, older browsers and applications might not load these
-    properly.
+    **WebP** or **AVIF** format. Both of these formats are Baseline Widely available, so if your
+    browser doesn't support it, this website likely won't support your browser anyway.
 - **Video** and **audio** are currently encoded as **H.264** and **AAC** respectively, using an
-  **MP4** container. This is simply because better formats aren't supported very well, especially by
-  Safari. I use FFmpeg to encode these, with the help of [this script](./scripts/convert.ts)
-  (available through `npm run convert`).
+  **MP4** container. I use FFmpeg to encode these, with the help of
+  [this script](./scripts/convert.ts) (available through `npm run convert`).
+  - _I am aware that WebM media (VP9/Opus) is getting there in terms of support, and will probably
+    make the switch to it some time soon._
 
 ## Improvements over the old Jekyll site
 
@@ -98,8 +100,8 @@ There are 2 things you need to keep in mind.
 - [`dev`](../dev) holds some unfinished changes that are not quite ready for production. While it'll
   usually be available at [dev.f78.be](https://dev.f78.be), keep in mind that it is likely to have
   some issues.
-- Other branches are for development purposes and aren't intended to be deployed. They should be merged
-  with one of the above branches when ready.
+- Other branches are for development purposes and aren't intended to be deployed. They should be
+  merged with one of the above branches when ready.
 
 ## Licence
 
@@ -107,10 +109,11 @@ The content of the website (i.e. the written text and most media I made) is avai
 [Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/)
 unless stated otherwise - see the [LICENSE-CONTENT](./LICENSE-CONTENT) file.
 
-Some less significant media is instead dedicated to the public domain. The copyright information for
-each media file should be clearly labelled in its corresponding fullscreen viewer; please create an
-issue if this isn't the case.
+Some media files may have a different licence. The copyright information for each file should be
+clearly labelled in its corresponding fullscreen viewer; please create an issue if this isn't the
+case. It is also possible that the displayed licence is wrong due to a mistake on my part, so
+contact me when in doubt.
 
 The source code (like Astro components, TypeScript files, SCSS stylesheets, etc.) instead falls
-under the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best
-due to my lack of Astro experience. You are welcome to make improvements, though.
+under the [MPL-2.0 licence](./LICENSE). Do note that the quality of this code may not be the best,
+as I'm still actively learning Astro and (P)react. You are welcome to make improvements, though.

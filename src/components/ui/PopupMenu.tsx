@@ -30,6 +30,9 @@ interface Props extends ButtonHTMLAttributes {
 
 	/** The timing to use for opening the pop-up menu. */
 	trigger?: "pointerdown" | "click";
+
+	/** Keeps the pop-up menu open when the menu itself is clicked. */
+	sticky?: boolean;
 }
 
 export function PopupMenu({
@@ -39,9 +42,11 @@ export function PopupMenu({
 	align = "right",
 	noTheme,
 	trigger = "click",
+	sticky,
 	...props
 }: Props) {
 	const [isOpen, setOpen] = useState(false);
+	let prevOpen = false;
 	const ref = useRef<HTMLDivElement>(null);
 	const menuItems = toChildArray(children).map((child) => <li>{child}</li>);
 
@@ -51,12 +56,15 @@ export function PopupMenu({
 	};
 
 	const closeMenu = (ev?: MouseEvent) => {
+		const wasOpen = prevOpen;
+		prevOpen = true;
+
 		if (ev) {
 			const target = ev.target;
 			if (
 				target instanceof Element &&
 				ref.current?.contains(target) &&
-				!target.closest("[data-dismisses-popup]")
+				(sticky || !wasOpen || target.closest("[data-dismisses-popup]"))
 			) {
 				return;
 			}
@@ -72,7 +80,11 @@ export function PopupMenu({
 				aria-label={props["aria-label"] ?? props.title}
 				class={clsx(className, isOpen && ["open", styles.open])}
 				{...{
-					[trigger === "pointerdown" ? "onPointerDown" : "onClick"]: () => {
+					[trigger === "pointerdown" ? "onPointerDown" : "onClick"]: (ev: MouseEvent) => {
+						if (ev.button !== 0) {
+							return;
+						}
+
 						if (isOpen) {
 							closeMenu();
 						} else {

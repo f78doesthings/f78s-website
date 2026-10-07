@@ -20,7 +20,7 @@ export function SelectWrapper(props: SelectHTMLAttributes) {
 			<select ref={ref} {...props} />
 			<div class={styles["overlay"]}>
 				<div class={styles["select-outline"]} />
-				<div class={clsx("button", props.disabled && "disabled")}>
+				<div class={clsx("button", styles.button, props.disabled && "disabled")}>
 					<CaretDownIcon />
 				</div>
 			</div>

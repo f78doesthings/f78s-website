@@ -6,74 +6,22 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../styles/utils" as *;
-@use "common" as *;
+@use "../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../styles/common" as *;
 @use "sass:color";
 
-// General styles
 :root {
-	--spacing: #{size(2)};
-	--color-3d: #{$color-3d-light};
-	--color-background: #{$color-background-light};
-	color-scheme: light dark;
+	--weight-regular: 400;
+	--weight-bold: 700;
 
-	@media (pointer: coarse) {
-		--spacing: #{size(3)};
-	}
-
-	@media (prefers-color-scheme: dark) {
-		--color-3d: #{$color-3d-dark};
-		--color-background: #{$color-background-dark};
-		color: white;
-	}
+	font-family: var(--font-heading);
+	font-weight: var(--weight-regular);
 }
 
-img {
-	image-rendering: pixelated;
-}
-
-hr {
-	border-color: var(--color-3d);
-}
-
-:where(button, :global(.button)) {
-	border: spacing() outset var(--color-3d);
-	background-color: var(--color-3d);
-	color: inherit;
-	text-decoration: none;
-	cursor: default;
-
-	padding: spacing();
-
-	@media (pointer: coarse) {
-		padding-block: spacing(2);
-	}
-
-	&:not(:disabled, :global(.disabled)) {
-		@include active {
-			border-style: inset;
-		}
-	}
-
-	&:disabled,
-	&:global(.disabled) {
-		color: rgb(96 96 96);
-
-		@media (prefers-color-scheme: dark) {
-			color: rgb(160 160 160);
-		}
-	}
-}
-
-:global(.gradient-bar) {
-	background: linear-gradient(
-		to right,
-		$color-gradient-start,
-		$color-gradient-end,
-		$color-gradient-start
-	);
-	width: 100%;
-	height: 4px;
+:not(h1, h2, h3, h4, h5, h6, b, strong) {
+	font-weight: inherit;
 }
 
 // Components
@@ -85,7 +33,6 @@ hr {
 	overflow: hidden;
 
 	background-color: $color-desktop;
-	font-family: var(--font-heading), sans-serif;
 	font-size: size(14);
 
 	@media (pointer: coarse) {
@@ -100,6 +47,10 @@ hr {
 	display: flex;
 	flex-flow: column wrap;
 	gap: spacing();
+
+	background-image: url("../assets/images/wallpapers/Sunset_Paige.avif");
+	background-position: center center;
+	background-size: cover;
 }
 
 .taskbar {
@@ -107,13 +58,14 @@ hr {
 	width: 100%;
 	gap: spacing(3);
 	padding: spacing();
-	height: size(30);
+	height: size(29);
 	z-index: 1e10;
 
-	border-top: spacing() outset var(--color-3d);
+	outline: spacing(0.5) solid var(--color-3d);
+	border-top: spacing(0.5) outset var(--color-3d);
+	margin-top: spacing(0.5);
 	background-color: var(--color-3d);
 	user-select: none;
-	-webkit-user-drag: none;
 
 	@media (pointer: coarse) {
 		height: size(44);
@@ -124,7 +76,8 @@ hr {
 		justify-content: stretch;
 		gap: spacing(1.5);
 		flex-grow: 1;
-		overflow-x: auto;
+		overflow: auto hidden;
+		scrollbar-width: none; // HACK: not ideal
 
 		button {
 			display: flex;
@@ -133,34 +86,47 @@ hr {
 
 			position: relative;
 			width: size(160);
-			min-width: 0;
-			padding: spacing();
+			min-width: size(24);
+			padding: spacing(1) spacing(1) spacing(1) spacing(1.5);
 
 			background: transparent;
 
+			@media (pointer: coarse) {
+				min-width: size(35);
+
+				> .icon {
+					width: size(24);
+					height: size(24);
+				}
+			}
+
+			&:not(.focused) {
+				@include hover-and-active {
+					padding: spacing(0.5) spacing(1.5) spacing(1.5) spacing(1);
+				}
+			}
+
 			&.focused {
 				border-style: inset;
-				font-weight: 700;
+				font-weight: var(--weight-bold);
+				border-width: spacing(1) spacing(0.5) spacing(0.5) spacing(1);
+				padding: spacing(1) spacing(1.5) spacing(1) spacing(1);
 
 				&::before {
 					content: "";
 					position: absolute;
 					inset: 0;
 					z-index: -1;
+					margin-bottom: spacing(0.5);
+					margin-right: spacing(0.5);
 
-					background: color.mix($color-3d-light, white, 25%);
+					background: color-3d(75%);
 					mask: url("../assets/images/checkerboard.svg");
+					mask-size: spacing();
 
-					@media (prefers-color-scheme: dark) {
-						background: color.mix($color-3d-dark, white, 75%);
+					@include preferences("dark") {
+						background: color-3d(25%);
 					}
-				}
-			}
-
-			> .icon {
-				@media (pointer: coarse) {
-					width: size(24);
-					height: size(24);
 				}
 			}
 

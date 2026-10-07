@@ -6,8 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../../styles/utils" as *;
-@use "../common" as *;
+@use "../../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../../styles/common" as *;
 
 .start-button {
 	display: flex;
@@ -16,11 +18,15 @@
 	padding: 0 spacing(1.5);
 
 	height: 100%;
-	font-weight: 700;
+	font-weight: var(--weight-bold);
+
+	// Override border styles
 	border-style: outset !important;
+	border-width: spacing(0.5) spacing(1) spacing(1) spacing(0.5) !important;
 
 	&:global(.open) {
 		border-style: inset !important;
+		border-width: spacing(1) spacing(0.5) spacing(0.5) spacing(1) !important;
 	}
 
 	img {
@@ -42,7 +48,7 @@
 
 		&:global(.open) {
 			opacity: 1;
-			transition: opacity 200ms linear;
+			transition: opacity 180ms linear;
 		}
 
 		hr {
@@ -59,21 +65,12 @@
 			padding: spacing();
 			width: 100%;
 
-			border-width: 0;
-			color: inherit;
+			border-width: 0 !important;
 			cursor: default;
 
-			&:disabled {
-				opacity: 0.6;
-
-				@media (prefers-contrast: more) {
-					opacity: 0.75;
-				}
-
-				> img:first-child {
-					filter: grayscale(100%);
-					opacity: 0.9;
-				}
+			&:disabled > img:first-child {
+				filter: grayscale(100%);
+				opacity: 0.5;
 			}
 
 			&:not(:disabled) {
@@ -105,6 +102,7 @@
 			background-color: black;
 			object-fit: contain;
 			object-position: bottom;
+			user-select: none;
 		}
 
 		// Use subgrids on supported browsers
@@ -126,4 +124,8 @@
 			}
 		}
 	}
+}
+
+.preferences-window {
+	background-color: transparent !important;
 }

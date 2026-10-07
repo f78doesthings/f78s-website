@@ -7,29 +7,35 @@
  */
 
 import clsx from "clsx";
-import type { ComponentChildren } from "preact";
+import { createContext, type ComponentChildren } from "preact";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
-import CloseIcon from "~icons/mdi/window-close";
-import MaximizeIcon from "~icons/mdi/window-maximize";
-import MinimizeIcon from "~icons/mdi/window-minimize";
-import RestoreIcon from "~icons/mdi/window-restore";
 
 import { useEventTarget } from "../../../../scripts/utils/preact";
+import TitlebarButtons from "../assets/images/titlebar-buttons.webp";
+import { Icon } from "./ui/Icon";
 
 import styles from "./OSWindow.module.scss";
 
+interface WindowContext {
+	handle?: number;
+}
+
+export type WindowHandle = number;
+export const WindowContext = createContext<WindowContext>({});
+
 export interface WindowMetadata {
-	icon?: ImageMetadata;
+	icon?: Partial<ImageMetadata>;
 	title?: string;
+	isDialog?: boolean;
 	draggable?: boolean;
 	resizable?: boolean;
 	initialSize?: [width: number, height: number];
-	initialPosition?: "center";
+	initialPosition?: [xPercent: number, yPercent: number];
 	children?: ComponentChildren;
 }
 
 export interface WindowState extends WindowMetadata {
-	handle: number;
+	handle: WindowHandle;
 	minimized: boolean;
 	zIndex: number;
 }
@@ -45,10 +51,11 @@ export interface WindowProps extends Partial<WindowState> {
 export function OSWindow({
 	icon,
 	title,
+	isDialog,
 	draggable = true,
-	resizable = true,
+	resizable = !isDialog,
 	initialSize,
-	initialPosition,
+	initialPosition = [0.5, 0.5],
 	children: content,
 	focused = true,
 	class: className,
@@ -60,11 +67,15 @@ export function OSWindow({
 	onFocus,
 }: WindowProps) {
 	const [maximized, setMaximized] = useState(false);
-	const [dragging, setDragging] = useState(false);
+	const [dragging, setDragging] = useState(0);
 	const [prevPos, setPrevPos] = useState<[x: number, y: number]>([0, 0]);
 	const [x, setX] = useState<number>();
 	const [y, setY] = useState<number>();
 	const ref = useRef<HTMLDivElement>(null);
+
+	const ctx: WindowContext = {
+		handle,
+	};
 
 	useEventTarget(
 		() => window,
@@ -74,91 +85,118 @@ export function OSWindow({
 			}
 
 			on("pointermove", (ev) => {
-				if (!dragging) {
+				if (dragging === 0 || !ref.current) {
 					return;
+				}
+
+				if (dragging === 1) {
+					const xDst = ev.clientX - prevPos[0];
+					const yDst = ev.clientY - prevPos[1];
+					const dst = Math.sqrt(xDst * xDst + yDst * yDst);
+					if (dst < (maximized ? 8 : 4)) {
+						return;
+					}
+
+					setDragging(2);
 				}
 
 				if (maximized) {
 					setMaximized(false);
-					setX(ev.clientX / innerWidth);
-					setY(ev.clientY / innerHeight);
+					setX(ev.clientX); // Actual value is set in the second useLayoutEffect below
+					setY((ev.clientY - prevPos[1]) / innerHeight);
 				} else {
 					setX((x ?? 0) + (ev.clientX - prevPos[0]) / innerWidth);
 					setY((y ?? 0) + (ev.clientY - prevPos[1]) / innerHeight);
 				}
+
 				setPrevPos([ev.clientX, ev.clientY]);
 			});
 
-			on("pointerup", () => setDragging(false));
-			on("pointercancel", () => setDragging(false));
+			on("pointerup", () => setDragging(0));
+			on("pointercancel", () => setDragging(0));
 		},
 	);
 
 	useLayoutEffect(() => {
-		if (x === undefined && y === undefined && ref.current && initialPosition === "center") {
+		if (x === undefined && y === undefined && ref.current) {
 			const desktop = document.querySelector(".desktop");
 			const bounds = desktop?.getBoundingClientRect();
-			setX(0.5 - ref.current.offsetWidth / 2 / (bounds?.width ?? innerWidth));
-			setY(0.5 - ref.current.offsetHeight / 2 / (bounds?.height ?? innerHeight));
+			setX(
+				initialPosition[0] -
+					(ref.current.offsetWidth * (1 - initialPosition[0])) / (bounds?.width ?? innerWidth),
+			);
+			setY(
+				initialPosition[1] -
+					(ref.current.offsetHeight * (1 - initialPosition[1])) / (bounds?.height ?? innerHeight),
+			);
 		}
 	}, []);
 
+	useLayoutEffect(() => {
+		if (!maximized && dragging !== 0 && ref.current && x !== undefined) {
+			setX((x - ref.current.clientWidth * (x / innerWidth)) / innerWidth);
+		}
+	}, [maximized]);
+
 	return (
-		<div
-			ref={ref}
-			class={clsx(
-				styles.window,
-				maximized && styles.maximized,
-				focused && styles.focused,
-				minimized && styles.minimized,
-				resizable && styles.resizable,
-				className,
-			)}
-			style={{
-				left: `${(x ?? 0) * 100}dvw`,
-				top: `${(y ?? 0) * 100}dvh`,
-				width: initialSize?.[0],
-				height: initialSize?.[1],
-				zIndex,
-			}}
-			onPointerDown={onFocus}
-			data-window-handle={handle}
-		>
-			<div class={styles.titlebar}>
-				{icon && <img alt="" class={styles.icon} {...icon} />}
-				<span
-					class={styles.title}
-					onPointerDown={(ev) => {
-						if (draggable) {
-							setPrevPos([ev.clientX, ev.clientY]);
-							setDragging(true);
-						}
-					}}
-				>
-					{title}
-				</span>
-				<div class={styles.buttons}>
-					{onMinimize && (
-						<button title="Minimize" onClick={onMinimize}>
-							<MinimizeIcon />
-						</button>
-					)}
-					{resizable && (
-						<button
-							title={maximized ? "Restore Down" : "Maximize"}
-							onClick={() => setMaximized(!maximized)}
-						>
-							{maximized ? <RestoreIcon /> : <MaximizeIcon />}
+		<WindowContext.Provider value={ctx}>
+			<div
+				ref={ref}
+				class={clsx(
+					styles.window,
+					maximized && styles.maximized,
+					focused && styles.focused,
+					minimized && styles.minimized,
+					resizable && styles.resizable,
+					className,
+				)}
+				style={{
+					left: `${(x ?? 0) * 100}dvw`,
+					top: `${(y ?? 0) * 100}dvh`,
+					width: initialSize?.[0],
+					height: initialSize?.[1],
+					zIndex,
+				}}
+				onPointerDown={onFocus}
+				data-window-handle={handle}
+			>
+				<div class={styles.titlebar}>
+					{icon && <Icon class={styles.icon} {...icon} />}
+					<span
+						class={styles.title}
+						onPointerDown={(ev) => {
+							if (draggable) {
+								setPrevPos([ev.clientX, ev.clientY]);
+								setDragging(1);
+							}
+						}}
+					>
+						{title}
+					</span>
+					<div class={styles.buttons}>
+						{onMinimize && (
+							<button title="Minimize" class={styles["button-minimize"]} onClick={onMinimize}>
+								<Icon {...TitlebarButtons} />
+							</button>
+						)}
+						{resizable && (
+							<button
+								title={maximized ? "Restore Down" : "Maximize"}
+								class={maximized ? styles["button-restore"] : styles["button-maximize"]}
+								onClick={() => setMaximized(!maximized)}
+							>
+								<Icon {...TitlebarButtons} />
+							</button>
+						)}
+					</div>
+					{onClose && (
+						<button title="Close" class={styles["button-close"]} onClick={onClose}>
+							<Icon {...TitlebarButtons} />
 						</button>
 					)}
 				</div>
-				{onClose && (
-					<button title="Close" onClick={onClose}>
-						<CloseIcon />
-					</button>
-				)}
+				<div class={styles.content}>{content}</div>
 			</div>
-			<div class={styles.content}>{content}</div>
-		</div>
+		</WindowContext.Provider>
 	);
 }

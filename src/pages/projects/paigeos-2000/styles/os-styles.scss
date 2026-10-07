@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../styles/utils" as *;
+@use "common" as *;
+
+:root {
+	--spacing: #{size(2)};
+	--scrollbar-size: #{spacing(7)};
+	--color-3d: #{$color-3d-light};
+	--color-background: #{$color-background-light};
+
+	color-scheme: only light;
+	accent-color: $color-gradient-start;
+
+	@media (pointer: coarse) {
+		--spacing: #{size(3)};
+	}
+
+	@include preferences("dark", $is-root: true) {
+		--color-3d: #{$color-3d-dark};
+		--color-background: #{$color-background-dark};
+		color: white;
+		color-scheme: only dark;
+	}
+}
+
+::selection {
+	background-color: $color-gradient-start;
+	color: white;
+}
+
+// Pixelate images and icons
+img,
+picture {
+	image-rendering: pixelated;
+}
+
+svg {
+	shape-rendering: crispedges;
+}
+
+.icon {
+	user-select: none;
+	-webkit-user-drag: none;
+	-webkit-touch-callout: none; // Safari iOS fallback for cancelling the "contextmenu" event. Thanks, Apple...
+}
+
+// Scrollbars (Chromium/Safari only for now, sorry Firefox users)
+// TODO: finish scrollbar styling
+::-webkit-scrollbar {
+	background-color: $color-3d-highlight;
+
+	&:horizontal {
+		height: var(--scrollbar-size);
+	}
+
+	&:vertical {
+		width: var(--scrollbar-size);
+	}
+
+	@include preferences("dark") {
+		background-color: color-3d(10%);
+	}
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: var(--color-3d);
+}
+
+::-webkit-scrollbar-button {
+	color: white;
+
+	&:active {
+		border-style: inset;
+	}
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-button {
+	width: var(--scrollbar-size);
+	height: var(--scrollbar-size);
+	border: spacing() outset var(--color-3d);
+	background-color: var(--color-3d);
+}
+
+// Common components
+hr {
+	border-color: var(--color-3d);
+}
+
+td {
+	border: spacing(0.5) inset var(--color-3d);
+}
+
+:where(button, .button) {
+	padding: spacing(1.5) spacing() spacing() spacing(1.5);
+
+	border: spacing() outset var(--color-3d);
+	border-top-width: spacing(0.5);
+	border-left-width: spacing(0.5);
+
+	background-color: var(--color-3d);
+	color: inherit;
+	text-decoration: none;
+	cursor: default;
+
+	@media (pointer: coarse) {
+		padding-block: spacing(2);
+	}
+
+	&:not(:disabled, .disabled) {
+		@include hover-and-active {
+			border-style: inset;
+			border-width: spacing(1) spacing(0.5) spacing(0.5) spacing(1);
+		}
+	}
+
+	&:focus-visible {
+		outline: spacing(0.5) dotted currentcolor;
+		outline-offset: spacing(-2.5);
+	}
+}
+
+.buttons {
+	display: flex;
+	align-items: center;
+	justify-content: end;
+	grid-area: buttons;
+	gap: spacing(3);
+
+	button,
+	.button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: size(80);
+
+		/* &:not(:disabled, .disabled) {
+			@include hover-and-active {
+				padding: spacing(1.5) spacing(0.5) spacing(0.5) spacing(1.5);
+
+				@media (pointer: coarse) {
+					padding: spacing(2.5) spacing(0.5) spacing(1.5) spacing(1.5);
+				}
+			}
+		} */
+	}
+}
+
+:disabled,
+.disabled {
+	color: color-3d(-50%);
+	text-shadow: spacing(0.5) spacing(0.5) 0 color-3d(50%);
+
+	@include preferences("dark") {
+		color: color-3d(50%);
+		text-shadow: spacing(-0.5) spacing(-0.5) 0 color-3d(-50%);
+	}
+}
+
+.gradient-bar {
+	background: linear-gradient(
+		to right,
+		$color-gradient-start,
+		$color-gradient-end,
+		$color-gradient-start
+	);
+	width: 100%;
+	height: size(5);
+}

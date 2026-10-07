@@ -6,19 +6,19 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../../styles/utils" as *;
-@use "../common" as *;
+@use "../../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../../styles/common" as *;
 
 .select-wrapper {
 	position: relative;
 	display: block;
 	border: spacing() inset var(--color-3d);
-	background-color: var(--color-background);
 
 	> select {
-		grid-column: 1 / -1;
 		appearance: none;
-		background: none;
+		background-color: var(--color-background);
 		border: none;
 
 		padding: spacing();
@@ -37,10 +37,11 @@
 		}
 
 		&:active + .overlay > :global(.button:not(.disabled)) {
-			border-style: solid;
+			border: spacing(0.5) solid color-3d(-40%);
+			padding-inline: spacing(2);
 
 			> svg {
-				transform: translate(1px, 1px);
+				translate: spacing(0.5) spacing(0.5);
 			}
 		}
 	}
@@ -56,13 +57,14 @@
 			z-index: 1;
 		}
 
-		> :global(.button) {
+		> .button {
 			display: flex;
 			align-items: center;
 			justify-content: center;
 
 			height: 100%;
 			padding: spacing(1.5);
+			border-width: spacing();
 
 			> svg {
 				width: size(8);

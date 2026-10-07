@@ -8,22 +8,22 @@
  */
 
 import BaseLayout, { type Props } from "../../../../layouts/BaseLayout.astro";
+import "../styles/os-styles.scss";
 ---
 
-<BaseLayout {...Astro.props}>
+<BaseLayout {...Astro.props} fonts="os">
 	<slot />
 </BaseLayout>
 
 <style lang="scss">
 	@use "../../../../styles/utils" as *;
-	@use "../_components/common" as *;
+	@use "../styles/common" as *;
 
 	:root {
-		color-scheme: light dark;
-		font-family: "Times New Roman", Times, serif;
+		font-family: var(--font-os-serif);
 		padding-inline: 0.5rem;
 
-		@media (prefers-color-scheme: dark) {
+		@include preferences("dark") {
 			background-color: $color-background-dark;
 			color: white;
 		}
@@ -38,18 +38,13 @@ import BaseLayout, { type Props } from "../../../../layouts/BaseLayout.astro";
 		font-size: size(12);
 		shape-rendering: crispedges;
 	}
-
-	img {
-		image-rendering: pixelated;
-	}
 </style>
 
 <script>
+	document.documentElement.classList.add("loaded");
 	if (parent !== window) {
-		window.addEventListener("pointerdown", (ev) => {
-			if (ev.button === 0) {
-				parent.postMessage("clicked", parent.location.origin);
-			}
+		window.addEventListener("focus", () => {
+			parent.postMessage("os:focus", parent.location.origin);
 		});
 	}
 </script>

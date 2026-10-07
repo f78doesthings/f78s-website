@@ -6,8 +6,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../styles/utils" as *;
-@use "common" as *;
+@use "../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../styles/common" as *;
+
+@mixin titlebar-button($index) {
+	object-position: size(-1 - 16 * $index) size(-1);
+}
 
 .window {
 	position: absolute;
@@ -15,8 +21,8 @@
 	flex-direction: column;
 
 	overflow: hidden;
-	min-width: size(128);
-	min-height: size(128);
+	min-width: size(100);
+	min-height: size(100);
 	max-width: 100%;
 	max-height: 100%;
 
@@ -44,13 +50,6 @@
 	&.loading {
 		visibility: collapse;
 	}
-
-	&.focused {
-		> .titlebar {
-			color: white;
-			background: linear-gradient(to right, $color-gradient-start, $color-gradient-end);
-		}
-	}
 }
 
 .titlebar {
@@ -58,16 +57,22 @@
 	align-items: center;
 	gap: spacing();
 	padding: spacing();
+	margin-bottom: spacing(0.5);
 
 	background: linear-gradient(to right, $color-3d-shadow, var(--color-3d));
 	color: $color-3d-light;
-	font-weight: 700;
+	font-weight: var(--weight-bold);
 
 	user-select: none;
 	touch-action: none;
 
-	@media (prefers-color-scheme: dark) {
+	@include preferences("dark") {
 		background: linear-gradient(to right, var(--color-3d), $color-3d-highlight);
+	}
+
+	.window.focused > & {
+		background: linear-gradient(to right, $color-gradient-start, $color-gradient-end);
+		color: white;
 	}
 
 	@media (prefers-contrast: more) {
@@ -88,29 +93,67 @@
 	}
 
 	.buttons {
+		display: flex;
 		line-height: 0;
 		flex-shrink: 0;
 	}
 
 	button {
-		padding: 0 spacing(0.5);
-		line-height: 0;
-		font-size: size(12);
-		color: black;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 
-		@media (prefers-color-scheme: dark) {
-			color: white;
+		padding: spacing(0.5);
+		line-height: 0;
+		font-size: size(13);
+
+		> img {
+			width: size(13);
+			height: size(11);
+			object-fit: none;
+		}
+
+		&.button-minimize > img {
+			@include titlebar-button(0);
+		}
+
+		&.button-maximize > img {
+			@include titlebar-button(1);
+		}
+
+		&.button-restore > img {
+			@include titlebar-button(2);
+			transform: translateX(spacing(0.25));
+		}
+
+		&.button-close > img {
+			@include titlebar-button(3);
+		}
+
+		@include preferences("dark") {
+			> img {
+				filter: invert(1);
+			}
 		}
 	}
 
 	@media (pointer: coarse) {
 		.icon {
-			width: size(24);
-			height: size(24);
+			width: size(28);
+			height: size(28);
+		}
+
+		.title {
+			font-size: size(18, true);
 		}
 
 		button {
 			font-size: size(24);
+			padding: spacing(2.5) spacing(2.5) spacing(2.25);
+
+			> img {
+				scale: 200%;
+			}
 		}
 	}
 }

@@ -11,8 +11,8 @@ export default {
 	},
 	overrides: [
 		{
-			// Allow :global() pseudo-class in Astro files and SCSS modules
-			files: ["src/**/*.astro", "src/**/*.module.scss"],
+			// Allow :global() pseudo-class in Astro files and SCSS files
+			files: ["src/**/*.astro", "src/**/*.scss"],
 			rules: {
 				"selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["global"] }],
 			},

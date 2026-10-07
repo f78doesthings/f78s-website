@@ -24,7 +24,7 @@ interface Props {
 	showTitle?: boolean | string;
 
 	/** Shows the preference's description. */
-	showDescription?: boolean;
+	showDescription?: boolean | string;
 
 	/** Shows the preference's icon. */
 	showIcon?: boolean;
@@ -151,7 +151,7 @@ const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 	{
 		hasDescription && (
 			<span class="description" {...cid}>
-				{preference.description}
+				{typeof showDescription === "string" ? showDescription : preference.description}
 			</span>
 		)
 	}

@@ -612,7 +612,7 @@ export function MediaControls({
 							{isFullscreen.value ? <ExitFullscreenIcon /> : <EnterFullscreenIcon />}
 						</button>
 					)}
-					<PopupMenu title="More options">
+					<PopupMenu title="More options" sticky>
 						<label>
 							{looping ? <LoopOnIcon /> : <LoopOffIcon />}
 							Loop

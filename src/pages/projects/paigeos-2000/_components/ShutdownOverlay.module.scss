@@ -6,8 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../styles/utils" as *;
-@use "common" as *;
+@use "../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../styles/common" as *;
 
 .shutdown-overlay {
 	position: fixed;
@@ -22,12 +24,12 @@
 	height: 100%;
 
 	background: url("../assets/images/checkerboard.svg");
+	background-size: spacing();
 	pointer-events: none;
 }
 
 .banner {
 	display: block;
-	margin-top: spacing(0.5);
 	max-width: 100%;
 	object-fit: cover;
 }
@@ -36,7 +38,8 @@
 	display: grid;
 	grid-template:
 		"icon content ."
-		".    buttons buttons";
+		".    buttons buttons"
+		/ size(42) 1fr size(42);
 	padding: size(10);
 	gap: size(16);
 	max-width: size(413);
@@ -48,6 +51,7 @@
 
 	.content {
 		grid-area: content;
+		min-height: size(140, true);
 
 		> * {
 			margin-block: 0 size(10);
@@ -55,31 +59,6 @@
 
 		select {
 			width: 100%;
-		}
-
-		small {
-			color: $color-3d-dark;
-			font-size: size(14, true);
-
-			@media (prefers-color-scheme: dark) {
-				color: $color-3d-light;
-			}
-		}
-	}
-
-	.buttons {
-		display: flex;
-		align-items: center;
-		justify-content: end;
-		grid-area: buttons;
-		gap: spacing(3);
-
-		a,
-		button {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: size(80);
 		}
 	}
 }

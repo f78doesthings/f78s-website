@@ -23,6 +23,10 @@ function updatePageData() {
 		}
 	}
 	document.documentElement.dataset.preferences = enabled.join(" ");
+
+	if (parent !== window) {
+		parent.postMessage("custom:preferences-updated", parent.location.origin);
+	}
 }
 
 document.addEventListener("astro:before-preparation", (ev) => {

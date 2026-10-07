@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { Icon } from "./ui/Icon";
+
 import styles from "./DesktopIcon.module.scss";
 
 export interface DesktopIconProps {
@@ -18,7 +20,7 @@ export interface DesktopIconProps {
 export function DesktopIcon({ icon, title, description, onClick }: DesktopIconProps) {
 	return (
 		<button class={styles["desktop-icon"]} title={description} onDblClick={onClick}>
-			<img alt="" class={styles.icon} {...icon} />
+			<Icon class={styles.icon} {...icon} />
 			<span class={styles.title}>{title}</span>
 		</button>
 	);

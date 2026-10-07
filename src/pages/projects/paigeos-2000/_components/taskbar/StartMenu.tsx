@@ -6,9 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { useContext } from "preact/hooks";
 import CaretIcon from "~icons/fluent-mdl2/caret-right-solid-8";
 
 import { PopupMenu } from "../../../../../components/ui/PopupMenu";
+import Settings16 from "../../assets/images/16x16/settings.webp";
 import Start16 from "../../assets/images/16x16/start.webp";
 import Documents32 from "../../assets/images/32x32/documents.webp";
 import Help32 from "../../assets/images/32x32/help.webp";
@@ -18,6 +20,9 @@ import Search32 from "../../assets/images/32x32/search.webp";
 import Settings32 from "../../assets/images/32x32/settings.webp";
 import Shutdown32 from "../../assets/images/32x32/shutdown.webp";
 import StartBanner from "../../assets/images/start-menu-banner.webp";
+import { Executables, OSContext } from "../OSApp";
+import { PreferencesWindow } from "../programs/PreferencesWindow";
+import { Icon } from "../ui/Icon";
 
 import styles from "./StartMenu.module.scss";
 
@@ -26,43 +31,53 @@ interface Props {
 }
 
 export function StartMenu({ onShutdown }: Props) {
+	const ctx = useContext(OSContext);
 	return (
 		<PopupMenu
 			class={styles["start-button"]}
 			title="Click here to begin"
 			content={
 				<>
-					<img alt="" {...Start16} /> Start
+					<Icon {...Start16} /> Start
 				</>
 			}
 			align="left"
 			trigger="pointerdown"
 			noTheme
 		>
-			<img alt="" class={styles["start-menu-banner"]} {...StartBanner} />
+			<Icon class={styles["start-menu-banner"]} {...StartBanner} />
 
 			<button disabled>
-				<img alt="" {...Programs32} /> Programs <CaretIcon />
+				<Icon {...Programs32} /> Programs <CaretIcon />
 			</button>
 			<button disabled>
-				<img alt="" {...Documents32} /> Documents <CaretIcon />
+				<Icon {...Documents32} /> Documents <CaretIcon />
+			</button>
+			<button
+				onClick={() => {
+					ctx?.createWindow({
+						title: "Preferences",
+						icon: Settings16,
+						isDialog: true,
+						children: <PreferencesWindow />,
+					});
+				}}
+			>
+				<Icon {...Settings32} /> Preferences
 			</button>
 			<button disabled>
-				<img alt="" {...Settings32} /> Settings <CaretIcon />
+				<Icon {...Search32} /> Search <CaretIcon />
+			</button>
+			<button onClick={() => ctx?.execute(Executables.About)}>
+				<Icon {...Help32} /> Help
 			</button>
 			<button disabled>
-				<img alt="" {...Search32} /> Search <CaretIcon />
-			</button>
-			<button disabled>
-				<img alt="" {...Help32} /> Help
-			</button>
-			<button disabled>
-				<img alt="" {...Run32} /> Run...
+				<Icon {...Run32} /> Run...
 			</button>
 
 			<hr />
-			<button onClick={onShutdown} data-dismisses-popup>
-				<img alt="" {...Shutdown32} /> Shut Down...
+			<button onClick={onShutdown}>
+				<Icon {...Shutdown32} /> Shut Down...
 			</button>
 		</PopupMenu>
 	);

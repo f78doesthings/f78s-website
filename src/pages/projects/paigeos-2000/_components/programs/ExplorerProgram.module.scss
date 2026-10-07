@@ -1,0 +1,182 @@
+/*
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../styles/common" as *;
+@use "../../../../../styles/utils" as * with (
+	$global: true
+);
+
+.explorer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+}
+
+.controls {
+	$border: spacing() groove var(--color-3d);
+
+	border: $border;
+	user-select: none;
+	margin-inline: spacing(0.5);
+
+	button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+
+		border: spacing(0.5) solid var(--color-3d);
+		padding: spacing(1.5) spacing(3);
+
+		img {
+			filter: grayscale(100%);
+		}
+
+		&:not(:disabled) {
+			@include hover {
+				border-style: outset;
+
+				img {
+					filter: none;
+				}
+			}
+
+			@include hover-and-active {
+				padding: spacing(2) spacing(2.5) spacing(1) spacing(3.5);
+				border-style: inset;
+				border-width: spacing(0.5);
+
+				img {
+					filter: none;
+				}
+			}
+		}
+	}
+
+	.menubar {
+		display: flex;
+		flex-wrap: wrap;
+
+		.loading-indicator {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			flex-shrink: 0;
+			margin-left: auto;
+			width: size(48);
+			padding: spacing(0.5);
+
+			background: black;
+			border-left: $border;
+
+			img {
+				image-rendering: auto;
+			}
+		}
+	}
+
+	.standard-buttons {
+		border-block: $border;
+		padding: spacing(2);
+	}
+
+	.address-bar {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+		padding-inline: spacing(2);
+
+		button {
+			height: 100%;
+		}
+
+		.address {
+			position: relative;
+			flex-grow: 1;
+
+			img {
+				position: absolute;
+				top: 50%;
+				left: spacing(1.5);
+				transform: translateY(-50%);
+				pointer-events: none;
+			}
+
+			input {
+				width: 100%;
+				height: 100%;
+				padding-left: size(20);
+
+				appearance: none;
+				border: spacing() inset var(--color-3d);
+				background-color: var(--color-background);
+
+				&:focus-visible {
+					outline: spacing(0.5) dotted currentcolor;
+					outline-offset: spacing(-1.5);
+				}
+			}
+		}
+	}
+
+	@media (pointer: coarse) {
+		.menubar button,
+		.standard-buttons button {
+			padding-block: spacing(2);
+		}
+
+		button img,
+		.address-bar img {
+			width: auto;
+			height: size(20);
+		}
+
+		.menubar .loading-indicator {
+			width: size(56);
+
+			img {
+				width: auto;
+				height: size(28);
+			}
+		}
+
+		.address-bar .address input {
+			padding-left: size(24);
+			padding-block: spacing(1);
+		}
+	}
+}
+
+.content {
+	background-color: var(--color-background);
+	border: spacing() inset var(--color-3d);
+	flex-grow: 1;
+	margin-inline: spacing(0.5);
+
+	.sidebar {
+		width: size(192);
+		padding: size(10);
+		user-select: none;
+	}
+}
+
+.statusbar {
+	user-select: none;
+	border-spacing: spacing();
+	margin: spacing(-0.5);
+	margin-top: 0;
+
+	td {
+		padding-inline: spacing(0.5);
+	}
+
+	td:nth-child(2) {
+		width: size(150);
+	}
+}

@@ -12,6 +12,8 @@
 @use "sass:map";
 @use "sass:meta";
 
+$global: false !default;
+
 // This needs to come first so it can be used in the variables below
 
 /// Converts pixel sizes to `rem` values, assuming `1rem` is `16px`.
@@ -99,7 +101,13 @@ $anim-back: 275ms $ease-out-back;
 	}
 
 	@if $theme {
-		$auto-selector: $selector + ":is(:not(.loaded), [data-theme='auto'])";
+		$loaded-selector: ".loaded";
+
+		@if $global {
+			$loaded-selector: ":global(.loaded)";
+		}
+
+		$auto-selector: $selector + ":is(:not(#{$loaded-selector}), [data-theme='auto'])";
 
 		@if not $is-root {
 			$auto-selector: $auto-selector + " &";
@@ -169,6 +177,20 @@ $anim-back: 275ms $ease-out-back;
 
 	@include active {
 		@content;
+	}
+}
+
+@mixin hover-and-active {
+	@media (hover: hover) {
+		&:hover:active {
+			@content;
+		}
+	}
+
+	@media (hover: none) {
+		&:active {
+			@content;
+		}
 	}
 }
 

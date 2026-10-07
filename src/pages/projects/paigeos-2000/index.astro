@@ -7,10 +7,29 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import PreferenceControl from "../../../components/preferences/PreferenceControl.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { OSApp } from "./_components/OSApp";
+
+import StartupSound from "./assets/audio/startup.m4a";
+import PreviewImage from "./assets/images/preview.avif";
 ---
 
-<BaseLayout title="PaigeOS 2000">
-	<OSApp client:load />
+<BaseLayout
+	title="PaigeOS 2000"
+	description="A simulation of my Home Paige-themed Windows 2000 modification in your web browser!"
+	fonts="os"
+	image={PreviewImage}
+>
+	<OSApp client:load>
+		<Fragment slot="preferences">
+			<PreferenceControl
+				showTitle
+				showDescription="Sets the theme. This affects both PaigeOS 2000 and the website itself."
+				noMobile
+				preference="theme"
+			/>
+		</Fragment>
+	</OSApp>
+	{!import.meta.env.DEV && <audio src={StartupSound} autoplay />}
 </BaseLayout>

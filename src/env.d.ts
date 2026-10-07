@@ -6,9 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-declare global {
-	interface DocumentEventMap {
-		/** Fired when a preference is changed. */
-		"custom:preferences-updated": Event;
-	}
+declare module "*.m4a" {
+	const src: string;
+	export default src;
 }

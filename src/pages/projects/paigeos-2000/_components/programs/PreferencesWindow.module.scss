@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../styles/common" as *;
+@use "../../../../../styles/utils" as * with (
+	$global: true
+);
+
+.preferences-root {
+	padding: size(10);
+	max-width: size(360);
+	max-height: size(600);
+	user-select: none;
+
+	p {
+		margin-top: 0;
+	}
+
+	.preferences {
+		overflow-y: auto;
+		margin-bottom: size(10);
+	}
+
+	label {
+		padding: 0;
+		cursor: default;
+		overflow: hidden;
+
+		> :global(.description) {
+			color: $color-3d-dark !important;
+
+			@include preferences("dark") {
+				color: $color-3d-light !important;
+			}
+		}
+	}
+}

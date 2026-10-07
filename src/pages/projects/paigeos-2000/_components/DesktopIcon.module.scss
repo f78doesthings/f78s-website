@@ -6,8 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@use "../../../../styles/utils" as *;
-@use "common" as *;
+@use "../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../styles/common" as *;
 
 .desktop-icon {
 	display: flex;
@@ -16,7 +18,7 @@
 
 	color: white;
 	background-color: transparent;
-	border-width: 0;
+	border-width: 0 !important;
 
 	width: size(80);
 

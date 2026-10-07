@@ -1,0 +1,34 @@
+/*
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../../styles/utils" as * with (
+	$global: true
+);
+@use "../styles/common" as *;
+
+.message-box {
+	display: grid;
+	grid-template:
+		"icon    message"
+		"buttons buttons";
+
+	padding: size(10);
+	gap: size(10);
+}
+
+.icon {
+	grid-area: icon;
+}
+
+.message {
+	grid-area: message;
+}
+
+.buttons {
+	grid-area: buttons;
+}
