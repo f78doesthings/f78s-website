@@ -376,25 +376,56 @@ option {
 }
 
 .btn {
-	background: linear-gradient($red-650, $red-800);
+	position: relative;
+
+	background: none;
+	border: none;
 	color: var(--color-heading);
 	transition:
 		filter $anim-ease,
 		transform $anim-back;
 
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+
+		border: 2px solid transparent;
+		border-radius: $radius-full;
+		background-image:
+			linear-gradient(var(--color-page), var(--color-page)), linear-gradient($red-600, $red-750);
+		background-origin: border-box;
+		background-clip: padding-box, border-box;
+	}
+
+	&::after {
+		filter: blur(size(2));
+		mix-blend-mode: lighten;
+	}
+
 	@include hover {
-		filter: brightness(110%);
 		transform: scale(103%) rotate(-0.8deg);
 	}
 
 	@include active {
-		filter: brightness(93%);
 		transform: scale(98%) rotate(0.44deg);
 	}
 
 	@include preferences("light") {
 		color: var(--color-heading);
-		background: linear-gradient($red-250, $red-350);
+
+		&::before,
+		&::after {
+			background-image:
+				linear-gradient(var(--color-page), var(--color-page)), linear-gradient($red-500, $red-650);
+		}
+
+		&::after {
+			mix-blend-mode: normal;
+			opacity: 0.5;
+		}
 	}
 }
 
