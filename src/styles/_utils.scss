@@ -230,7 +230,7 @@ $anim-back: 275ms $ease-out-back;
 		}
 	}
 
-	:where(&:enabled) {
+	:where(&:not(:disabled)) {
 		cursor: pointer;
 
 		@include hover {
