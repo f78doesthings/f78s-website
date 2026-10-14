@@ -31,6 +31,7 @@ import { PopupMenu } from "../../ui/PopupMenu";
 import { Slider } from "../../ui/Slider";
 import type { MediaShortcutAnimation } from "./MediaShortcutResponse";
 
+import "../../../styles/media.scss";
 import styles from "./MediaControls.module.scss";
 
 interface Props {
@@ -65,7 +66,13 @@ export function MediaControls({
 	clickTarget,
 	mediaAnimation,
 }: Props) {
-	const media = useComputed(() => mediaContext.value?.source.mediaElement);
+	const media = useComputed(() => {
+		const source = mediaContext?.value?.source;
+		return "MediaElementAudioSourceNode" in globalThis &&
+			source instanceof MediaElementAudioSourceNode
+			? source.mediaElement
+			: undefined;
+	});
 
 	const [playing, setPlaying] = useState(false);
 	const [looping, setLooping] = useState(false);
@@ -540,7 +547,8 @@ export function MediaControls({
 	return (
 		<div ref={ref} class={`${className} ${styles["media-controls"]}`}>
 			<Slider
-				value={time}
+				disabled={!media.value}
+				value={!media.value ? 0 : time}
 				secondaryValue={buffered}
 				max={duration.value}
 				onDragStart={() => {
@@ -566,7 +574,12 @@ export function MediaControls({
 
 			<div class={styles["inner-controls"]}>
 				<div class="btn-media-group">
-					<button title={playPauseText} aria-label={playPauseText} onClick={playPause}>
+					<button
+						title={playPauseText}
+						aria-label={playPauseText}
+						onClick={playPause}
+						disabled={!media.value}
+					>
 						{playing ? <PauseIcon /> : <PlayIcon />}
 					</button>
 					<button
@@ -601,9 +614,13 @@ export function MediaControls({
 				</div>
 
 				<div class={styles["time-code"]}>
-					<span class={styles["current-time"]}>{formatDuration(time)}</span>
-					<span class={styles["separator"]}>{" / "}</span>
-					<span class={styles["total-time"]}>{formatDuration(duration.value)}</span>
+					{media.value && (
+						<>
+							<span class={styles["current-time"]}>{formatDuration(time)}</span>
+							<span class={styles["separator"]}>{" / "}</span>
+							<span class={styles["total-time"]}>{formatDuration(duration.value)}</span>
+						</>
+					)}
 				</div>
 
 				<div class="btn-media-group">
@@ -612,7 +629,7 @@ export function MediaControls({
 							{isFullscreen.value ? <ExitFullscreenIcon /> : <EnterFullscreenIcon />}
 						</button>
 					)}
-					<PopupMenu title="More options" sticky>
+					<PopupMenu title="More options" sticky disabled={!media.value}>
 						<label>
 							{looping ? <LoopOnIcon /> : <LoopOffIcon />}
 							Loop

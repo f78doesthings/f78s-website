@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "preact/hooks";
 
 import { clamp } from "../../scripts/utils";
@@ -154,7 +155,14 @@ export function Slider({
 
 	return (
 		<div
-			class={`slider ${styles.slider}${beingDragged ? " dragging" : ""} ${alwaysShowThumb || beingDragged ? styles["show-thumb"] : ""} ${className}`}
+			class={clsx(
+				"slider",
+				styles.slider,
+				beingDragged && "dragging",
+				(alwaysShowThumb || beingDragged) && styles["show-thumb"],
+				disabled && styles.disabled,
+				className,
+			)}
 			ref={sliderContainer}
 			onPointerDown={startDragging}
 			{...cid}

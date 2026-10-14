@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2026 f78.
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@use "../../../styles/utils" as *;
+
+.input-source {
+	display: grid;
+	grid-template:
+		"input icon        title"
+		"input description description"
+		/ auto auto 1fr;
+	align-items: center;
+	gap: size(2) size(4);
+	margin-bottom: size(12);
+
+	input {
+		grid-area: input;
+		margin-right: size(6);
+	}
+
+	[data-icon] {
+		grid-area: icon;
+	}
+
+	.title {
+		grid-area: title;
+	}
+
+	.description {
+		grid-area: description;
+		color: var(--color-dim);
+		font-size: size(14);
+	}
+}
+
+// TODO: most of these styles are duplicated from AudioPlayerClient
+.visualizer-app {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+
+	.content {
+		position: relative;
+		width: 100%;
+		min-height: 0;
+	}
+
+	.visualizer {
+		width: 100%;
+		height: 100%;
+	}
+
+	.controls {
+		z-index: 1;
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+
+	&:not(:fullscreen) {
+		.content {
+			height: 30svmin;
+		}
+	}
+
+	&:fullscreen {
+		background: var(--color-page);
+
+		.controls {
+			padding: $page-margin;
+		}
+
+		.content {
+			flex-grow: 1;
+		}
+
+		.controls {
+			padding-top: calc($page-margin - size(12));
+		}
+	}
+}

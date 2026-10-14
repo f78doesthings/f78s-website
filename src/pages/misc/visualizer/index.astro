@@ -34,12 +34,15 @@ for (const [name, media] of demos) {
 }
 ---
 
-<Page title="Visualizer Playground">
+<Page
+	title="Visualizer Playground"
+	description="Experience the audio visualizers I created for this website with any audio source!"
+>
 	<h1>The Visualizer Playground</h1>
 	<p>
-		Here you can choose any audio file you want <small>(so long as your browser supports it)</small
-		>, and experience it with the audio visualizers I created for this website. Keep in mind that
-		these visualizers are still experimental.
+		Experience the audio visualizers I created for this website with any audio source! All audio is
+		processed locally on your device and never leaves it. Keep in mind that these visualizers are
+		still experimental.
 	</p>
 	<VisualizerApp client:load demoSources={demoSources} />
 	<p>
@@ -54,28 +57,10 @@ for (const [name, media] of demos) {
 	</div>
 </Page>
 
-<style lang="scss" is:global>
+<style lang="scss">
 	@use "../../../styles/utils" as *;
 	@use "../../../styles/colors" as *;
 	@use "sass:color";
-
-	.demos {
-		display: flex;
-		flex-wrap: wrap;
-		margin-block: size(8);
-
-		button {
-			transition: color $anim-fade;
-		}
-
-		.selected-demo {
-			color: $red-450;
-
-			@include preferences("light") {
-				color: $red-700;
-			}
-		}
-	}
 
 	.file-drop-overlay {
 		position: fixed;

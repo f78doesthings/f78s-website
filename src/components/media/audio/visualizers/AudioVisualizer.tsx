@@ -148,7 +148,7 @@ export function AudioVisualizer<T = undefined>({
 
 	useSignalEffect(() => {
 		const ctx = canvas.current?.getContext("2d");
-		if (!ctx || !media.value) {
+		if (!ctx || !media.value?.source) {
 			return undefined;
 		}
 
@@ -167,15 +167,24 @@ export function AudioVisualizer<T = undefined>({
 			}
 
 			cleanup = () => {
-				media.value?.source.disconnect(splitter);
-				splitter.disconnect();
+				try {
+					splitter.disconnect();
+				} catch (e) {
+					console.debug("Failed to disconnect splitter:", e);
+				}
 			};
 		} else {
 			const analyser = media.value.context.createAnalyser();
 			media.value.source.connect(analyser);
 			analysers.push(analyser);
 
-			cleanup = () => media.value?.source.disconnect(analyser);
+			cleanup = () => {
+				try {
+					analyser.disconnect();
+				} catch (e) {
+					console.debug("Failed to disconnect analyser:", e);
+				}
+			};
 		}
 
 		const visualizerContext: BaseVisualizerContext = {

@@ -14,7 +14,7 @@ const playingMedia = signal(new Set<HTMLMediaElement>());
 
 export interface MediaContext {
 	context: AudioContext;
-	source: MediaElementAudioSourceNode;
+	source?: MediaElementAudioSourceNode | MediaStreamAudioSourceNode;
 	amplifier: GainNode;
 }
 

@@ -14,4 +14,8 @@
 	align-items: center;
 	flex-wrap: wrap;
 	gap: size(8);
+
+	&[hidden] {
+		display: none;
+	}
 }

@@ -12,6 +12,7 @@ import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 import { readingTime } from "@xsynaptic/satteri-reading-time";
 import { defineConfig, envField, fontProviders, sharpImageService } from "astro/config";
 import consola from "consola";
@@ -107,8 +108,10 @@ export default defineConfig({
 		server: {
 			// Crash if port is in use
 			strictPort: true,
+			host: true,
 		},
 		plugins: [
+			process.env.DEV_NO_SSL !== "1" && basicSsl(),
 			Icons({
 				compiler: "jsx",
 				jsx: "preact",

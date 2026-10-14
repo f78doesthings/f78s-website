@@ -18,8 +18,6 @@ import type { Replace, CopyrightInfo } from "../../../types";
 import { OverlayContainer } from "../../ui/OverlayContainer";
 import { VisualizerSelector } from "../audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../utils/MediaControls";
-
-import "../../../styles/media.scss";
 import { MediaInfoOverlay } from "../utils/MediaInfoOverlay";
 import { MediaShortcutResponse, type MediaShortcutAnimation } from "../utils/MediaShortcutResponse";
 

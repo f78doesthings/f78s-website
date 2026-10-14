@@ -21,8 +21,6 @@ import {
 	MediaShortcutResponse,
 	type MediaShortcutAnimation,
 } from "../utils/MediaShortcutResponse.js";
-
-import "../../../styles/media.scss";
 import { VisualizerSelector } from "./visualizers/VisualizerSelector.js";
 
 import styles from "./AudioPlayerClient.module.scss";

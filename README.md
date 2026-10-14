@@ -82,6 +82,9 @@ There are 2 things you need to keep in mind.
 
 - `npm run dev` (or `npm start`) to start a local dev server
   - The dev server is exposed to your local network by default, and crashes if the port is in use.
+  - It has also been configured to use HTTPS by default, so you can test features that require
+    secure APIs across different devices. **You WILL get a warning about an invalid (self-signed)
+    certificate**; either dismiss it, or run `npm run dev:http` instead to disable HTTPS.
 - `npm run preview` to preview the production site
   - This now uses Wrangler for previewing, in order to match the production environment more
     closely.

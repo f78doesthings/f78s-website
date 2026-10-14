@@ -10,12 +10,14 @@
 @use "../../styles/colors" as *;
 
 @mixin thumb-visible {
-	@include hover {
-		@content;
-	}
+	&:not(.disabled) {
+		@include hover {
+			@content;
+		}
 
-	@include active {
-		@content;
+		@include active {
+			@content;
+		}
 	}
 
 	&.show-thumb {
@@ -26,9 +28,7 @@
 .slider {
 	display: flex;
 	align-items: center;
-
 	padding-block: size(12);
-	cursor: pointer;
 
 	// Prevent drags from getting cancelled
 	touch-action: none;
@@ -36,6 +36,10 @@
 
 	// Default width
 	min-width: size(100);
+
+	&:not(.disabled) {
+		cursor: pointer;
+	}
 
 	.track {
 		--track-alpha: 33%;
@@ -109,6 +113,17 @@
 	@include thumb-visible {
 		.thumb {
 			scale: 100%;
+		}
+	}
+
+	&.disabled {
+		.track {
+			--track-alpha: 22%;
+			--secondary-alpha: 22%;
+		}
+
+		.primary-fill {
+			background: linear-gradient(hsl(0deg 0% 55%), hsl(0deg 0% 50%)) !important;
 		}
 	}
 }

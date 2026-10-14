@@ -7,7 +7,7 @@
  */
 
 import type { ComponentChildren } from "preact";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import styles from "./MediaShortcutResponse.module.scss";
 
@@ -34,6 +34,8 @@ const anchors: Record<AnimationDirection, [from: string, to: string]> = {
 
 /** Plays an animation for a media keyboard shortcut when the animation object changes. */
 export function MediaShortcutResponse({ animation }: Props) {
+	const [currentId, setCurrentId] = useState<number>();
+	const [nextId, setNextId] = useState(1);
 	const animContainer = useRef<HTMLDivElement>(null);
 	const overlayContainer = useRef<HTMLDivElement>(null);
 
@@ -46,7 +48,7 @@ export function MediaShortcutResponse({ animation }: Props) {
 			? anchors[animation.direction]
 			: ["center", "center"];
 		const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-		animContainer.current.animate(
+		const animObject = animContainer.current.animate(
 			{
 				transform: reduceMotion
 					? ["scale(100%)"]
@@ -58,7 +60,7 @@ export function MediaShortcutResponse({ animation }: Props) {
 						],
 
 				transformOrigin: [fromAnchor, fromAnchor, toAnchor, toAnchor],
-				opacity: [0, 1, 1, 0],
+				opacity: [currentId ? 1 : 0, 1, 1, 0],
 				offset: [0, 0.22, 0.78, 1],
 			},
 			{
@@ -68,13 +70,26 @@ export function MediaShortcutResponse({ animation }: Props) {
 			},
 		);
 
+		const newId = nextId;
+		setCurrentId(newId);
+		setNextId((id) => id + 1);
+
+		const cleanup = () => {
+			setCurrentId((id) => (id === newId ? undefined : id));
+			animObject.removeEventListener("cancel", cleanup);
+			animObject.removeEventListener("finish", cleanup);
+		};
+
+		animObject.addEventListener("cancel", cleanup);
+		animObject.addEventListener("finish", cleanup);
+
 		if (!animation.overlay || !overlayContainer.current) {
 			return;
 		}
 
 		overlayContainer.current?.animate(
 			{
-				opacity: [0, 1, 1, 0],
+				opacity: [currentId ? 1 : 0, 1, 1, 0],
 				offset: [0, 0.22, 0.78, 1],
 			},
 			{
