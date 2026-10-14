@@ -10,7 +10,7 @@ import type { CollectionEntry } from "astro:content";
 import type { JSX, SVGAttributes } from "preact";
 import type { DefaultLogFields } from "simple-git";
 
-import { type BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
+import { type BADGE_TYPES, KNOWN_LICENSES, type UPDATE_SIZE_TYPES } from "./consts.tsx";
 
 //#region Badges & tags
 
@@ -84,12 +84,19 @@ export interface MediaInfo extends CopyrightInfo {
 //#region Site versioning
 
 export type PrereleaseType = "dev" | "alpha" | "beta" | "rc";
-
 export interface PrereleaseInfo {
-	title: string;
+	longTitle: string;
+	shortTitle: string;
 	description: string;
 	icon: IconComponent;
-	iconSmall: IconComponent;
+}
+
+export type UpdateSize = (typeof UPDATE_SIZE_TYPES)[number];
+export interface UpdateSizeInfo {
+	longTitle: string;
+	shortTitle: string;
+	icon: IconComponent;
+	emoji: IconComponent;
 }
 
 export interface VersionInfo {

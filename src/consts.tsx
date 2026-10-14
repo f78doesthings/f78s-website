@@ -12,16 +12,20 @@ import CibCreativeCommonsBy from "~icons/cib/creative-commons-by";
 import CibCreativeCommonsSa from "~icons/cib/creative-commons-sa";
 import CibCreativeCommonsZero from "~icons/cib/creative-commons-zero";
 import ArchiveIcon from "~icons/fluent/archive-20-regular";
-import BetaIconSmall from "~icons/fluent/beaker-16-regular";
 import BetaIcon from "~icons/fluent/beaker-20-regular";
-import AlphaIconSmall from "~icons/fluent/bug-16-regular";
 import AlphaIcon from "~icons/fluent/bug-20-regular";
-import ReleaseCandidateIconSmall from "~icons/fluent/multiselect-16-regular";
 import ReleaseCandidateIcon from "~icons/fluent/multiselect-20-regular";
 import NewIcon from "~icons/fluent/new-20-regular";
 import PauseIcon from "~icons/fluent/pause-circle-20-regular";
-import DevIconSmall from "~icons/fluent/warning-16-regular";
+import MajorUpdateIcon from "~icons/fluent/rocket-20-regular";
+import MinorUpdateIcon from "~icons/fluent/sparkle-20-regular";
+import RegularUpdateIcon from "~icons/fluent/star-emphasis-20-regular";
 import DevIcon from "~icons/fluent/warning-20-regular";
+import HotfixIcon from "~icons/fluent/wrench-20-regular";
+import MajorUpdateEmoji from "~icons/noto/rocket";
+import RegularUpdateEmoji from "~icons/noto/shooting-star";
+import MinorUpdateEmoji from "~icons/noto/star";
+import HotfixEmoji from "~icons/noto/wrench";
 
 import type {
 	Badge,
@@ -30,6 +34,8 @@ import type {
 	License,
 	PrereleaseInfo,
 	PrereleaseType,
+	UpdateSize,
+	UpdateSizeInfo,
 } from "./types";
 
 /** Whether this is an in-development build of the website. */
@@ -78,32 +84,60 @@ export const BADGES: Record<BadgeType, Badge> = {
 
 export const PRERELEASE_TYPES: Record<PrereleaseType, PrereleaseInfo> = {
 	dev: {
-		title: "Early development version",
+		longTitle: "Early development version",
+		shortTitle: "Dev build",
 		description:
 			"Anything goes in these very early builds. You shouldn't expect too much from them.",
 		icon: DevIcon,
-		iconSmall: DevIconSmall,
 	},
 	alpha: {
-		title: "Alpha version",
+		longTitle: "Alpha version",
+		shortTitle: "Alpha",
 		description:
 			"In this early phase, new features are constantly being worked on. These can be unstable at times, so beware.",
 		icon: AlphaIcon,
-		iconSmall: AlphaIconSmall,
 	},
 	beta: {
-		title: "Beta version",
+		longTitle: "Beta version",
+		shortTitle: "Beta",
 		description:
 			"Most features have been determined at this point, but they may still be expanded upon.",
 		icon: BetaIcon,
-		iconSmall: BetaIconSmall,
 	},
 	rc: {
-		title: "Release candidate build",
+		longTitle: "Release candidate build",
+		shortTitle: "Release candidate",
 		description:
 			"This is the final stretch! Assuming no major bugs arise, the version will soon make its way to the main website.",
 		icon: ReleaseCandidateIcon,
-		iconSmall: ReleaseCandidateIconSmall,
+	},
+};
+
+export const UPDATE_SIZE_TYPES = ["hotfix", "minor", "regular", "major"] as const;
+export const UPDATE_SIZES: Record<UpdateSize, UpdateSizeInfo> = {
+	hotfix: {
+		longTitle: "Hotfix",
+		shortTitle: "Hotfix",
+		icon: HotfixIcon,
+		emoji: HotfixEmoji,
+	},
+	minor: {
+		longTitle: "Minor update",
+		shortTitle: "Minor",
+		icon: MinorUpdateIcon,
+		emoji: MinorUpdateEmoji,
+	},
+	regular: {
+		longTitle: "Regular update",
+		shortTitle: "Regular",
+		icon: RegularUpdateIcon,
+		emoji: RegularUpdateEmoji,
+	},
+	major: {
+		longTitle: "Major update",
+		shortTitle: "Major",
+		icon: MajorUpdateIcon,
+		emoji: MajorUpdateEmoji,
 	},
 };
 

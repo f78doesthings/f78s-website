@@ -17,8 +17,10 @@ import FluentErrorCircle24Regular from "~icons/fluent/error-circle-24-regular";
 import type { IconComponent, PrereleaseType } from "../../types";
 import { PRERELEASE_TYPES } from "../../consts";
 
+type AlertType = keyof typeof alertTypes;
+
 interface Props {
-	type: PrereleaseType | keyof typeof alertTypes;
+	type: PrereleaseType | AlertType;
 }
 
 interface Alert {
@@ -50,8 +52,11 @@ const alertTypes = {
 } satisfies Record<string, Alert>;
 
 const { type } = Astro.props;
-const { icon: Icon, title } =
-	alertTypes[type as keyof typeof alertTypes] ?? PRERELEASE_TYPES[type as PrereleaseType];
+const alertInfo = alertTypes[type as AlertType];
+const prereleaseInfo = PRERELEASE_TYPES[type as PrereleaseType];
+
+const Icon = alertInfo?.icon ?? prereleaseInfo?.icon;
+const title = alertInfo?.title ?? prereleaseInfo?.longTitle;
 ---
 
 <blockquote class={`alert-${type}`}>

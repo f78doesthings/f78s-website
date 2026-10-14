@@ -9,7 +9,7 @@
 
 import type { GetStaticPaths } from "astro";
 
-import { PRERELEASE_TYPES } from "../../consts";
+import { PRERELEASE_TYPES, UPDATE_SIZES } from "../../consts";
 import { getChangelogs, getVersions } from "../../server-utils";
 import type { VersionInfo } from "../../types";
 import Page from "../../layouts/Page.astro";
@@ -57,10 +57,12 @@ const olderCommits =
 	);
 
 const changelogs = await getChangelogs(version);
+const updateSize = changelogs?.data.size && UPDATE_SIZES[changelogs.data.size];
+const UpdateSizeIcon = updateSize?.icon ?? (() => {});
 const { Content } = changelogs ? await render(changelogs) : {};
 ---
 
-<Page title={`Changelog for v${version}`}>
+<Page title={`Changelog for v${version}`} description={message}>
 	<nav>
 		<a href="/version#version-list"><BackIcon /> Back to version list</a>
 	</nav>
@@ -81,6 +83,14 @@ const { Content } = changelogs ? await render(changelogs) : {};
 				<Fragment slot="before">Released</Fragment>
 			</FormattedDate>
 		</li>
+		<li class="separator">&bullet;</li>
+		{
+			updateSize && (
+				<li>
+					<UpdateSizeIcon /> {updateSize.longTitle}
+				</li>
+			)
+		}
 	</ul>
 
 	{prerelease && <Alert type={prerelease}>{PRERELEASE_TYPES[prerelease].description}</Alert>}
@@ -173,10 +183,9 @@ const { Content } = changelogs ? await render(changelogs) : {};
 	@use "../../styles/colors" as *;
 
 	h1 > small {
-		color: var(--color-text);
+		color: var(--color-dim);
 		font-size: size(24);
 		font-weight: 400;
-		font-style: italic;
 		display: inline-block;
 		line-height: 1.15;
 	}

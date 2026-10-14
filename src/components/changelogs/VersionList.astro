@@ -10,9 +10,8 @@
 import type { VersionInfo } from "../../types";
 import FormattedDate from "../utils/FormattedDate.astro";
 
-import LatestIcon from "~icons/fluent/new-16-regular";
 import Markdown from "../utils/Markdown.astro";
-import { PRERELEASE_TYPES } from "../../consts";
+import { PRERELEASE_TYPES, UPDATE_SIZES } from "../../consts";
 import { getChangelogs } from "../../server-utils";
 
 type Props = {
@@ -20,61 +19,68 @@ type Props = {
 };
 
 const { versions } = Astro.props;
-let firstPrerelease = true;
-let firstStable = true;
+const firstPrerelease = versions.find((v) => v.prerelease);
+const firstStable = versions.find((v) => !v.prerelease);
 ---
 
 <ol class="version-list">
 	{
-		versions.map((v) => {
-			const latest = v.prerelease ? firstPrerelease && firstStable : firstStable;
-			const changelogs = getChangelogs(v.id);
-			if (v.prerelease) {
-				firstPrerelease = false;
-			} else {
-				firstStable = false;
-			}
+		versions.map(async (v) => {
+			const latest = v === firstStable || v === firstPrerelease;
+			const changelogs = await getChangelogs(v.id);
+			const updateSize = changelogs?.data.size;
 
-			const Icon = v.prerelease ? PRERELEASE_TYPES[v.prerelease].iconSmall : () => {};
+			const SizeIcon = updateSize ? UPDATE_SIZES[updateSize].icon : () => {};
+			const PrereleaseIcon = v.prerelease ? PRERELEASE_TYPES[v.prerelease].icon : () => {};
+
 			return (
 				<li
 					data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : undefined}
 					data-ignore-preference-availability={v.prerelease ? "" : undefined}
 					hidden={v.prerelease}
-					class:list={{ prerelease: v.prerelease, latest }}
+					class:list={[
+						updateSize && `update-size-${updateSize}`,
+						v.prerelease && `prerelease-${v.prerelease}`,
+						{ prerelease: v.prerelease, latest },
+					]}
 				>
-					<a href={`/version/${v.id}`} class="version">
-						{v.id}
-						{changelogs.then(
-							(v) =>
-								v?.data.title && (
+					<a href={`/version/${v.id}`}>
+						<div class="header">
+							<h3 class="version">
+								{v.id}
+								{changelogs?.data.title && (
 									<>
 										{" "}
-										<small>&OpenCurlyDoubleQuote;{v.data.title}&CloseCurlyDoubleQuote;</small>
+										<small>
+											&OpenCurlyDoubleQuote;{changelogs.data.title}&CloseCurlyDoubleQuote;
+										</small>
 									</>
-								),
+								)}
+							</h3>
+							<ul class="details">
+								{v.prerelease && (
+									<li
+										class={`prerelease prerelease-${v.prerelease}`}
+										title={PRERELEASE_TYPES[v.prerelease].description}
+									>
+										<PrereleaseIcon /> {PRERELEASE_TYPES[v.prerelease].shortTitle}
+									</li>
+								)}
+								{v.prerelease && updateSize && <li class="separator">&bullet;</li>}
+								{updateSize && (
+									<li class="update-size">
+										<SizeIcon /> {UPDATE_SIZES[updateSize].shortTitle}
+									</li>
+								)}
+							</ul>
+							<FormattedDate date={v.date} />
+						</div>
+						{v.message && (
+							<div class="message">
+								<Markdown content={v.message} />
+							</div>
 						)}
 					</a>
-					{latest && (
-						<span class="badge badge-latest" title="Latest version">
-							<LatestIcon />
-						</span>
-					)}
-					{v.prerelease && (
-						<span
-							class={`badge badge-${v.prerelease}`}
-							title={PRERELEASE_TYPES[v.prerelease].title}
-						>
-							<Icon />
-						</span>
-					)}
-					<div class="separator" />
-					<FormattedDate date={v.date} />
-					{v.message && (
-						<div class="message">
-							<Markdown content={v.message} />
-						</div>
-					)}
 				</li>
 			);
 		})
@@ -85,111 +91,228 @@ let firstStable = true;
 	@use "../../styles/utils" as *;
 	@use "../../styles/colors" as *;
 	@use "sass:map";
+	@use "sass:color";
+	@use "sass:math";
 
-	@mixin version-badge($colors) {
-		--badge-background: #{map.get($colors, 600)};
-		border-color: map.get($colors, 500);
-		color: map.get($colors, 50);
+	@mixin variables($type, $colors) {
+		--#{$type}-color: #{map.get($colors, 350)};
+		--#{$type}-background: #{color.change(map.get($colors, 500), $alpha: 0.18)};
+
+		@media (prefers-contrast: more) {
+			--#{$type}-color: #{map.get($colors, 250)};
+		}
 
 		@include preferences("light") {
-			--badge-background: #{map.get($colors, 400)};
-			border-color: map.get($colors, 600);
-			color: map.get($colors, 950);
+			--#{$type}-color: #{map.get($colors, 650)};
+
+			@media (prefers-contrast: more) {
+				--#{$type}-color: #{map.get($colors, 800)};
+			}
 		}
 	}
 
 	.version-list {
+		$padding: size(14, true);
 		padding: 0;
 
+		> li + li {
+			padding-top: $padding;
+		}
+
 		> li {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
+			--update-background: var(--color-component);
+			--prerelease-background: transparent;
 			list-style: none;
-			gap: 0 size(8);
-			margin: 0 0 size(2);
+			margin: 0 (-$padding);
+			font-size: size(18);
 
-			&[hidden] {
-				display: none;
+			// Add shadows to improve legibility
+			--shadow-color: hsl(0deg 0% 0% / 70%);
+			$shadow: 0 #{size(1)} #{size(4)};
+			text-shadow: $shadow var(--shadow-color);
+
+			[data-icon] {
+				filter: drop-shadow($shadow var(--shadow-color));
+				font-size: size(20);
 			}
 
-			.separator {
-				flex-grow: 1;
+			@media (prefers-contrast: more) {
+				--shadow-color: black;
 			}
 
-			&.latest {
-				font-size: size(18);
-				margin-bottom: size(6);
+			@include preferences("light") {
+				--shadow-color: hsl(0deg 0% 100% / 30%);
 
-				.message {
-					font-size: size(16);
+				@media (prefers-contrast: more) {
+					--shadow-color: hsl(0deg 0% 100% / 50%);
 				}
 			}
 
-			> a > small {
+			> a {
+				position: relative;
+				display: block;
+				padding: $padding;
+
+				font-weight: 400;
+				text-decoration-line: none;
 				color: inherit;
-				font-weight: 350;
-				font-style: italic;
+
+				background: radial-gradient(
+					at top left in oklch,
+					var(--update-background),
+					var(--prerelease-background)
+				);
+				border-radius: $padding;
+
+				&::before {
+					content: "";
+					position: absolute;
+					inset: 0;
+					border: 1px solid white;
+					border-radius: inherit;
+					mask: linear-gradient(rgb(0 0 0 / 13%), rgb(0 0 0 / 7%));
+
+					@media (prefers-contrast: more) {
+						mask: linear-gradient(rgb(0 0 0 / 35%), rgb(0 0 0 / 35%));
+					}
+				}
+
+				@include btn-transparent;
+
+				@include preferences("light") {
+					&::before {
+						border-color: black;
+					}
+				}
 			}
 
-			.badge {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: size(26);
-				height: size(26);
+			.header {
+				display: grid;
+				grid-template:
+					"title   date"
+					/ 1fr auto;
+				gap: calc($padding / 2);
+				align-items: end;
 
-				background-color: color-mix(in srgb, var(--badge-background), transparent 80%);
-				border: 1px solid transparent;
-				border-radius: $radius-full;
-
-				[data-icon] {
-					font-size: size(16);
-					margin: 0;
+				&:has(.details:not(:empty)) {
+					grid-template-areas:
+						"title   title"
+						"details date";
 				}
+			}
 
-				&.badge-latest {
-					@include version-badge($colors-red);
-				}
+			.version {
+				grid-area: title;
+				font-size: size(18, true);
+				margin: 0;
 
-				&.badge-dev {
-					@include version-badge($colors-pink);
-				}
-
-				&.badge-alpha {
-					@include version-badge($colors-fuchsia);
-				}
-
-				&.badge-beta {
-					@include version-badge($colors-violet);
-				}
-
-				&.badge-rc {
-					@include version-badge($colors-blue);
+				> small {
+					color: var(--color-dim);
+					font-weight: 400;
 				}
 			}
 
 			.formatted-date {
-				font-size: size(14);
+				grid-area: date;
+				color: var(--color-text);
+				margin: 0;
+				margin-left: auto;
+				font-size: size(14, true);
 
 				:global([data-icon]) {
 					font-size: size(20);
 				}
 			}
 
-			&.prerelease {
-				opacity: 0.78;
+			.details {
+				grid-area: details;
 
-				@media (prefers-contrast: more) {
-					opacity: 0.88;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0 size(6);
+				font-size: size(14, true);
+
+				padding: 0;
+				list-style: none;
+
+				&:empty {
+					display: none;
+				}
+
+				li {
+					margin: 0;
+				}
+
+				.separator {
+					opacity: 0.5;
+				}
+
+				.update-size {
+					color: var(--update-color);
+					font-weight: 500;
+				}
+
+				.prerelease {
+					color: var(--prerelease-color);
+					font-weight: 450;
 				}
 			}
 
+			&[hidden] {
+				display: none;
+			}
+
+			&.latest {
+				font-size: size(18);
+				padding-bottom: $padding;
+				border-bottom: 1px solid var(--color-border);
+
+				@media not (prefers-contrast: more) {
+					border-image: linear-gradient(
+							90deg,
+							transparent -50%,
+							var(--color-border) 50%,
+							transparent 150%
+						)
+						1;
+				}
+			}
+
+			&.prerelease {
+				font-size: size(16);
+				margin-inline: 0 size(-16);
+			}
+
 			.message {
+				--border: hsl(0deg 0% 100% / 35%);
+
 				width: 100%;
-				margin-block: size(4);
-				font-size: size(14);
+				font-size: size(14, true);
 				color: var(--color-dim);
+
+				margin-top: calc($padding / 2);
+				padding-top: calc($padding / 2);
+				border-top: 1px solid var(--border);
+
+				@media not (prefers-contrast: more) {
+					--border: hsl(0deg 0% 100% / 20%);
+					border-image: linear-gradient(
+							90deg,
+							transparent -50%,
+							var(--border) 50%,
+							transparent 150%
+						)
+						1;
+				}
+
+				@include preferences("light") {
+					--border: hsl(0deg 0% 0% / 35%);
+
+					@media not (prefers-contrast: more) {
+						--border: hsl(0deg 0% 0% / 20%);
+					}
+				}
 
 				:global(> :first-child) {
 					margin-top: 0;
@@ -198,6 +321,38 @@ let firstStable = true;
 				:global(> :last-child) {
 					margin-bottom: 0;
 				}
+			}
+
+			&.update-size-hotfix {
+				@include variables("update", $colors-slate);
+			}
+
+			&.update-size-minor {
+				@include variables("update", $colors-red);
+			}
+
+			&.update-size-regular {
+				@include variables("update", $colors-orange);
+			}
+
+			&.update-size-major {
+				@include variables("update", $colors-yellow);
+			}
+
+			&.prerelease-dev {
+				@include variables("prerelease", $colors-pink);
+			}
+
+			&.prerelease-alpha {
+				@include variables("prerelease", $colors-purple);
+			}
+
+			&.prerelease-beta {
+				@include variables("prerelease", $colors-indigo);
+			}
+
+			&.prerelease-rc {
+				@include variables("prerelease", $colors-sky);
 			}
 		}
 	}

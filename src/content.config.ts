@@ -14,7 +14,7 @@ import { compareVersions } from "compare-versions";
 import consola from "consola";
 import type { DefaultLogFields, LogOptions } from "simple-git";
 
-import { BADGE_TYPES, KNOWN_LICENSES } from "./consts.tsx";
+import { BADGE_TYPES, KNOWN_LICENSES, UPDATE_SIZE_TYPES } from "./consts.tsx";
 import { git } from "./server-utils.ts";
 import type { PrereleaseType, VersionInfo } from "./types.ts";
 
@@ -227,6 +227,9 @@ const changelogs = defineCollection({
 		z.object({
 			/** A short codename for this version. */
 			title: z.string().optional(),
+
+			/** The size of this update. */
+			size: z.enum(UPDATE_SIZE_TYPES).optional(),
 		}),
 });
 
