@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState } from "preact/hooks";
+import ApplyIcon from "~icons/fluent/checkmark-20-regular";
 
 /** Buttons for the Preferences page. */
 export function PreferencesButtons() {
@@ -28,7 +29,7 @@ export function PreferencesButtons() {
 	return (
 		<div class="buttons">
 			<a href={target} class="btn">
-				Apply!
+				<ApplyIcon /> Apply!
 			</a>
 		</div>
 	);

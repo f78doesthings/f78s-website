@@ -13,6 +13,8 @@ import SystemAudioIcon from "~icons/fluent/desktop-speaker-20-regular";
 import AudioFileIcon from "~icons/fluent/document-20-regular";
 import MicrophoneIcon from "~icons/fluent/mic-20-regular";
 import DemoIcon from "~icons/fluent/music-note-2-20-regular";
+import StartCaptureIcon from "~icons/fluent/record-20-regular";
+import StopCaptureIcon from "~icons/fluent/record-stop-20-regular";
 
 import { VisualizerSelector } from "../../../components/media/audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../../../components/media/utils/MediaControls";
@@ -352,7 +354,15 @@ export function VisualizerApp({ demoSources }: Props) {
 						};
 					}}
 				>
-					{activeStream.value ? "Stop Capturing" : "Start Capturing"}
+					{activeStream.value ? (
+						<>
+							<StopCaptureIcon /> Stop Capturing
+						</>
+					) : (
+						<>
+							<StartCaptureIcon /> Start Capturing
+						</>
+					)}
 				</button>
 			)}
 			{inputSource === "demo" && (

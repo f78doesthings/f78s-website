@@ -366,20 +366,23 @@ option {
 .btn-secondary {
 	display: inline-flex;
 	align-items: center;
-	gap: size(8);
+	gap: size(4);
 	padding: size(8) size(16);
 
+	background: none;
+	border: none;
 	border-radius: $radius-full;
 	font-weight: 500;
 	text-decoration: none;
 	cursor: pointer;
+
+	[data-icon] {
+		margin-left: size(-2);
+	}
 }
 
 .btn {
 	position: relative;
-
-	background: none;
-	border: none;
 	color: var(--color-heading);
 	transition:
 		filter $anim-ease,
@@ -430,9 +433,6 @@ option {
 }
 
 .btn-secondary {
-	background: none;
-	border: none;
-
 	@include btn-transparent;
 }
 

@@ -8,6 +8,7 @@
 
 import type { InputHTMLAttributes, Ref } from "preact";
 import { useState } from "preact/hooks";
+import ChooseFileIcon from "~icons/fluent/document-arrow-up-20-regular";
 
 import styles from "./FilePicker.module.scss";
 
@@ -57,7 +58,11 @@ export function FilePicker({ onChange, inputRef, children, hidden, ...props }: P
 						}
 					}}
 				/>
-				{children || "Choose file"}
+				{children || (
+					<>
+						<ChooseFileIcon /> Choose file{props.multiple && "s"}
+					</>
+				)}
 			</label>
 			<span>{fileName ?? "No file chosen"}</span>
 		</div>
