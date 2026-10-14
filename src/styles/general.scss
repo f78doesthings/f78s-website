@@ -372,8 +372,11 @@ option {
 	background: none;
 	border: none;
 	border-radius: $radius-full;
+
 	font-weight: 500;
+	line-height: 1;
 	text-decoration: none;
+
 	cursor: pointer;
 
 	[data-icon] {

@@ -36,15 +36,19 @@
 	"psi-header.changes-tracking": {
 		"isActive": true,
 		"enforceHeader": true,
-		"excludeGlob": [
-			"**/settings.json",
-			"**/.gitignore",
-			"**/.gitattributes",
-			"**/.gitmodules",
-			"**/*.config.*",
-			"**/.ncurc.*"
-		],
-		"exclude": ["json", "jsonc", "plaintext", "markdown", "mdx", "svg"]
+		"excludeGlob": ["**/*.config.*", "**/.ncurc.*"],
+		"exclude": [
+			"json",
+			"jsonc",
+			"plaintext",
+			"markdown",
+			"mdx",
+			"svg",
+			"ignore",
+			"properties",
+			"git-commit",
+			"git-rebase"
+		]
 	},
 	"psi-header.templates": [
 		{

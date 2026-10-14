@@ -35,10 +35,10 @@ export function SpectrumVisualizer(props: VisualizerProps) {
 	const maxFreq = 22050;
 
 	/** Highest displayed volume (dBFS) */
-	const maxVol = 0;
+	const maxVol = -6;
 
 	/** Lowest displayed volume (dBFS) */
-	const minVol = -144;
+	const minVol = -138;
 
 	/** How much the spectrum is lowered per second (dB) */
 	const reductionRate = 54;

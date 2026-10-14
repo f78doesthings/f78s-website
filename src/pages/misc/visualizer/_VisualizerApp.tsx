@@ -15,6 +15,7 @@ import MicrophoneIcon from "~icons/fluent/mic-20-regular";
 import DemoIcon from "~icons/fluent/music-note-2-20-regular";
 import StartCaptureIcon from "~icons/fluent/record-20-regular";
 import StopCaptureIcon from "~icons/fluent/record-stop-20-regular";
+import WarningEmoji from "~icons/noto/warning";
 
 import { VisualizerSelector } from "../../../components/media/audio/visualizers/VisualizerSelector";
 import { MediaControls } from "../../../components/media/utils/MediaControls";
@@ -300,20 +301,21 @@ export function VisualizerApp({ demoSources }: Props) {
 				</p>
 			)}
 			{inputSource === "system" && (
-				<p>
-					<strong>Note:</strong> This feature currently has{" "}
+				<blockquote>
+					<WarningEmoji style={{ verticalAlign: "middle" }} /> This feature currently has{" "}
 					<Link
 						external
 						href="https://caniuse.com/mdn-api_mediadevices_getdisplaymedia_audio_capture_support"
 					>
 						very poor browser support
 					</Link>
-					.<br />
+					. You might have better luck using the microphone source.
+					<br />
 					<small>
-						As of October 2026, it only works in Chromium, and Mac/Linux users can only capture
+						As of October 2026, it only works in Chromium, and Mac/Linux users may only capture
 						audio from other tabs this way.
 					</small>
-				</p>
+				</blockquote>
 			)}
 			{(inputSource === "microphone" || inputSource === "system") && (
 				<button
