@@ -35,7 +35,6 @@
 		"astro": "^7.3.8",
 		"astro-lqip": "^2.0.1",
 		"clsx": "^2.1.1",
-		"compare-versions": "^6.1.1",
 		"hast-util-from-html": "^2.0.3",
 		"modern-normalize": "^3.0.1",
 		"preact": "^10.29.8",

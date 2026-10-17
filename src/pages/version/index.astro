@@ -87,12 +87,12 @@ const versions = await getVersions();
 	<h2>Available versions</h2>
 	<p>
 		Aside from the main website, there's also a development build, which is updated more frequently.
-		There, you can test upcoming changes that aren't quite ready for production yet, and may even be
-		unstable.
+		It often has features that aren't ready for production yet, so stability is not guaranteed.
 	</p>
 	<p>
-		Note that it is possible for the development site to fall behind when a new stable version
-		releases. You can look at the version in the bottom left corner to see if this is the case.
+		Note that it is possible for the development site to fall behind for a bit when a new stable
+		version releases. You can look at the version in the bottom left corner to see if this is the
+		case.
 	</p>
 	<ul>
 		<li>
@@ -131,11 +131,7 @@ const versions = await getVersions();
 	</p>
 
 	<section id="version-list">
-		<h2>Changelogs <Badge type="beta" /></h2>
-		<p>
-			These have been automatically generated based on Git tags and commit history, and are still a
-			work-in-progress.
-		</p>
+		<h2>Changelogs</h2>
 		<PreferenceControl
 			preference="showPrerelease"
 			showTitle="Show pre-release versions:"

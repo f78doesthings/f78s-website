@@ -92,7 +92,13 @@ const scopeTexts: Record<string, string | undefined> = {
 			}
 		</ul>
 	</header>
-	{body && <Markdown content={body} />}
+	{
+		body && (
+			<div class="body">
+				<Markdown content={body} />
+			</div>
+		)
+	}
 	{
 		footer && (
 			<footer>
@@ -154,10 +160,6 @@ const scopeTexts: Record<string, string | undefined> = {
 			}
 		}
 
-		+ :global(*) {
-			margin: 0;
-		}
-
 		> :global(h3) {
 			margin: 0;
 			color: var(--color-text);
@@ -176,6 +178,16 @@ const scopeTexts: Record<string, string | undefined> = {
 			> :global(.sub-scope) {
 				color: var(--color-dimmer);
 			}
+		}
+	}
+
+	.body {
+		> :global(:first-child) {
+			margin-top: 0;
+		}
+
+		> :global(:last-child) {
+			margin-bottom: 0;
 		}
 	}
 

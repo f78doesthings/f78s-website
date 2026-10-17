@@ -82,6 +82,7 @@ export const BADGES: Record<BadgeType, Badge> = {
 	},
 };
 
+export const PRERELEASE_TYPE_ORDER = ["dev", "alpha", "beta", "rc"] as const;
 export const PRERELEASE_TYPES: Record<PrereleaseType, PrereleaseInfo> = {
 	dev: {
 		longTitle: "Early development version",
@@ -116,8 +117,8 @@ export const PRERELEASE_TYPES: Record<PrereleaseType, PrereleaseInfo> = {
 export const UPDATE_SIZE_TYPES = ["hotfix", "minor", "regular", "major"] as const;
 export const UPDATE_SIZES: Record<UpdateSize, UpdateSizeInfo> = {
 	hotfix: {
-		longTitle: "Hotfix",
-		shortTitle: "Hotfix",
+		longTitle: "Tiny update / Hotfix",
+		shortTitle: "Tiny/Hotfix",
 		icon: HotfixIcon,
 		emoji: HotfixEmoji,
 	},

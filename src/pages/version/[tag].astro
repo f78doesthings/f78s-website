@@ -59,12 +59,17 @@ const olderCommits =
 const changelogs = await getChangelogs(version);
 const updateSize = changelogs?.data.size && UPDATE_SIZES[changelogs.data.size];
 const UpdateSizeIcon = updateSize?.icon ?? (() => {});
-const { Content } = changelogs ? await render(changelogs) : {};
+const { Content, headings } = changelogs?.body ? await render(changelogs) : {};
+
+if (headings) {
+	headings.unshift({ depth: 2, slug: "release-notes", text: "Release notes" });
+	headings.push({ depth: 2, slug: "commits", text: "Commits" });
+}
 ---
 
-<Page title={`Changelog for v${version}`} description={message}>
+<Page title={`Changelog for v${version}`} description={message} headings={headings}>
 	<nav>
-		<a href="/version#version-list"><BackIcon /> Back to version list</a>
+		<a href={`/version#version-list_${version}`}><BackIcon /> Back to version list</a>
 	</nav>
 
 	<h1>
@@ -83,12 +88,14 @@ const { Content } = changelogs ? await render(changelogs) : {};
 				<Fragment slot="before">Released</Fragment>
 			</FormattedDate>
 		</li>
-		<li class="separator">&bullet;</li>
 		{
 			updateSize && (
-				<li>
-					<UpdateSizeIcon /> {updateSize.longTitle}
-				</li>
+				<>
+					<li class="separator">&bullet;</li>
+					<li>
+						<UpdateSizeIcon /> {updateSize.longTitle}
+					</li>
+				</>
 			)
 		}
 	</ul>
@@ -96,7 +103,7 @@ const { Content } = changelogs ? await render(changelogs) : {};
 	{prerelease && <Alert type={prerelease}>{PRERELEASE_TYPES[prerelease].description}</Alert>}
 	{
 		Content ? (
-			<section>
+			<section id="release-notes">
 				<h2>Release notes</h2>
 				<Content />
 			</section>
@@ -105,36 +112,38 @@ const { Content } = changelogs ? await render(changelogs) : {};
 		)
 	}
 
-	<h2>Commits</h2>
-	{
-		commits && commits.length > 0 ? (
-			<details open={changelogs === undefined}>
-				<summary>View commit history</summary>
-				{commits.map((commit) => (
-					<ChangelogEntry commit={commit} />
-				))}
-				{olderCommits && olderCommits.length > 0 && (
-					<details>
-						<summary>
-							View older commits <span class="older-since">(since {prevStable})</span>
-						</summary>
-						{olderCommits.map((commit) => (
-							<ChangelogEntry commit={commit} />
-						))}
-					</details>
-				)}
-			</details>
-		) : (
-			<Alert type="warning">
-				This version does not have any commits associated with it.
-				<br />
-				<small>
-					If you see this on an actual production website (development build or not), something
-					must've gone very wrong!
-				</small>
-			</Alert>
-		)
-	}
+	<section id="commits">
+		<h2 id="commits">Commits</h2>
+		{
+			commits && commits.length > 0 ? (
+				<details open={Content === undefined}>
+					<summary>View commit history</summary>
+					{commits.map((commit) => (
+						<ChangelogEntry commit={commit} />
+					))}
+					{olderCommits && olderCommits.length > 0 && (
+						<details>
+							<summary>
+								View older commits <span class="older-since">(since {prevStable})</span>
+							</summary>
+							{olderCommits.map((commit) => (
+								<ChangelogEntry commit={commit} />
+							))}
+						</details>
+					)}
+				</details>
+			) : (
+				<Alert type="warning">
+					This version does not have any commits associated with it.
+					<br />
+					<small>
+						If you see this on an actual production website (development build or not), something
+						must've gone very wrong!
+					</small>
+				</Alert>
+			)
+		}
+	</section>
 
 	<nav>
 		{

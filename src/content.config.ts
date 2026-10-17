@@ -10,13 +10,17 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 import { SITE_VERSION } from "astro:env/client";
-import { compareVersions } from "compare-versions";
 import consola from "consola";
 import type { DefaultLogFields, LogOptions } from "simple-git";
 
-import { BADGE_TYPES, KNOWN_LICENSES, UPDATE_SIZE_TYPES } from "./consts.tsx";
+import {
+	BADGE_TYPES,
+	KNOWN_LICENSES,
+	PRERELEASE_TYPE_ORDER,
+	UPDATE_SIZE_TYPES,
+} from "./consts.tsx";
 import { git } from "./server-utils.ts";
-import type { PrereleaseType, VersionInfo } from "./types.ts";
+import type { VersionInfo } from "./types.ts";
 
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -98,11 +102,17 @@ const links = defineCollection({
 const semverRegex =
 	/^v?(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?(?<message> +.*)?$/;
 
-const prereleaseTypes: PrereleaseType[] = ["dev", "alpha", "beta", "rc"];
 const getPrereleaseType = (version: string) => {
 	const result = semverRegex.exec(version);
 	const prerelease = result?.groups?.["prerelease"];
-	return prereleaseTypes.find((type) => prerelease?.startsWith(type));
+	return PRERELEASE_TYPE_ORDER.find((type) => prerelease?.startsWith(type));
+};
+
+const getPrereleaseDetails = (prereleaseText?: string) => {
+	const index = PRERELEASE_TYPE_ORDER.findIndex((v) => prereleaseText?.startsWith(v));
+	return index < 0
+		? ([Number.MAX_SAFE_INTEGER, prereleaseText ?? ""] as const)
+		: ([index, prereleaseText ?? ""] as const);
 };
 
 const jsonifyCommit = (commit: DefaultLogFields) => {
@@ -123,11 +133,6 @@ function stripTagAnnotation(tag?: string) {
 	return tag?.replace(/ +.*$/, "");
 }
 
-/** Removes both the `v` prefix and any annotations from the given tag. */
-function extractVersion(tag: string) {
-	return stripTagPrefix(stripTagAnnotation(tag));
-}
-
 const baseLogOptions = {
 	strictDate: true,
 	symmetric: false,
@@ -144,7 +149,26 @@ const versions = defineCollection({
 		const result: VersionInfo[] = [];
 		const firstCommit = await git.firstCommit();
 		const { all: tags } = await git.tags(["-n"]);
-		tags.sort((a, b) => compareVersions(extractVersion(a), extractVersion(b)));
+		tags.sort((a, b) => {
+			// Slightly ugly version comparison code to properly handle the prerelease types I use
+			const matchA = semverRegex.exec(a);
+			const matchB = semverRegex.exec(b);
+
+			for (const groupName of ["major", "minor", "patch"]) {
+				const partA = Number(matchA?.groups?.[groupName]);
+				if (isNaN(partA)) return -1;
+
+				const partB = Number(matchB?.groups?.[groupName]);
+				if (isNaN(partB)) return 1;
+
+				const comparison = partA - partB;
+				if (comparison !== 0) return comparison;
+			}
+
+			const [preIndexA, preA] = getPrereleaseDetails(matchA?.groups?.["prerelease"]);
+			const [preIndexB, preB] = getPrereleaseDetails(matchB?.groups?.["prerelease"]);
+			return preIndexA === preIndexB ? preA.localeCompare(preB) : preIndexA - preIndexB;
+		});
 
 		for (let i = 0; i < tags.length; i++) {
 			const [tag, ...message] = tags[i].split(/ +/);
@@ -221,7 +245,11 @@ const changelogs = defineCollection({
 
 		// The default generateId strips dots (and possibly other characters) from the name.
 		// This isn't ideal, so we implement it ourselves here to avoid that.
-		generateId: ({ entry }) => entry.replace(/(\/index)?\.mdx?$/, ""),
+		generateId: ({ entry }) => {
+			const id = entry.replace(/(^\w*\/|(\/index)?\.mdx?$)/g, "");
+			// console.debug(entry, "->", id);
+			return id;
+		},
 	}),
 	schema: () =>
 		z.object({
