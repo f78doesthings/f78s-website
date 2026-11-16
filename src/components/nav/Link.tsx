@@ -9,7 +9,7 @@
 import type { AnchorHTMLAttributes, ComponentChildren } from "preact";
 import FluentOpen16Regular from "~icons/fluent/open-16-regular";
 
-interface Props extends AnchorHTMLAttributes {
+type Props = AnchorHTMLAttributes & {
 	/** If present, marks this link as external. */
 	external?: boolean;
 
@@ -21,7 +21,7 @@ interface Props extends AnchorHTMLAttributes {
 
 	/** The link's contents. */
 	children?: ComponentChildren;
-}
+};
 
 /** A component for simplifying links in text content. */
 export default function Link({ external, noIcon, children, ...props }: Props) {

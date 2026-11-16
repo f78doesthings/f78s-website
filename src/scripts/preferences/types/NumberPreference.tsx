@@ -95,7 +95,7 @@ export class NumberPreference<K extends string>
 		) : (
 			<input
 				name={this.id}
-				type={this.useSlider ? "range" : "number"}
+				type="number"
 				min={this.min}
 				max={this.max}
 				step={this.step}

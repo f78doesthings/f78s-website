@@ -97,6 +97,7 @@ export function PopupMenu({
 				{content}
 			</button>
 			<menu
+				role="menu"
 				class={clsx(
 					"popup-menu",
 					styles["popup-menu"],

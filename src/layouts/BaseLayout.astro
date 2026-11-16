@@ -43,10 +43,10 @@ interface CommonProps {
 	fonts?: "default" | "os";
 }
 
-type Props = Partial<Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">> &
+export type Props = Partial<
+	Omit<MarkdownLayoutProps<CommonProps>, "rawContent" | "compiledContent">
+> &
 	CommonProps;
-
-export type { Props };
 
 const {
 	frontmatter,
@@ -116,21 +116,19 @@ if (IS_DEV) {
 		/>
 
 		{/* The first 2 fonts are guaranteed to be on every page, so we want to preload them */}
-		{
-			fonts === "os" ? (
-				<>
-					<Font cssVariable="--font-heading" preload />
-					<Font cssVariable="--font-os-serif" preload />
-				</>
-			) : (
-				<>
-					<Font cssVariable="--font-body" preload />
-					<Font cssVariable="--font-heading" preload />
-					<Font cssVariable="--font-mono" />
-					<Font cssVariable="--font-serif" />
-				</>
-			)
-		}
+		{fonts === "os" ? (
+			<>
+				<Font cssVariable="--font-heading" preload />
+				<Font cssVariable="--font-os-serif" preload />
+			</>
+		) : (
+			<>
+				<Font cssVariable="--font-body" preload />
+				<Font cssVariable="--font-heading" preload />
+				<Font cssVariable="--font-mono" />
+				<Font cssVariable="--font-serif" />
+			</>
+		)}
 		<ClientRouter />
 
 		<slot name="head" />

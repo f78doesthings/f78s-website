@@ -13,16 +13,14 @@ import { Picture as LqipPicture, type LqipType } from "astro-lqip/components";
 import type { Replace } from "../../types.ts";
 import type { ComponentProps } from "astro/types";
 
-type Props = Replace<
+// It seems like you no longer need a separate `export type { Props }` now. Hooray!
+export type Props = Replace<
 	ComponentProps<typeof LqipPicture>,
 	{
 		/** Enables LQIP if present and not false. Can also be a string value for the LQIP type. */
 		lqip?: boolean | LqipType;
 	}
 >;
-
-// Needs to be separate, or else Astro gets upset for some reason
-export type { Props };
 
 const { lqip, ...props } = Astro.props;
 
@@ -43,11 +41,11 @@ if (widths) {
 	props.densities ??= [1, 1.5, 2, 3];
 }
 
-// TODO: a custom LQIP solution would be more ideal, but maybe later
-// Conversion to `any` added to hide a likely false error message.
+// TODO: a custom LQIP solution would be more ideal, especially with the typing issues in astro-lqip 2.x
+// Conversion to `any` added below to hide a likely false error message.
 ---
 
-<LqipPicture lqip={lqip === true ? undefined : (lqip ?? false)} {...props as any} />
+<LqipPicture lqip={lqip === true ? undefined : (lqip ?? false)} {...(props as any)} />
 
 <style lang="scss">
 	@use "../../styles/utils" as *;

@@ -12,44 +12,36 @@
 import type { MarkdownHeading } from "astro";
 import SidebarLink from "./SidebarLink.astro";
 
-interface Props {
+export interface Props {
 	headings: MarkdownHeading[];
 	showTopHeading?: boolean;
 	showDiscussHeading?: boolean;
 }
 
-export type { Props };
-
 const { headings, showTopHeading, showDiscussHeading, ...cid } = Astro.props;
 ---
 
 <div class="table-of-contents" {...cid}>
-	{
-		showTopHeading && (
-			<SidebarLink href="#top" class="depth-1" {...cid}>
-				(Top)
-			</SidebarLink>
-		)
-	}
+	{showTopHeading && (
+		<SidebarLink href="#top" class="depth-1" {...cid}>
+			(Top)
+		</SidebarLink>
+	)}
 
 	{/* TODO: This should really be represented as nested ordered lists, but maybe later. */}
-	{
-		headings.map(({ depth, slug, text }) => {
-			return (
-				<SidebarLink href={`#${slug}`} class={`depth-${depth}`} data-slug={slug} {...cid}>
-					{text}
-				</SidebarLink>
-			);
-		})
-	}
-
-	{
-		showDiscussHeading && (
-			<SidebarLink href={`#comments`} class="depth-2" data-slug="comments" {...cid}>
-				Comments
+	{headings.map(({ depth, slug, text }) => {
+		return (
+			<SidebarLink href={`#${slug}`} class={`depth-${depth}`} data-slug={slug} {...cid}>
+				{text}
 			</SidebarLink>
-		)
-	}
+		);
+	})}
+
+	{showDiscussHeading && (
+		<SidebarLink href={`#comments`} class="depth-2" data-slug="comments" {...cid}>
+			Comments
+		</SidebarLink>
+	)}
 </div>
 
 <script>

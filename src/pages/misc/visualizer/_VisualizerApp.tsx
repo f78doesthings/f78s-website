@@ -73,8 +73,8 @@ export function VisualizerApp({ demoSources }: Props) {
 
 	const audio = useRef<HTMLAudioElement>(null);
 	const filePicker = useRef<HTMLInputElement>(null);
-	const audioSource = useRef<MediaElementAudioSourceNode>();
-	const lastFileURL = useRef<string>();
+	const audioSource = useRef<MediaElementAudioSourceNode>(undefined);
+	const lastFileURL = useRef<string>(undefined);
 	const doNotUnload = useRef(false);
 
 	const root = useSignalRef<HTMLDivElement | null>(null);
@@ -250,7 +250,7 @@ export function VisualizerApp({ demoSources }: Props) {
 				<strong>Then set up the selected audio source:</strong>
 			</p>
 			<FilePicker
-				inputRef={filePicker}
+				ref={filePicker}
 				accept="audio/*, video/*"
 				hidden={inputSource !== "file"}
 				onChange={(ev) => {
@@ -384,7 +384,7 @@ export function VisualizerApp({ demoSources }: Props) {
 							))}
 						</select>
 					</label>
-					<p style={{ marginTop: 0 }}>
+					<p style={{ marginTop: "0" }}>
 						<small>
 							These are 128kbps AAC files, so the quality is not great; consider using your own
 							audio files instead. You may also need to refresh the page after loading the clip once

@@ -6,15 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { InputHTMLAttributes, Ref } from "preact";
+import type { InputHTMLAttributes } from "preact";
 import { useState } from "preact/hooks";
 import ChooseFileIcon from "~icons/fluent/document-arrow-up-20-regular";
 
 import styles from "./FilePicker.module.scss";
 
-type Props = Omit<InputHTMLAttributes, "type" | "onChange" | "ref"> & {
-	inputRef?: Ref<HTMLInputElement>;
-
+type Props = Omit<InputHTMLAttributes, "type" | "onChange" | "role"> & {
 	/**
 	 * Called when the user picks some files. The files can be found in {@link CustomEvent.detail}.
 	 *
@@ -24,14 +22,13 @@ type Props = Omit<InputHTMLAttributes, "type" | "onChange" | "ref"> & {
 };
 
 /** A file picker field styled for this website. */
-export function FilePicker({ onChange, inputRef, children, hidden, ...props }: Props) {
+export function FilePicker({ onChange, children, hidden, ...props }: Props) {
 	const [fileName, setFileName] = useState<string>();
 	return (
 		<div class={styles["file-picker"]} hidden={hidden}>
 			<label class="btn">
 				<input
 					{...props}
-					ref={inputRef}
 					type="file"
 					hidden
 					onChange={(ev) => {
