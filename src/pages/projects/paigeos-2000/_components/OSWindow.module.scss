@@ -21,17 +21,16 @@
 	flex-direction: column;
 
 	overflow: hidden;
-	min-width: size(100);
-	min-height: size(100);
 	max-width: 100%;
 	max-height: 100%;
 
-	border: spacing() outset var(--color-3d);
 	background-color: var(--color-3d);
-	padding: spacing(0.5);
+	padding: spacing(1);
+
+	@include border-3d(outset alt);
 
 	&.resizable {
-		resize: both;
+		padding: spacing(1.5);
 	}
 
 	&.maximized {
@@ -39,8 +38,9 @@
 		width: 100% !important;
 		height: 100% !important;
 		resize: none;
-		border: none;
 		padding: 0;
+
+		@include border-none;
 	}
 
 	&.minimized {
@@ -52,6 +52,23 @@
 	}
 }
 
+.frame {
+	position: absolute;
+	inset: spacing(-0.5);
+	pointer-events: none;
+	font-size: spacing(3); // Resize handle size
+
+	> * {
+		pointer-events: all;
+	}
+
+	// Make the bottom right resize handle bigger
+	> :global(.resize-handle.bottom-right) {
+		width: spacing(10) !important;
+		height: spacing(10) !important;
+	}
+}
+
 .titlebar {
 	display: flex;
 	align-items: center;
@@ -59,7 +76,7 @@
 	padding: spacing();
 	margin-bottom: spacing(0.5);
 
-	background: linear-gradient(to right, $color-3d-shadow, var(--color-3d));
+	background: linear-gradient(to right, var(--color-3d-shadow), var(--color-3d));
 	color: $color-3d-light;
 	font-weight: var(--weight-bold);
 
@@ -67,7 +84,7 @@
 	touch-action: none;
 
 	@include preferences("dark") {
-		background: linear-gradient(to right, var(--color-3d), $color-3d-highlight);
+		background: linear-gradient(to right, var(--color-3d), var(--color-3d-highlight));
 	}
 
 	.window.focused > & {
@@ -103,7 +120,7 @@
 		align-items: center;
 		justify-content: center;
 
-		padding: spacing(0.5);
+		padding: spacing(0.5) spacing(1) spacing(1) spacing(0.5) !important;
 		line-height: 0;
 		font-size: size(13);
 
@@ -111,6 +128,12 @@
 			width: size(13);
 			height: size(11);
 			object-fit: none;
+		}
+
+		@include hover-and-active {
+			> img {
+				translate: spacing(0.5) spacing(0.5);
+			}
 		}
 
 		&.button-minimize > img {
@@ -149,7 +172,7 @@
 
 		button {
 			font-size: size(24);
-			padding: spacing(2.5) spacing(2.5) spacing(2.25);
+			padding: spacing(2.75) spacing(3) spacing(2.5) spacing(2.75) !important;
 
 			> img {
 				scale: 200%;

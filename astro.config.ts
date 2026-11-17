@@ -22,6 +22,7 @@ import Icons from "unplugin-icons/vite";
 import packageJSON from "./package.json";
 import { satteriHastExternalLinks } from "./plugins/satteri/hast/external-links.ts";
 import { satteriMdastLastModified } from "./plugins/satteri/mdast/last-modified.ts";
+import { satteriMdastWrapText } from "./plugins/satteri/mdast/wrap-text.ts";
 
 const git = simpleGit();
 
@@ -130,9 +131,12 @@ export default defineConfig({
 				smartPunctuation: true,
 				superscript: true,
 				subscript: true,
+				definitionList: true,
+				attributes: true,
+				rawHtml: true,
 			},
 			hastPlugins: [satteriHastExternalLinks()],
-			mdastPlugins: [readingTime(), satteriMdastLastModified()],
+			mdastPlugins: [readingTime(), satteriMdastLastModified(), satteriMdastWrapText()],
 		}),
 		shikiConfig: {
 			themes: {

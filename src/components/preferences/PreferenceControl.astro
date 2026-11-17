@@ -34,6 +34,9 @@ interface Props {
 
 	/** Always show this control, even if the preference has unmet dependencies. */
 	alwaysShow?: boolean;
+
+	/** Uses PaigeOS 2000 styles for this control. Implies {@linkcode noMobile}. */
+	osStyle?: boolean;
 }
 
 const {
@@ -42,7 +45,8 @@ const {
 	showDescription = false,
 	showIcon = false,
 	alwaysShow = false,
-	noMobile,
+	osStyle = false,
+	noMobile = osStyle,
 	...cid
 } = Astro.props;
 
@@ -61,7 +65,8 @@ const hasIcon = showIcon && preference.icon !== undefined;
 const hasTitle = !!showTitle;
 const hasDescription = showDescription && preference.description !== undefined;
 const hasBefore =
-	icons.length > 0 || (preference instanceof NumberPreference && preference.useSlider);
+	!osStyle &&
+	(icons.length > 0 || (preference instanceof NumberPreference && preference.useSlider));
 const hasAfter = false;
 
 const areaIcon = hasIcon && "icon";
@@ -128,9 +133,9 @@ const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 	hidden={hasDependencies}
 	aria-label={preference.title}
 	data-preference-control={id}
-	data-preference-dependencies={hasDependencies
-		? getDependencyString(preference.dependencies)
-		: undefined}
+	data-preference-dependencies={
+		hasDependencies ? getDependencyString(preference.dependencies) : undefined
+	}
 	style={{
 		"--grid": gridTemplate(gridAreas, gridColumns),
 		"--grid-mobile": gridTemplate(mobileGridAreas, mobileGridColumns),
@@ -141,22 +146,18 @@ const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 	}}
 >
 	{hasIcon && <PreferenceIcon {...cid} />}
-	{
-		hasTitle && (
-			<span class="title" {...cid}>
-				{typeof showTitle === "string" ? showTitle : preference.title}
-			</span>
-		)
-	}
-	{
-		hasDescription && (
-			<span class="description" {...cid}>
-				{typeof showDescription === "string" ? showDescription : preference.description}
-			</span>
-		)
-	}
+	{hasTitle && (
+		<span class="title" {...cid}>
+			{typeof showTitle === "string" ? showTitle : preference.title}
+		</span>
+	)}
+	{hasDescription && (
+		<span class="description" {...cid}>
+			{typeof showDescription === "string" ? showDescription : preference.description}
+		</span>
+	)}
 
-	<InnerPreferenceControl client:idle preference={id} {...cid} />
+	<InnerPreferenceControl client:idle preference={id} osStyle={osStyle} {...cid} />
 </label>
 
 <script>
@@ -278,16 +279,16 @@ const hasDependencies = !alwaysShow && preference.dependencies.size > 0;
 		input,
 		select,
 		textarea,
-		.slider {
+		.slider,
+		:global(.select-wrapper) {
 			grid-area: input;
 		}
 
-		input[type="checkbox"],
-		select {
+		> :is(input[type="checkbox"], select) {
 			cursor: pointer;
 		}
 
-		select {
+		:global(:not(.select-wrapper) > select) {
 			background-color: transparent;
 			border: none;
 		}

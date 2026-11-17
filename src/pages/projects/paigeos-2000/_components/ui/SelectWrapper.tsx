@@ -16,7 +16,7 @@ import styles from "./SelectWrapper.module.scss";
 export function SelectWrapper(props: SelectHTMLAttributes) {
 	const ref = useRef<HTMLSelectElement>(null);
 	return (
-		<label class={styles["select-wrapper"]}>
+		<div class={clsx("select-wrapper", styles["select-wrapper"])}>
 			<select ref={ref} {...props} />
 			<div class={styles["overlay"]}>
 				<div class={styles["select-outline"]} />
@@ -24,6 +24,6 @@ export function SelectWrapper(props: SelectHTMLAttributes) {
 					<CaretDownIcon />
 				</div>
 			</div>
-		</label>
+		</div>
 	);
 }

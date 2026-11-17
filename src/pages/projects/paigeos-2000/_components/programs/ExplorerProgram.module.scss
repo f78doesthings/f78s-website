@@ -16,14 +16,23 @@
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
+	container: explorer / inline-size;
+}
+
+.sprite {
+	object-fit: cover;
+	background-position: 0 0;
+	pointer-events: none;
 }
 
 .controls {
-	$border: spacing() groove var(--color-3d);
-
-	border: $border;
 	user-select: none;
-	margin-inline: spacing(0.5);
+
+	@include border-3d(inset thin);
+
+	> * {
+		@include border-3d(outset thin);
+	}
 
 	button {
 		display: inline-flex;
@@ -33,13 +42,17 @@
 		border: spacing(0.5) solid var(--color-3d);
 		padding: spacing(1.5) spacing(3);
 
+		&::before {
+			content: none !important;
+		}
+
 		img {
 			filter: grayscale(100%);
 		}
 
 		&:not(:disabled) {
 			@include hover {
-				border-style: outset;
+				@include border-3d(outset thin);
 
 				img {
 					filter: none;
@@ -48,8 +61,8 @@
 
 			@include hover-and-active {
 				padding: spacing(2) spacing(2.5) spacing(1) spacing(3.5);
-				border-style: inset;
-				border-width: spacing(0.5);
+
+				@include border-3d(inset thin);
 
 				img {
 					filter: none;
@@ -60,7 +73,6 @@
 
 	.menubar {
 		display: flex;
-		flex-wrap: wrap;
 
 		.loading-indicator {
 			display: flex;
@@ -69,11 +81,12 @@
 
 			flex-shrink: 0;
 			margin-left: auto;
-			width: size(48);
+			width: size(41);
 			padding: spacing(0.5);
 
 			background: black;
-			border-left: $border;
+			border-left: spacing(0.5) solid var(--color-3d-highlight);
+			box-shadow: spacing(-0.5) 0 0 var(--color-3d-shadow);
 
 			img {
 				image-rendering: auto;
@@ -81,9 +94,35 @@
 		}
 	}
 
+	.menubar .menus,
 	.standard-buttons {
-		border-block: $border;
-		padding: spacing(2);
+		display: flex;
+		overflow-x: auto;
+	}
+
+	.standard-buttons {
+		button {
+			gap: spacing(1.25);
+			padding-inline: spacing(2);
+
+			&:enabled {
+				@include hover-and-active {
+					padding-inline: spacing(2.5) spacing(1.5);
+				}
+			}
+
+			> svg:last-child {
+				width: size(7);
+				height: size(7);
+			}
+		}
+
+		hr {
+			border-left: spacing(0.5) solid var(--color-3d-shadow);
+			border-right: spacing(0.5) solid var(--color-3d-highlight);
+			width: auto;
+			margin: spacing();
+		}
 	}
 
 	.address-bar {
@@ -99,6 +138,9 @@
 		.address {
 			position: relative;
 			flex-grow: 1;
+			padding: spacing(0.5);
+
+			@include border-3d(inset alt);
 
 			img {
 				position: absolute;
@@ -110,16 +152,18 @@
 
 			input {
 				width: 100%;
-				height: 100%;
+				padding-block: spacing(0.525);
 				padding-left: size(20);
+				line-height: 1;
 
 				appearance: none;
-				border: spacing() inset var(--color-3d);
+				border: none;
 				background-color: var(--color-background);
+				cursor: url("/cursors/cyan_text.cur"), text;
 
 				&:focus-visible {
 					outline: spacing(0.5) dotted currentcolor;
-					outline-offset: spacing(-1.5);
+					outline-offset: spacing(-1);
 				}
 			}
 		}
@@ -131,7 +175,11 @@
 			padding-block: spacing(2);
 		}
 
-		button img,
+		button img {
+			width: size(20);
+			height: size(20);
+		}
+
 		.address-bar img {
 			width: auto;
 			height: size(20);
@@ -154,22 +202,28 @@
 }
 
 .content {
-	background-color: var(--color-background);
-	border: spacing() inset var(--color-3d);
+	position: relative;
+	padding: spacing(0.5);
 	flex-grow: 1;
-	margin-inline: spacing(0.5);
+	height: 0;
+	overflow: hidden;
+	background-color: var(--color-background);
+
+	@include border-3d(inset alt);
 
 	.sidebar {
 		width: size(192);
 		padding: size(10);
+		max-height: 100%;
 		user-select: none;
+		overflow: auto;
 	}
 }
 
 .statusbar {
 	user-select: none;
 	border-spacing: spacing();
-	margin: spacing(-0.5);
+	margin: 0 spacing(-1) spacing(-1);
 	margin-top: 0;
 
 	td {

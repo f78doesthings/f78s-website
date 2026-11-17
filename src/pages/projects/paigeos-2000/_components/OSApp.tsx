@@ -69,6 +69,9 @@ interface OSContext {
 
 	/** Changes the icon of a window. */
 	setWindowIcon(handle?: WindowHandle, icon?: Partial<ImageMetadata>): void;
+
+	/** Marks a window as being dragged or not. */
+	setWindowDragState(handle: WindowHandle | undefined, dragging: boolean): void;
 }
 
 export const OSContext = createContext<OSContext | undefined>(undefined);
@@ -111,11 +114,12 @@ export function OSApp(props: OSAppProps) {
 	const [nextZIndex, setZIndex] = useState(0);
 	const [windows, setWindows] = useState<WindowState[]>([]);
 	const [shuttingDown, setShuttingDown] = useState(false);
+	const [isDragging, setDragging] = useState(false);
 
 	const focused = useSignal<number>();
 	const prevFocused = useSignal<number>();
 
-	const intervalId = useRef<number>();
+	const intervalId = useRef<number>(undefined);
 
 	//#endregion States
 
@@ -147,6 +151,7 @@ export function OSApp(props: OSAppProps) {
 				handle: nextHandle,
 				zIndex: nextZIndex,
 				minimized: false,
+				dragState: false,
 			};
 
 			setWindows([...windows, state]);
@@ -250,6 +255,14 @@ export function OSApp(props: OSAppProps) {
 		setWindowIcon(handle, icon) {
 			updateWindow(handle, () => ({ icon }));
 		},
+
+		setWindowDragState(handle, dragState) {
+			console.debug("setWindowDragState", handle, dragState);
+			updateWindow(handle, () => {
+				setDragging(dragState || windows.some((v) => v.handle !== handle && v.dragState));
+				return { dragState };
+			});
+		},
 	};
 
 	const updateWindow = (
@@ -329,7 +342,7 @@ export function OSApp(props: OSAppProps) {
 
 	return (
 		<OSContext.Provider value={ctx}>
-			<main class={styles.root}>
+			<main class={clsx(styles.root, isDragging && styles.dragging)}>
 				<div class={clsx("desktop", styles.desktop)}>
 					<DesktopIcon
 						icon={RecycleBin32}

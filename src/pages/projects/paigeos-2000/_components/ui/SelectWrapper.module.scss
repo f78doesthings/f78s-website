@@ -14,12 +14,16 @@
 .select-wrapper {
 	position: relative;
 	display: block;
-	border: spacing() inset var(--color-3d);
+	padding: spacing(0.5);
+	cursor: inherit;
+
+	@include border-3d(inset alt);
 
 	> select {
 		appearance: none;
 		background-color: var(--color-background);
 		border: none;
+		cursor: inherit;
 
 		padding: spacing();
 		padding-right: size(24);
@@ -37,8 +41,12 @@
 		}
 
 		&:active + .overlay > :global(.button:not(.disabled)) {
-			border: spacing(0.5) solid color-3d(-40%);
+			border-color: var(--color-3d-shadow);
 			padding-inline: spacing(2);
+
+			&::before {
+				content: none !important;
+			}
 
 			> svg {
 				translate: spacing(0.5) spacing(0.5);
@@ -48,13 +56,14 @@
 
 	> .overlay {
 		position: absolute;
-		inset: 0;
+		inset: spacing(0.5);
 		display: grid;
 		grid-template-columns: 1fr auto;
 		pointer-events: none;
 
 		> .select-outline {
 			z-index: 1;
+			margin: spacing(0.5);
 		}
 
 		> .button {
@@ -63,8 +72,9 @@
 			justify-content: center;
 
 			height: 100%;
-			padding: spacing(1.5);
-			border-width: spacing();
+			padding: spacing(2);
+
+			@include border-3d(outset alt);
 
 			> svg {
 				width: size(8);

@@ -28,7 +28,7 @@
 
 	label {
 		padding: 0;
-		cursor: default;
+		cursor: inherit;
 		overflow: hidden;
 
 		> :global(.description) {

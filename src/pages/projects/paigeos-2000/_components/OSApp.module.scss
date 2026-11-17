@@ -35,6 +35,17 @@
 	background-color: $color-desktop;
 	font-size: size(14);
 
+	// Prevent iframes from stealing pointer inputs while we're moving/resizing a window
+	&.dragging {
+		pointer-events: none;
+		touch-action: none;
+		user-select: none;
+
+		* {
+			cursor: inherit !important;
+		}
+	}
+
 	@media (pointer: coarse) {
 		font-size: size(16);
 	}
@@ -46,7 +57,7 @@
 
 	display: flex;
 	flex-flow: column wrap;
-	gap: spacing();
+	gap: spacing(2);
 
 	background-image: url("../assets/images/wallpapers/Sunset_Paige.avif");
 	background-position: center center;
@@ -62,14 +73,10 @@
 	z-index: 1e10;
 
 	outline: spacing(0.5) solid var(--color-3d);
-	border-top: spacing(0.5) outset var(--color-3d);
+	border-top: spacing(0.5) solid var(--color-3d-highlight);
 	margin-top: spacing(0.5);
 	background-color: var(--color-3d);
 	user-select: none;
-
-	@media (pointer: coarse) {
-		height: size(44);
-	}
 
 	.window-list {
 		display: flex;
@@ -87,8 +94,7 @@
 			position: relative;
 			width: size(160);
 			min-width: size(24);
-			padding: spacing(1) spacing(1) spacing(1) spacing(1.5);
-
+			padding: spacing(1) spacing(1) spacing(1.5) spacing(1.5) !important;
 			background: transparent;
 
 			@media (pointer: coarse) {
@@ -100,27 +106,20 @@
 				}
 			}
 
-			&:not(.focused) {
-				@include hover-and-active {
-					padding: spacing(0.5) spacing(1.5) spacing(1.5) spacing(1);
-				}
-			}
-
 			&.focused {
-				border-style: inset;
 				font-weight: var(--weight-bold);
-				border-width: spacing(1) spacing(0.5) spacing(0.5) spacing(1);
-				padding: spacing(1) spacing(1.5) spacing(1) spacing(1);
+				padding: spacing(1.5) spacing(1) spacing(1) spacing(1.5) !important;
 
-				&::before {
+				@include border-3d(inset);
+
+				&::after {
 					content: "";
 					position: absolute;
 					inset: 0;
 					z-index: -1;
-					margin-bottom: spacing(0.5);
-					margin-right: spacing(0.5);
+					pointer-events: none;
 
-					background: color-3d(75%);
+					background: white;
 					mask: url("../assets/images/checkerboard.svg");
 					mask-size: spacing();
 
@@ -142,13 +141,21 @@
 		display: flex;
 		align-items: center;
 
-		border: spacing(0.5) inset var(--color-3d);
+		@include border-3d(inset thin);
 		padding: spacing();
 		margin-left: auto;
 
 		.clock {
 			padding-inline: size(12);
 			text-align: center;
+		}
+	}
+
+	@media (pointer: coarse) {
+		height: size(44);
+
+		.window-list {
+			scrollbar-width: auto;
 		}
 	}
 }

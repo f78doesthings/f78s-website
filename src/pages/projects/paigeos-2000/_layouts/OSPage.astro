@@ -15,21 +15,21 @@ import "../styles/os-styles.scss";
 	<slot />
 </BaseLayout>
 
-<style lang="scss">
+<style lang="scss" is:global>
 	@use "../../../../styles/utils" as *;
 	@use "../styles/common" as *;
 
 	:root {
 		font-family: var(--font-os-serif);
-		padding-inline: 0.5rem;
-
-		@include preferences("dark") {
-			background-color: $color-background-dark;
-			color: white;
-		}
+		padding-inline: size(8);
+		background-color: var(--color-background);
 	}
 
-	:global(a > .external-icon) {
+	:not(a) > span.text {
+		cursor: url("/cursors/cyan_text.cur"), text;
+	}
+
+	a > .external-icon {
 		margin-left: size(4, true);
 		margin-top: size(2, true);
 		margin-right: 0;

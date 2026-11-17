@@ -15,6 +15,7 @@ import type { NotUndefined } from "../../types.ts";
 
 interface Props {
 	preference: PreferenceID;
+	osStyle: boolean;
 
 	[cid: string]: unknown;
 }
@@ -23,11 +24,12 @@ export interface PreferenceControlState<T extends NotUndefined = NotUndefined> {
 	onInput: (value: unknown) => void;
 	value: T;
 	hidden: boolean;
+	osStyle: boolean;
 	cid: Record<string, unknown>;
 }
 
 /** A helper component containing the actual control part of the PreferenceControl component. */
-export function InnerPreferenceControl({ preference: id, ...cid }: Props) {
+export function InnerPreferenceControl({ preference: id, osStyle, ...cid }: Props) {
 	const preference: Preference = preferences[id];
 	const [value, setValue] = useState(preference.fallbackValue);
 	const [hidden, setHidden] = useState(true);
@@ -54,6 +56,7 @@ export function InnerPreferenceControl({ preference: id, ...cid }: Props) {
 		onInput,
 		value,
 		hidden,
+		osStyle,
 		cid,
 	};
 	return preference.toComponent(state);

@@ -9,6 +9,7 @@
 import { useEffect, useRef } from "preact/hooks";
 
 import type { PreferenceControlState } from "../../../components/preferences/InnerPreferenceControl.tsx";
+import { SelectWrapper } from "../../../pages/projects/paigeos-2000/_components/ui/SelectWrapper.tsx";
 import type { IconComponent } from "../../../types.ts";
 import { Preference, type PreferenceConfig } from "./Preference.ts";
 
@@ -53,29 +54,37 @@ export class EnumPreference<
 		return this.valueNames.find((x) => x === value);
 	}
 
-	override toComponent({ onInput, value, cid }: PreferenceControlState<T>) {
+	override toComponent({ onInput, value, osStyle, cid }: PreferenceControlState<T>) {
 		const ref = useRef<HTMLSelectElement>(null);
 		useEffect(() => {
 			const icons = ref.current?.parentElement?.querySelectorAll<SVGElement>("[data-option-icon]");
 			icons?.forEach((icon) => icon.classList.toggle("hidden", value !== icon.dataset.optionIcon));
 		});
 
+		const SelectComponent = osStyle ? SelectWrapper : "select";
+
 		return (
 			<>
-				{this.valueNames.map((name) => {
-					const Icon = this.options[name].icon ?? (() => undefined);
-					return (
-						<Icon
-							key={name}
-							class="before-input"
-							hidden={value !== name}
-							width={20}
-							height={20}
-							{...cid}
-						/>
-					);
-				})}
-				<select ref={ref} name={this.id} {...cid} onInput={(e) => onInput(e.currentTarget.value)}>
+				{!osStyle &&
+					this.valueNames.map((name) => {
+						const Icon = this.options[name].icon ?? (() => undefined);
+						return (
+							<Icon
+								key={name}
+								class="before-input"
+								hidden={value !== name}
+								width={20}
+								height={20}
+								{...cid}
+							/>
+						);
+					})}
+				<SelectComponent
+					ref={ref}
+					name={this.id}
+					{...cid}
+					onInput={(e) => onInput(e.currentTarget.value)}
+				>
 					{this.valueNames.map((name) => (
 						<option
 							key={name}
@@ -87,7 +96,7 @@ export class EnumPreference<
 							{this.options[name].displayName ?? name}
 						</option>
 					))}
-				</select>
+				</SelectComponent>
 			</>
 		);
 	}

@@ -15,18 +15,19 @@
 	display: flex;
 	align-items: center;
 	gap: spacing();
-	padding: 0 spacing(1.5);
 
 	height: 100%;
 	font-weight: var(--weight-bold);
 
 	// Override border styles
-	border-style: outset !important;
-	border-width: spacing(0.5) spacing(1) spacing(1) spacing(0.5) !important;
+	padding: 0 spacing(2) spacing(0.5) spacing(1.5) !important;
+
+	@include border-3d(outset, !important);
 
 	&:global(.open) {
-		border-style: inset !important;
-		border-width: spacing(1) spacing(0.5) spacing(0.5) spacing(1) !important;
+		padding: spacing(0.5) spacing(1.5) 0 spacing(2) !important;
+
+		@include border-3d(inset, !important);
 	}
 
 	img {
@@ -38,13 +39,14 @@
 
 	+ menu {
 		background-color: var(--color-3d);
-		border: spacing() outset var(--color-3d);
 		opacity: 0;
-		padding: spacing(0.5);
+		padding: spacing(1);
 
 		// Leave room for the banner (hacky)
-		padding-left: size(22);
+		padding-left: size(23);
 		min-height: size(239);
+
+		@include border-3d(outset alt);
 
 		&:global(.open) {
 			opacity: 1;
@@ -62,16 +64,11 @@
 			display: flex;
 			place-items: center start;
 			gap: size(8);
-			padding: spacing();
+			padding: spacing() !important;
 			width: 100%;
 
-			border-width: 0 !important;
-			cursor: default;
-
-			&:disabled > img:first-child {
-				filter: grayscale(100%);
-				opacity: 0.5;
-			}
+			@include border-none;
+			cursor: inherit;
 
 			&:not(:disabled) {
 				@include hover-or-active {
@@ -82,7 +79,7 @@
 
 			> svg:last-child {
 				width: size(12);
-				height: size(12);
+				height: size(11);
 				margin-left: auto;
 				padding: spacing();
 
@@ -95,9 +92,9 @@
 
 		.start-menu-banner {
 			position: absolute;
-			top: spacing(0.5);
-			left: spacing(0.5);
-			height: calc(100% - var(--spacing));
+			top: spacing();
+			left: spacing();
+			height: calc(100% - spacing(2));
 
 			background-color: black;
 			object-fit: contain;
