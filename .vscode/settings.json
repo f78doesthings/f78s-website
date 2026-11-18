@@ -9,10 +9,11 @@
 
 	// Formatting
 	"editor.insertSpaces": false,
+	"editor.tabSize": 2,
 	"editor.rulers": [100],
 	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"[astro]": {
-		"editor.defaultFormatter": "astro-build.astro-vscode"
+		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
 	// TODO: Oxfmt seems to have some troubles with MDX files, is there maybe a better alternative?
 	"[mdx]": {

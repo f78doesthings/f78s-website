@@ -7,8 +7,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import Page from "../../layouts/Page.astro";
-import Link from "../../components/nav/Link";
 import {
 	GIT_BRANCH,
 	GIT_COMMIT,
@@ -16,20 +14,22 @@ import {
 	SITE_VERSION,
 	SITE_REPOSITORY,
 } from "astro:env/client";
-import FormattedDate from "../../components/utils/FormattedDate.astro";
-import { joinURL } from "../../scripts/utils";
-import { getVersions } from "../../server-utils";
-
-import VersionIcon from "~icons/octicon/package-24";
+import { SITE_LICENSE } from "astro:env/client";
 import DateIcon from "~icons/octicon/calendar-24";
+import EnvironmentIcon from "~icons/octicon/codespaces-24";
 import BranchIcon from "~icons/octicon/git-branch-24";
 import CommitIcon from "~icons/octicon/git-commit-24";
-import EnvironmentIcon from "~icons/octicon/codespaces-24";
-import GithubIcon from "~icons/octicon/mark-github-24";
 import IssuesIcon from "~icons/octicon/issue-opened-16";
+import GithubIcon from "~icons/octicon/mark-github-24";
+import VersionIcon from "~icons/octicon/package-24";
+
 import VersionList from "../../components/changelogs/VersionList.astro";
-import { SITE_LICENSE } from "astro:env/client";
+import Link from "../../components/nav/Link";
 import PreferenceControl from "../../components/preferences/PreferenceControl.astro";
+import FormattedDate from "../../components/utils/FormattedDate.astro";
+import Page from "../../layouts/Page.astro";
+import { joinURL } from "../../scripts/utils";
+import { getVersions } from "../../server-utils";
 
 const versions = await getVersions();
 ---
@@ -49,34 +49,35 @@ const versions = await getVersions();
 		</div>
 		<FormattedDate date={new Date(GIT_COMMIT_DATE)} showTime>
 			<DateIcon slot="icon" />
-			<span class="title" slot="before">Released</span>
+			<span class="title" slot="before">
+				Released
+			</span>
 		</FormattedDate>
 		<div>
 			<BranchIcon />
 			<span class="title">Branch</span>
-			{
-				/* prettier-ignore */
-				GIT_BRANCH ? (
-						<Link href={joinURL(SITE_REPOSITORY, "tree", GIT_BRANCH)} external><code>{GIT_BRANCH}</code></Link>
-					) : (
-						<strong>Unknown</strong>
-					)
-			}
+			{GIT_BRANCH ? (
+				<Link href={joinURL(SITE_REPOSITORY, "tree", GIT_BRANCH)} external>
+					<code>{GIT_BRANCH}</code>
+				</Link>
+			) : (
+				<strong>Unknown</strong>
+			)}
 		</div>
 		<div>
 			<CommitIcon />
 			<span class="title">Commit</span>
-			<Link href={joinURL(SITE_REPOSITORY, "commit", GIT_COMMIT)} external
-				><code>{GIT_COMMIT}</code></Link
-			>
+			<Link href={joinURL(SITE_REPOSITORY, "commit", GIT_COMMIT)} external>
+				<code>{GIT_COMMIT}</code>
+			</Link>
 		</div>
 		<div>
 			<EnvironmentIcon />
 			<span class="title">Environment</span>
 			<abbr
-				title={import.meta.env.DEV
-					? "This is a development server."
-					: "This is a production build."}
+				title={
+					import.meta.env.DEV ? "This is a development server." : "This is a production build."
+				}
 			>
 				{import.meta.env.MODE}
 			</abbr>
@@ -96,37 +97,37 @@ const versions = await getVersions();
 	<ul>
 		<li>
 			Main:{" "}
-			{
-				/* prettier-ignore */
-				GIT_BRANCH === "main" ? (
-					<strong>You're here!</strong>
-				) : (
-					<Link href={"https://f78.be"} external>f78.be</Link>
-				)
-			}
+			{GIT_BRANCH === "main" ? (
+				<strong>You're here!</strong>
+			) : (
+				<Link href={"https://f78.be"} external>
+					f78.be
+				</Link>
+			)}
 		</li>
 		<li>
 			Development:{" "}
-			{
-				/* prettier-ignore */
-				GIT_BRANCH !== "main" ? (
-					<strong>You're here!</strong>
-				) : (
-					<Link href={"https://dev.f78.be"} external>dev.f78.be</Link>
-				)
-			}
+			{GIT_BRANCH !== "main" ? (
+				<strong>You're here!</strong>
+			) : (
+				<Link href={"https://dev.f78.be"} external>
+					dev.f78.be
+				</Link>
+			)}
 		</li>
 	</ul>
 
 	<h2>Source code</h2>
 	<p>
-		The source code for this website is available on <Link href={SITE_REPOSITORY} external
-			><GithubIcon /> GitHub</Link
-		>, under the <strong>{SITE_LICENSE}</strong> licence. That's also the place to report any
-		{" "}
-		<Link href={joinURL(SITE_REPOSITORY, "issues")} external
-			><IssuesIcon width={16} height={16} /> issues</Link
-		> you stumble upon.
+		The source code for this website is available on{" "}
+		<Link href={SITE_REPOSITORY} external>
+			<GithubIcon /> GitHub
+		</Link>
+		, under the <strong>{SITE_LICENSE}</strong> licence. That's also the place to report any{" "}
+		<Link href={joinURL(SITE_REPOSITORY, "issues")} external>
+			<IssuesIcon width={16} height={16} /> issues
+		</Link>{" "}
+		you stumble upon.
 	</p>
 
 	<section id="version-list">

@@ -7,20 +7,21 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import Page from "../layouts/Page.astro";
-import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.tsx";
 import { getCollection } from "astro:content";
-import LinkTree from "../components/nav/LinkTree.astro";
-import Link from "../components/nav/Link.tsx";
-import avatar from "../assets/images/avatar.avif";
-import Badge from "../components/ui/Badge";
-import type { LinkData } from "../types";
-import MainImage from "../components/media/MainImage.astro";
 import CircleFlagsBe from "~icons/circle-flags/be";
+import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
 import SimpleIconsSoundcloud from "~icons/simple-icons/soundcloud";
 import SimpleIconsYoutube from "~icons/simple-icons/youtube";
-import SimpleIconsNextcloud from "~icons/simple-icons/nextcloud";
+
+import avatar from "../assets/images/avatar.avif";
 import TextEffects from "../components/fx/TextEffects.astro";
+import MainImage from "../components/media/MainImage.astro";
+import Link from "../components/nav/Link.tsx";
+import LinkTree from "../components/nav/LinkTree.astro";
+import Badge from "../components/ui/Badge";
+import { BADGE_TYPES, BADGES, BLOG_TITLE, SITE_DESCRIPTION } from "../consts.tsx";
+import Page from "../layouts/Page.astro";
+import type { LinkData } from "../types";
 
 const links = await getCollection("links");
 
@@ -61,13 +62,20 @@ const miscLinks: Omit<LinkData, "order">[] = [
 		<div>
 			<h1>Hi there!</h1>
 			<p>
-				I'm <TextEffects type="gradient" class="my-name">f78</TextEffects>
-				<small> (usually pronounced eff-seven-eight)</small>, a 22-year-old guy from <strong
-					><CircleFlagsBe /> Belgium</strong
-				> who's currently studying programming at college. In my spare time I like to do stuff like playing
-				PC games, listening to and creating music, as well as programming various things <small
-					><i>(including this website you're currently browsing)</i></small
-				>.
+				I'm{" "}
+				<TextEffects type="gradient" class="my-name">
+					f78
+				</TextEffects>
+				<small> (usually pronounced eff-seven-eight)</small>, a 22-year-old guy from{" "}
+				<strong>
+					<CircleFlagsBe /> Belgium
+				</strong>{" "}
+				who's currently studying programming at college. In my spare time I like to do stuff like
+				playing PC games, listening to and creating music, as well as programming various things{" "}
+				<small>
+					<i>(including this website you're currently browsing)</i>
+				</small>
+				.
 			</p>
 			<h2>Why that name?</h2>
 			<p>
@@ -102,16 +110,22 @@ const miscLinks: Omit<LinkData, "order">[] = [
 	<p>
 		Below is a list of links to my social media accounts and such. Remember that I'm quite busy with
 		college, so I won't be producing much content for the time being. Right now I'm mainly putting
-		out <b>covers of the Home Paige OST</b>, which you can listen to on <Link
-			href="https://soundcloud.com/f78music/sets/home-paige-covers"
-			external><SimpleIconsSoundcloud /> SoundCloud</Link
-		> and <Link
-			href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs"
-			external><SimpleIconsYoutube /> YouTube</Link
-		>*. You can also find downloads for them <Link
+		out <b>covers of the Home Paige OST</b>, which you can listen to on{" "}
+		<Link href="https://soundcloud.com/f78music/sets/home-paige-covers" external>
+			<SimpleIconsSoundcloud /> SoundCloud
+		</Link>{" "}
+		and{" "}
+		<Link href="https://www.youtube.com/playlist?list=PLgSYA3wj24HZj21eXhM-wKlIaoHuNCKRs" external>
+			<SimpleIconsYoutube /> YouTube
+		</Link>
+		*. You can also find downloads for them{" "}
+		<Link
 			href="https://fie.nl.tab.digital/s/q7ntrLN2bz9grzX?dir=/Music/Home%20Paige%20covers"
-			external><SimpleIconsNextcloud /> in this public Nextcloud folder</Link
-		>.
+			external
+		>
+			<SimpleIconsNextcloud /> in this public Nextcloud folder
+		</Link>
+		.
 	</p>
 	<p>
 		<small>
@@ -130,19 +144,17 @@ const miscLinks: Omit<LinkData, "order">[] = [
 		above. In case you can't hover over them, here's a list of what they mean:
 	</p>
 	<dl class="badge-legend">
-		{
-			BADGE_TYPES.map((type) => {
-				const { description } = BADGES[type];
-				return (
-					<>
-						<dt>
-							<Badge type={type} />
-						</dt>
-						<dd>{description}</dd>
-					</>
-				);
-			})
-		}
+		{BADGE_TYPES.map((type) => {
+			const { description } = BADGES[type];
+			return (
+				<>
+					<dt>
+						<Badge type={type} />
+					</dt>
+					<dd>{description}</dd>
+				</>
+			);
+		})}
 	</dl>
 </Page>
 

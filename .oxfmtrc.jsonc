@@ -1,15 +1,11 @@
 {
 	"$schema": "./node_modules/oxfmt/configuration_schema.json",
 	"ignorePatterns": ["src/assets/fonts"], // Ignore submodules
+	"astro": true,
 
 	"useTabs": true,
 	"tabWidth": 2,
 	"jsdoc": true,
 	"sortImports": true,
 	"proseWrap": "always",
-
-	"overrides": [
-		// Don't add trailing commas in .jsonc files (it causes a bunch of warnings)
-		{ "files": ["**/*.jsonc"], "options": { "trailingComma": "none" } }
-	]
 }

@@ -10,8 +10,9 @@
 // A minimal image component.
 
 import { Picture as LqipPicture, type LqipType } from "astro-lqip/components";
-import type { Replace } from "../../types.ts";
 import type { ComponentProps } from "astro/types";
+
+import type { Replace } from "../../types.ts";
 
 // It seems like you no longer need a separate `export type { Props }` now. Hooray!
 export type Props = Replace<

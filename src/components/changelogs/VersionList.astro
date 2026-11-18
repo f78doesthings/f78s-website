@@ -7,12 +7,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { VersionInfo } from "../../types";
-import FormattedDate from "../utils/FormattedDate.astro";
-
-import Markdown from "../utils/Markdown.astro";
 import { PRERELEASE_TYPES, UPDATE_SIZES } from "../../consts";
 import { getChangelogs } from "../../server-utils";
+import type { VersionInfo } from "../../types";
+import FormattedDate from "../utils/FormattedDate.astro";
+import Markdown from "../utils/Markdown.astro";
 
 type Props = {
 	versions: VersionInfo[];
@@ -24,69 +23,66 @@ const firstStable = versions.find((v) => !v.prerelease);
 ---
 
 <ol class="version-list">
-	{
-		versions.map(async (v) => {
-			const latest = v === firstStable || v === firstPrerelease;
-			const changelogs = await getChangelogs(v.id);
-			const updateSize = changelogs?.data.size;
+	{versions.map(async (v) => {
+		const latest = v === firstStable || v === firstPrerelease;
+		const changelogs = await getChangelogs(v.id);
+		const updateSize = changelogs?.data.size;
 
-			const SizeIcon = updateSize ? UPDATE_SIZES[updateSize].icon : () => {};
-			const PrereleaseIcon = v.prerelease ? PRERELEASE_TYPES[v.prerelease].icon : () => {};
+		const SizeIcon = updateSize ? UPDATE_SIZES[updateSize].icon : () => {};
+		const PrereleaseIcon = v.prerelease ? PRERELEASE_TYPES[v.prerelease].icon : () => {};
 
-			return (
-				<li
-					data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : undefined}
-					data-ignore-preference-availability={v.prerelease ? "" : undefined}
-					hidden={v.prerelease}
-					class:list={[
-						updateSize && `update-size-${updateSize}`,
-						v.prerelease && `prerelease-${v.prerelease}`,
-						{ prerelease: v.prerelease, latest },
-					]}
-					id={`version-list_${v.id}`}
-				>
-					<a href={`/version/${v.id}`}>
-						<div class="header">
-							<h3 class="version">
-								{v.id}
-								{changelogs?.data.title && (
-									<>
-										{" "}
-										<small>
-											&OpenCurlyDoubleQuote;{changelogs.data.title}&CloseCurlyDoubleQuote;
-										</small>
-									</>
-								)}
-							</h3>
-							<ul class="details">
-								{updateSize && (
-									<li class="update-size">
-										<SizeIcon />{" "}
-										{UPDATE_SIZES[updateSize][v.prerelease ? "shortTitle" : "longTitle"]}
-									</li>
-								)}
-								{v.prerelease && updateSize && <li class="separator">&bullet;</li>}
-								{v.prerelease && (
-									<li
-										class={`prerelease prerelease-${v.prerelease}`}
-										title={PRERELEASE_TYPES[v.prerelease].description}
-									>
-										<PrereleaseIcon /> {PRERELEASE_TYPES[v.prerelease].shortTitle}
-									</li>
-								)}
-							</ul>
-							<FormattedDate date={v.date} />
+		return (
+			<li
+				data-preference-dependencies={v.prerelease ? '[["showPrerelease", [true]]]' : undefined}
+				data-ignore-preference-availability={v.prerelease ? "" : undefined}
+				hidden={v.prerelease}
+				class:list={[
+					updateSize && `update-size-${updateSize}`,
+					v.prerelease && `prerelease-${v.prerelease}`,
+					{ prerelease: v.prerelease, latest },
+				]}
+				id={`version-list_${v.id}`}
+			>
+				<a href={`/version/${v.id}`}>
+					<div class="header">
+						<h3 class="version">
+							{v.id}
+							{changelogs?.data.title && (
+								<>
+									{" "}
+									<small>
+										&OpenCurlyDoubleQuote;{changelogs.data.title}&CloseCurlyDoubleQuote;
+									</small>
+								</>
+							)}
+						</h3>
+						<ul class="details">
+							{updateSize && (
+								<li class="update-size">
+									<SizeIcon /> {UPDATE_SIZES[updateSize][v.prerelease ? "shortTitle" : "longTitle"]}
+								</li>
+							)}
+							{v.prerelease && updateSize && <li class="separator">&bullet;</li>}
+							{v.prerelease && (
+								<li
+									class={`prerelease prerelease-${v.prerelease}`}
+									title={PRERELEASE_TYPES[v.prerelease].description}
+								>
+									<PrereleaseIcon /> {PRERELEASE_TYPES[v.prerelease].shortTitle}
+								</li>
+							)}
+						</ul>
+						<FormattedDate date={v.date} />
+					</div>
+					{v.message && (
+						<div class="message">
+							<Markdown content={v.message} />
 						</div>
-						{v.message && (
-							<div class="message">
-								<Markdown content={v.message} />
-							</div>
-						)}
-					</a>
-				</li>
-			);
-		})
-	}
+					)}
+				</a>
+			</li>
+		);
+	})}
 </ol>
 
 <style lang="scss">

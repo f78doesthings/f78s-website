@@ -10,21 +10,20 @@
 // Site navigation (top bar and sidebars)
 
 import { SITE_VERSION } from "astro:env/client";
-
+import CodeIcon from "~icons/fluent/code-20-regular";
+import GamesIcon from "~icons/fluent/games-20-regular";
+import HomeIcon from "~icons/fluent/home-20-regular";
+import MusicIcon from "~icons/fluent/music-note-2-20-regular";
 import NavigationIcon from "~icons/fluent/navigation-20-regular";
 import TableOfContentsIcon from "~icons/fluent/panel-left-text-20-regular";
-import HomeIcon from "~icons/fluent/home-20-regular";
 import BlogIcon from "~icons/fluent/rss-20-regular";
-import MusicIcon from "~icons/fluent/music-note-2-20-regular";
-import GamesIcon from "~icons/fluent/games-20-regular";
-import CodeIcon from "~icons/fluent/code-20-regular";
 import SettingsIcon from "~icons/fluent/settings-20-regular";
 
-import Badge from "../ui/Badge";
 import PreferenceControl from "../preferences/PreferenceControl.astro";
-import SiteLogo from "./SiteLogo.astro";
-import SidebarLink from "./SidebarLink.astro";
+import Badge from "../ui/Badge";
 import Sidebar from "./Sidebar.astro";
+import SidebarLink from "./SidebarLink.astro";
+import SiteLogo from "./SiteLogo.astro";
 import TableOfContents, { type Props as TableOfContentsProps } from "./TableOfContents.astro";
 
 type Props = Partial<TableOfContentsProps>;
@@ -44,31 +43,39 @@ const { headings, ...props } = Astro.props;
 			<NavigationIcon />
 		</SidebarLink>
 		<SiteLogo />
-		{
-			headings && (
-				<SidebarLink
-					title="Open table of contents"
-					aria-label="Open table of contents"
-					data-show-sidebar="headings-menu"
-				>
-					<TableOfContentsIcon style="transform: rotate(180deg)" />
-				</SidebarLink>
-			)
-		}
+		{headings && (
+			<SidebarLink
+				title="Open table of contents"
+				aria-label="Open table of contents"
+				data-show-sidebar="headings-menu"
+			>
+				<TableOfContentsIcon style="transform: rotate(180deg)" />
+			</SidebarLink>
+		)}
 	</nav>
 </header>
 
 <Sidebar id="navigation-menu">
 	<h2>Places</h2>
-	<SidebarLink href="/"><HomeIcon /> Home</SidebarLink>
-	<SidebarLink href="/blog"><BlogIcon /> Blog</SidebarLink>
+	<SidebarLink href="/">
+		<HomeIcon /> Home
+	</SidebarLink>
+	<SidebarLink href="/blog">
+		<BlogIcon /> Blog
+	</SidebarLink>
 
 	<h2>My hobbies</h2>
 	<div class="future-topics">
 		<div class="placeholder">
-			<SidebarLink href="/hobbies/gaming"><GamesIcon /> Gaming</SidebarLink>
-			<SidebarLink href="/hobbies/music"><MusicIcon /> Music</SidebarLink>
-			<SidebarLink href="/hobbies/programming"><CodeIcon /> Programming</SidebarLink>
+			<SidebarLink href="/hobbies/gaming">
+				<GamesIcon /> Gaming
+			</SidebarLink>
+			<SidebarLink href="/hobbies/music">
+				<MusicIcon /> Music
+			</SidebarLink>
+			<SidebarLink href="/hobbies/programming">
+				<CodeIcon /> Programming
+			</SidebarLink>
 		</div>
 		<div class="coming-soon">Coming soon...</div>
 	</div>
@@ -84,17 +91,17 @@ const { headings, ...props } = Astro.props;
 		<SettingsIcon />
 		More Settings
 	</SidebarLink>
-	<SidebarLink href="/version" class="version">version {SITE_VERSION}</SidebarLink>
+	<SidebarLink href="/version" class="version">
+		version {SITE_VERSION}
+	</SidebarLink>
 </Sidebar>
 
-{
-	headings && (
-		<Sidebar id="headings-menu" right>
-			<h2>Table of Contents</h2>
-			<TableOfContents headings={headings} {...props} />
-		</Sidebar>
-	)
-}
+{headings && (
+	<Sidebar id="headings-menu" right>
+		<h2>Table of Contents</h2>
+		<TableOfContents headings={headings} {...props} />
+	</Sidebar>
+)}
 
 <style lang="scss">
 	@use "../../styles/colors" as *;

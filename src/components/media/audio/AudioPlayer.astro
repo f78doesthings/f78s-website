@@ -10,8 +10,9 @@
 // A (currently simple) audio player.
 
 import type { HTMLAttributes } from "astro/types";
-import type { MediaInfo, Replace } from "../../../types.ts";
+
 import { resolveMedia } from "../../../server-utils";
+import type { MediaInfo, Replace } from "../../../types.ts";
 import { AudioPlayerClient } from "./AudioPlayerClient.tsx";
 
 type Props = Replace<HTMLAttributes<"audio">, MediaInfo>;
@@ -26,7 +27,7 @@ if (!resolvedSrc) {
 ---
 
 <figure class="media-player">
-	<AudioPlayerClient client:visible src={resolvedSrc} {...props as any} />
+	<AudioPlayerClient client:visible src={resolvedSrc} {...(props as any)} />
 	<figcaption>
 		<slot />
 	</figcaption>

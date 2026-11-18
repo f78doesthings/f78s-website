@@ -21,16 +21,14 @@ const { text } = Astro.props;
 Astro.logger?.warn(`TODO: ${text}`);
 ---
 
-{
-	IS_DEV && (
-		<small class="todo" aria-hidden={true}>
-			<em>
-				(<strong>TODO: </strong>
-				{text})
-			</em>
-		</small>
-	)
-}
+{IS_DEV && (
+	<small class="todo" aria-hidden={true}>
+		<em>
+			(<strong>TODO: </strong>
+			{text})
+		</em>
+	</small>
+)}
 
 <style lang="scss">
 	@use "../../styles/utils" as *;

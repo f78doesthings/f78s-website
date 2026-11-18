@@ -17,14 +17,14 @@ const { type, ...props } = Astro.props;
 ---
 
 <em class="text-effects">
-	<span class:list={[type, props.class]} {...props}><slot /></span>
-	{
-		type === "gradient" && (
-			<span class:list={["gradient-glow", props.class]} aria-hidden {...props}>
-				<slot />
-			</span>
-		)
-	}
+	<span class:list={[type, props.class]} {...props}>
+		<slot />
+	</span>
+	{type === "gradient" && (
+		<span class:list={["gradient-glow", props.class]} aria-hidden {...props}>
+			<slot />
+		</span>
+	)}
 </em>
 
 <style lang="scss">

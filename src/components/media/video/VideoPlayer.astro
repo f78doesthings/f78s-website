@@ -10,8 +10,9 @@
 // A (currently simple) video player.
 
 import type { HTMLAttributes } from "astro/types";
-import type { MediaInfo, Replace } from "../../../types.ts";
+
 import { resolveMedia } from "../../../server-utils";
+import type { MediaInfo, Replace } from "../../../types.ts";
 import { VideoPlayerClient } from "./VideoPlayerClient.tsx";
 
 type Props = Replace<
@@ -35,7 +36,7 @@ if (!resolvedSrc) {
 ---
 
 <figure class="media-player">
-	<VideoPlayerClient client:visible src={resolvedSrc} {...props as any} />
+	<VideoPlayerClient client:visible src={resolvedSrc} {...(props as any)} />
 	<figcaption>
 		<slot />
 	</figcaption>

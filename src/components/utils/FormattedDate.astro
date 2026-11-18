@@ -9,8 +9,9 @@
 
 // Formats a date to display to the user.
 
-import { SITE_LANGUAGE } from "../../consts.tsx";
 import FluentCalendarEmpty20Regular from "~icons/fluent/calendar-empty-20-regular";
+
+import { SITE_LANGUAGE } from "../../consts.tsx";
 import { asDate } from "../../scripts/utils/index.ts";
 
 interface Props {
@@ -50,9 +51,7 @@ const isValidDate = date !== undefined && isFinite(date.valueOf());
 ---
 
 <p class="formatted-date" title={tooltip} {...cid}>
-	<slot name="icon">
-		{!noIcon && <FluentCalendarEmpty20Regular />}
-	</slot>
+	<slot name="icon">{!noIcon && <FluentCalendarEmpty20Regular />}</slot>
 	{!noIcon && " "}
 	<slot name="before" />{" "}
 	<time datetime={isValidDate ? date.toISOString() : undefined}>

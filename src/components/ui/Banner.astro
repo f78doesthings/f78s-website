@@ -23,13 +23,11 @@ const { id } = Astro.props;
 
 <div data-banner={id ?? ""} class:list={{ visible: id === undefined }}>
 	<slot />
-	{
-		id && (
-			<button>
-				<slot name="dismiss-button">Got it!</slot>
-			</button>
-		)
-	}
+	{id && (
+		<button>
+			<slot name="dismiss-button">Got it!</slot>
+		</button>
+	)}
 </div>
 
 <script>

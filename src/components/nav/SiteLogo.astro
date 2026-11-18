@@ -20,7 +20,10 @@ const { ...cid } = Astro.props;
 	<a href="/" {...cid}>
 		<BaseImage src={avatar} alt="f78's avatar" width={40} height={40} priority {...cid} />
 		<span class="title">
-			<span>f</span><span>7</span><span>8</span><span>!</span>
+			<span>f</span>
+			<span>7</span>
+			<span>8</span>
+			<span>!</span>
 		</span>
 		{IS_DEV && <span class="dev-badge">DEV</span>}
 	</a>

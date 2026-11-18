@@ -9,18 +9,21 @@
 
 // A component for images that are part of the main page. Includes an image viewer and some effects.
 
-import BaseImage, { type Props as BaseProps } from "./BaseImage.astro";
-import { type CopyrightInfo, ImageRotation } from "../../types";
 import { getImageMetadata } from "../../server-utils";
+import { type CopyrightInfo, ImageRotation } from "../../types";
+import BaseImage, { type Props as BaseProps } from "./BaseImage.astro";
 import { ImageViewer } from "./viewers/ImageViewer";
 
 type Props = BaseProps &
 	CopyrightInfo & {
 		/**
 		 * Controls when the rotation effect for this image should be enabled.
+		 *
 		 * - `never` always disables the rotation effect.
-		 * - `preferNo` disables the rotation effect, unless the user wants all images to be rotated. This is the default.
-		 * - `preferYes` enables the rotation effect, unless the user doesn't want any images to be rotated.
+		 * - `preferNo` disables the rotation effect, unless the user wants all images to be rotated. This
+		 *   is the default.
+		 * - `preferYes` enables the rotation effect, unless the user doesn't want any images to be
+		 *   rotated.
 		 */
 		rotates?: keyof typeof ImageRotation;
 	};
@@ -50,19 +53,13 @@ if (!props.width && !props.height && !props.widths) {
 	</figcaption>
 </figure>
 
-{
-	/* Prettier adds whitespace here, which causes styling issues with the media */
-	/* prettier-ignore */
-	meta && (
-		<ImageViewer client:idle alt={alt ?? ""} {...props} {...meta} />
-	)
-}
+{meta && <ImageViewer client:idle alt={alt ?? ""} {...props} {...meta} />}
 
 <script>
-	import { showMediaViewer } from "./viewers/MediaViewer";
 	import { preferences } from "../../scripts/preferences";
-	import { ImageRotation } from "../../types";
 	import { clamp } from "../../scripts/utils";
+	import { ImageRotation } from "../../types";
+	import { showMediaViewer } from "./viewers/MediaViewer";
 
 	const ENABLE_LOGGING = false; // TODO: maybe make this an advanced preference?
 
@@ -224,18 +221,18 @@ if (!props.width && !props.height && !props.widths) {
 				// where they don't belong, upsetting both Stylelint and the browser
 
 				@include hover {
-					// prettier-ignore
-					transform: scale(101.5%) rotate(calc(
-						var(--main-image-rotation) * (var(--rotate) + 0.3 * (1.5 - var(--rotate) * 0.5))
-					));
+					transform: scale(101.5%)
+						rotate(
+							calc(var(--main-image-rotation) * (var(--rotate) + 0.3 * (1.5 - var(--rotate) * 0.5)))
+						);
 					box-shadow: $glass-shadow;
 				}
 
 				@include active {
-					// prettier-ignore
-					transform: scale(99%) rotate(calc(
-						var(--main-image-rotation) * (var(--rotate) - 0.2 * (1.5 - var(--rotate) * 0.5))
-					));
+					transform: scale(99%)
+						rotate(
+							calc(var(--main-image-rotation) * (var(--rotate) - 0.2 * (1.5 - var(--rotate) * 0.5)))
+						);
 				}
 			}
 		}

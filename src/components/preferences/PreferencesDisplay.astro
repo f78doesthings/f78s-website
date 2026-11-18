@@ -9,12 +9,12 @@
 
 // Displays a list of preferences by category.
 
-import PreferenceControl from "./PreferenceControl.astro";
-import { getDependencyString } from "../../scripts/preferences/utils.ts";
 import {
 	getPreferencesByCategory,
 	type PreferencesByCategory,
 } from "../../scripts/preferences/index.tsx";
+import { getDependencyString } from "../../scripts/preferences/utils.ts";
+import PreferenceControl from "./PreferenceControl.astro";
 
 interface Props {
 	depth?: number;
@@ -44,13 +44,13 @@ const dependencyVars = getDependencyString(dependencies);
 	{title && <Heading id={title.toLowerCase().replace(" ", "-")}>{title}</Heading>}
 	{description && <p>{description}</p>}
 
-	{
-		preferences?.map((preference) => (
-			<PreferenceControl preference={preference.id} showIcon showTitle showDescription />
-		))
-	}
+	{preferences?.map((preference) => (
+		<PreferenceControl preference={preference.id} showIcon showTitle showDescription />
+	))}
 
-	{categories?.map((category) => <Astro.self depth={depth + 1} preferences={category} />)}
+	{categories?.map((category) => (
+		<Astro.self depth={depth + 1} preferences={category} />
+	))}
 </fieldset>
 
 <style lang="scss">

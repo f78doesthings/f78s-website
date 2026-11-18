@@ -5,13 +5,13 @@
 	"plugins": ["eslint", "typescript", "unicorn", "oxc"],
 	"categories": {
 		"correctness": "error",
-		"suspicious": "warn"
+		"suspicious": "warn",
 	},
 	"env": {
-		"builtin": true
+		"builtin": true,
 	},
 	"options": {
 		"typeAware": true,
-		"typeCheck": true
-	}
+		"typeCheck": true,
+	},
 }

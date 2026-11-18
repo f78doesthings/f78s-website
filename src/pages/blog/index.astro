@@ -10,17 +10,18 @@
 // Displays a list of all blog posts.
 // TODO: pagination?
 
-import Page from "../../layouts/Page.astro";
-import { BLOG_TITLE, IS_DEV } from "../../consts.tsx";
-import Link from "../../components/nav/Link.tsx";
-import Badge from "../../components/ui/Badge";
-import { type CollectionEntry, getCollection } from "astro:content";
-import BaseImage from "../../components/media/BaseImage.astro";
-import FormattedDate from "../../components/utils/FormattedDate.astro";
-import fallbackImage from "../../assets/images/blog-fallback.jpg";
 import type { Props as PictureProps } from "astro/components/Picture.astro";
+import { type CollectionEntry, getCollection } from "astro:content";
 import FluentEdit20Regular from "~icons/fluent/edit-20-regular";
 import FluentRss20Regular from "~icons/fluent/rss-20-regular";
+
+import fallbackImage from "../../assets/images/blog-fallback.jpg";
+import BaseImage from "../../components/media/BaseImage.astro";
+import Link from "../../components/nav/Link.tsx";
+import Badge from "../../components/ui/Badge";
+import FormattedDate from "../../components/utils/FormattedDate.astro";
+import { BLOG_TITLE, IS_DEV } from "../../consts.tsx";
+import Page from "../../layouts/Page.astro";
 
 // This is needed because you can't use angle brackets in the JSX below
 type PartialPictureProps = Partial<PictureProps>;
@@ -75,65 +76,63 @@ if (import.meta.env.DEV && placeholdersToAdd > 0) {
 		honest. Right now there's not that much here yet.
 	</p>
 	<p>
-		<Link href="/rss.xml" external
-			><FluentRss20Regular /> Subscribe with your RSS reader of choice</Link
-		>
+		<Link href="/rss.xml" external>
+			<FluentRss20Regular /> Subscribe with your RSS reader of choice
+		</Link>
 	</p>
 
-	{
-		posts.length > 0 && (
-			<section class="posts">
-				{posts.map((post, index) => {
-					// We don't want this to be typed as PartialPictureProps, because that causes the error to pop up again
+	{posts.length > 0 && (
+		<section class="posts">
+			{posts.map((post, index) => {
+				// We don't want this to be typed as PartialPictureProps, because that causes the error to pop up again
 
-					const props = (
-						index === 0
-							? {
-									widths: [320, 480, 640, 960],
-									sizes:
-										"(max-width: 480px) 320px, " +
-										"(max-width: 640px) 480px, " +
-										"(min-resolution: 1.5x) 960px, " +
-										"640px",
-									width: 640,
-									height: 320,
-								}
-							: {
-									width: 320,
-									height: 160,
-								}
-					) satisfies PartialPictureProps;
+				const props = (
+					index === 0
+						? {
+								widths: [320, 480, 640, 960],
+								sizes:
+									"(max-width: 480px) 320px, " +
+									"(max-width: 640px) 480px, " +
+									"(min-resolution: 1.5x) 960px, " +
+									"640px",
+								width: 640,
+								height: 320,
+							}
+						: {
+								width: 320,
+								height: 160,
+							}
+				) satisfies PartialPictureProps;
 
-					return (
-						<article class:list={{ draft: post.draft }}>
-							<a href={post.id && `/blog/${post.id}`} tabindex="0">
-								{post.heroImage && (
-									<BaseImage
-										src={post.heroImage}
-										alt={post.heroAlt}
-										lqip
-										priority={index === 0}
-										{...props}
-									/>
+				return (
+					<article class:list={{ draft: post.draft }}>
+						<a href={post.id && `/blog/${post.id}`} tabindex="0">
+							{post.heroImage && (
+								<BaseImage
+									src={post.heroImage}
+									alt={post.heroAlt}
+									lqip
+									priority={index === 0}
+									{...props}
+								/>
+							)}
+							<div>
+								<h3 class="title">{post.title}</h3>
+								{post.draft ? (
+									<p class="formatted-date">
+										<FluentEdit20Regular /> Draft
+									</p>
+								) : (
+									<FormattedDate date={post.pubDate} />
 								)}
-								<div>
-									<h3 class="title">{post.title}</h3>
-									{post.draft ? (
-										<p class="formatted-date">
-											<FluentEdit20Regular /> Draft
-										</p>
-									) : (
-										<FormattedDate date={post.pubDate} />
-									)}
-									<p class="description">{post.description}</p>
-								</div>
-							</a>
-						</article>
-					);
-				})}
-			</section>
-		)
-	}
+								<p class="description">{post.description}</p>
+							</div>
+						</a>
+					</article>
+				);
+			})}
+		</section>
+	)}
 </Page>
 
 <style lang="scss">

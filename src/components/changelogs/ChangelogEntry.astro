@@ -7,17 +7,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { DefaultLogFields } from "simple-git";
 import { SITE_REPOSITORY } from "astro:env/client";
-
-import Markdown from "../utils/Markdown.astro";
-import FormattedDate from "../utils/FormattedDate.astro";
-import Link from "../nav/Link";
-
+import type { DefaultLogFields } from "simple-git";
 import TimestampIcon from "~icons/octicon/clock-16";
 import CommitIcon from "~icons/octicon/git-commit-16";
 import TagIcon from "~icons/octicon/tag-16";
+
 import { joinURL } from "../../scripts/utils";
+import Link from "../nav/Link";
+import FormattedDate from "../utils/FormattedDate.astro";
+import Markdown from "../utils/Markdown.astro";
 
 interface Props {
 	commit: DefaultLogFields;
@@ -77,35 +76,30 @@ const scopeTexts: Record<string, string | undefined> = {
 			</li>
 			<li title="Commit hash">
 				<CommitIcon />{" "}
-				<Link href={joinURL(SITE_REPOSITORY, "commit", commit.hash)} external
-					><code>{commit.hash.substring(0, 7)}</code></Link
-				>
+				<Link href={joinURL(SITE_REPOSITORY, "commit", commit.hash)} external>
+					<code>{commit.hash.substring(0, 7)}</code>
+				</Link>
 			</li>
-			{
-				/* prettier-ignore */
-				tag && (
-					<li title="Assigned tag">
-						<TagIcon />{" "}
-						<Link href={joinURL(SITE_REPOSITORY, "tree", tag)} external><code>{tag}</code></Link>
-					</li>
-				)
-			}
+			{tag && (
+				<li title="Assigned tag">
+					<TagIcon />{" "}
+					<Link href={joinURL(SITE_REPOSITORY, "tree", tag)} external>
+						<code>{tag}</code>
+					</Link>
+				</li>
+			)}
 		</ul>
 	</header>
-	{
-		body && (
-			<div class="body">
-				<Markdown content={body} />
-			</div>
-		)
-	}
-	{
-		footer && (
-			<footer>
-				<Markdown content={footer} />
-			</footer>
-		)
-	}
+	{body && (
+		<div class="body">
+			<Markdown content={body} />
+		</div>
+	)}
+	{footer && (
+		<footer>
+			<Markdown content={footer} />
+		</footer>
+	)}
 </article>
 
 <style lang="scss">

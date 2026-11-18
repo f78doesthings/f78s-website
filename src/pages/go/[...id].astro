@@ -9,8 +9,8 @@
 
 // Redirects for links in the "links" collection.
 
-import { type CollectionEntry, getCollection } from "astro:content";
 import type { GetStaticPaths } from "astro";
+import { type CollectionEntry, getCollection } from "astro:content";
 
 export const getStaticPaths = (async () => {
 	const links = await getCollection("links");

@@ -9,12 +9,12 @@
 
 // Displays a single preference.
 
-import { EnumPreference } from "../../scripts/preferences/types/EnumPreference";
-import { InnerPreferenceControl } from "./InnerPreferenceControl";
 import { type PreferenceID, preferences } from "../../scripts/preferences/index";
+import { EnumPreference } from "../../scripts/preferences/types/EnumPreference";
 import { NumberPreference } from "../../scripts/preferences/types/NumberPreference";
-import { getDependencyString } from "../../scripts/preferences/utils";
 import { TogglePreference } from "../../scripts/preferences/types/TogglePreference";
+import { getDependencyString } from "../../scripts/preferences/utils";
+import { InnerPreferenceControl } from "./InnerPreferenceControl";
 
 interface Props {
 	/** The preference to create a control for. */

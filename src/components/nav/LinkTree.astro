@@ -10,11 +10,12 @@
 // Displays various links to social media accounts and such specified in the "links" collection.
 
 import type { CollectionEntry } from "astro:content";
-import Badge from "../ui/Badge";
-import type { LinkData } from "../../types";
-import Link from "./Link";
+
 import { isLinkInactive } from "../../scripts/utils";
+import type { LinkData } from "../../types";
 import DynamicIcon from "../media/utils/DynamicIcon.astro";
+import Badge from "../ui/Badge";
+import Link from "./Link";
 
 interface Props {
 	collection?: CollectionEntry<"links">[];
@@ -38,34 +39,32 @@ allLinks.sort((a, b) => a.order - b.order);
 
 <nav class="link-tree-root" {...cid}>
 	<ul class="link-tree">
-		{
-			allLinks.map((link) => (
-				<li>
-					<Link
-						href={link.url}
-						external={!link.url.startsWith("/")}
-						noIcon
-						class:list={["link", { inactive: isLinkInactive(link) }]}
-					>
-						<DynamicIcon name={link.icon} class={`icon-${link.id}`} />
-						<div class="info">
-							<div class="header">
-								<h3 class="title">{link.title}</h3>
-								<ul class="tags">
-									{link.tags?.map((tag) => (
-										<li>
-											<Badge type={tag} />
-										</li>
-									))}
-								</ul>
-							</div>
-
-							<p class="description">{link.description}</p>
+		{allLinks.map((link) => (
+			<li>
+				<Link
+					href={link.url}
+					external={!link.url.startsWith("/")}
+					noIcon
+					class:list={["link", { inactive: isLinkInactive(link) }]}
+				>
+					<DynamicIcon name={link.icon} class={`icon-${link.id}`} />
+					<div class="info">
+						<div class="header">
+							<h3 class="title">{link.title}</h3>
+							<ul class="tags">
+								{link.tags?.map((tag) => (
+									<li>
+										<Badge type={tag} />
+									</li>
+								))}
+							</ul>
 						</div>
-					</Link>
-				</li>
-			))
-		}
+
+						<p class="description">{link.description}</p>
+					</div>
+				</Link>
+			</li>
+		))}
 	</ul>
 </nav>
 
