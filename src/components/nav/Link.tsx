@@ -32,7 +32,12 @@ export default function Link({ external, noIcon, children, ...props }: Props) {
 	return (
 		<a {...props}>
 			{children}
-			{external && !noIcon && <FluentOpen16Regular class="external-icon" />}
+			{external && !noIcon && (
+				<>
+					{" "}
+					<FluentOpen16Regular class="external-icon" />
+				</>
+			)}
 		</a>
 	);
 }

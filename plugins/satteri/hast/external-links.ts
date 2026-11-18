@@ -23,6 +23,8 @@ export function satteriHastExternalLinks() {
 
 				ctx.setProperty(node, "rel", "nofollow noopener noreferrer");
 				if (ctx.data.astro?.frontmatter?.layout?.endsWith("OSPage.astro")) {
+					// For pages that are part of PaigeOS 2000, external links are opened in a new tab,
+					// and also use a different icon
 					ctx.setProperty(node, "target", "_blank");
 					ctx.appendChild(
 						node,
@@ -44,6 +46,8 @@ export function satteriHastExternalLinks() {
 						</svg>`,
 					);
 				} else {
+					// Insert an extra space before the icon
+					ctx.appendChild(node, { type: "text", value: " " });
 					ctx.appendChild(
 						node,
 						html`<svg

@@ -296,8 +296,7 @@ kbd {
 [data-icon] {
 	font-size: size(20, true);
 
-	p &,
-	li & {
+	:where(:is(p, li) &:not(.external-icon)) {
 		margin-top: size(-2, true);
 		vertical-align: middle;
 	}
@@ -313,10 +312,7 @@ kbd {
 		text-decoration-color $anim-ease;
 
 	.external-icon {
-		margin-left: size(3, true);
 		margin-top: size(-3, true);
-		margin-right: 0;
-
 		vertical-align: middle;
 		font-size: size(16);
 
